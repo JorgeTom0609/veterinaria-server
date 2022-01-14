@@ -21,7 +21,7 @@ func Handler(verificationKey string) routing.Handler {
 func handleToken(c *routing.Context, token *jwt.Token) error {
 	ctx := WithUser(
 		c.Request.Context(),
-		token.Claims.(jwt.MapClaims)["id"].(string),
+		token.Claims.(jwt.MapClaims)["id"].(int),
 		token.Claims.(jwt.MapClaims)["name"].(string),
 	)
 	c.Request = c.Request.WithContext(ctx)
@@ -35,8 +35,8 @@ const (
 )
 
 // WithUser returns a context that contains the user identity from the given JWT.
-func WithUser(ctx context.Context, id, name string) context.Context {
-	return context.WithValue(ctx, userKey, entity.User{ID: id, Name: name})
+func WithUser(ctx context.Context, id int, name string) context.Context {
+	return context.WithValue(ctx, userKey, entity.User{IdUsuario: id, NombreUsuario: name})
 }
 
 // CurrentUser returns the user identity from the given context.
@@ -56,7 +56,7 @@ func MockAuthHandler(c *routing.Context) error {
 	if c.Request.Header.Get("Authorization") != "TEST" {
 		return errors.Unauthorized("")
 	}
-	ctx := WithUser(c.Request.Context(), "100", "Tester")
+	ctx := WithUser(c.Request.Context(), 100, "Tester")
 	c.Request = c.Request.WithContext(ctx)
 	return nil
 }
