@@ -13,11 +13,11 @@ import (
 func TestCurrentUser(t *testing.T) {
 	ctx := context.Background()
 	assert.Nil(t, CurrentUser(ctx))
-	ctx = WithUser(ctx, "100", "test")
+	ctx = WithUser(ctx, 100, "test")
 	identity := CurrentUser(ctx)
 	if assert.NotNil(t, identity) {
-		assert.Equal(t, "100", identity.GetID())
-		assert.Equal(t, "test", identity.GetName())
+		assert.Equal(t, "100", identity.GetIdUsuario())
+		assert.Equal(t, "test", identity.GetNombreUsuario())
 	}
 }
 
@@ -39,8 +39,8 @@ func Test_handleToken(t *testing.T) {
 	assert.Nil(t, err)
 	identity := CurrentUser(ctx.Request.Context())
 	if assert.NotNil(t, identity) {
-		assert.Equal(t, "100", identity.GetID())
-		assert.Equal(t, "test", identity.GetName())
+		assert.Equal(t, "100", identity.GetIdUsuario())
+		assert.Equal(t, "test", identity.GetNombreUsuario())
 	}
 }
 
