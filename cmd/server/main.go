@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"veterinaria-server/internal/accesos"
 	"veterinaria-server/internal/album"
 	"veterinaria-server/internal/auth"
 	"veterinaria-server/internal/config"
@@ -88,9 +89,15 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 	rg := router.Group("/v1")
 
 	authHandler := auth.Handler(cfg.JWTSigningKey)
+	fmt.Println(authHandler)
 
 	album.RegisterHandlers(rg.Group(""),
 		album.NewService(album.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	accesos.RegisterHandlers(rg.Group(""),
+		accesos.NewService(accesos.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 
