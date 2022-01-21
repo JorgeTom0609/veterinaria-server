@@ -89,7 +89,6 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 	rg := router.Group("/v1")
 
 	authHandler := auth.Handler(cfg.JWTSigningKey)
-	fmt.Println(authHandler)
 
 	album.RegisterHandlers(rg.Group(""),
 		album.NewService(album.NewRepository(db, logger), logger),

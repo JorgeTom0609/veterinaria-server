@@ -21,8 +21,8 @@ func Handler(verificationKey string) routing.Handler {
 func handleToken(c *routing.Context, token *jwt.Token) error {
 	ctx := WithUser(
 		c.Request.Context(),
-		token.Claims.(jwt.MapClaims)["id"].(int),
-		token.Claims.(jwt.MapClaims)["name"].(string),
+		int(token.Claims.(jwt.MapClaims)["id"].(float64)),
+		token.Claims.(jwt.MapClaims)["username"].(string),
 	)
 	c.Request = c.Request.WithContext(ctx)
 	return nil
