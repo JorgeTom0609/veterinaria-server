@@ -76,7 +76,7 @@ func (s service) authenticate(ctx context.Context, username, password string) Id
 		return nil
 	}
 	logger.Infof("authentication successful")
-	return entity.User{IdUsuario: user.GetIdUsuario(), NombreUsuario: user.GetNombreUsuario(), Estado: user.Estado}
+	return entity.User{IdUsuario: user.IdUsuario, NombreUsuario: user.NombreUsuario, Estado: user.Estado}
 }
 
 // generateJWT generates a JWT that encodes an identity.
