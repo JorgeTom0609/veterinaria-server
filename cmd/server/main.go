@@ -18,6 +18,7 @@ import (
 	"veterinaria-server/internal/especies"
 	"veterinaria-server/internal/generos"
 	"veterinaria-server/internal/healthcheck"
+	"veterinaria-server/internal/mascotas"
 	"veterinaria-server/pkg/accesslog"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
@@ -115,6 +116,11 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	clientes.RegisterHandlers(rg.Group(""),
 		clientes.NewService(clientes.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	mascotas.RegisterHandlers(rg.Group(""),
+		mascotas.NewService(mascotas.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 

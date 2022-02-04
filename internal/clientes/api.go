@@ -2,6 +2,7 @@ package clientes
 
 import (
 	"net/http"
+	"strconv"
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/pkg/log"
 
@@ -14,7 +15,9 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Use(authHandler)
 	// the following endpoints require a valid JWT
 	r.Get("/clientes", res.getClientes)
+	r.Get("/clientes/<idCliente>", res.getClientePorId)
 	r.Post("/clientes", res.crearCliente)
+	r.Put("/clientes", res.actualizarCliente)
 }
 
 type resource struct {
@@ -41,4 +44,27 @@ func (r resource) crearCliente(c *routing.Context) error {
 		return err
 	}
 	return c.WriteWithStatus(cliente, http.StatusCreated)
+}
+
+func (r resource) actualizarCliente(c *routing.Context) error {
+	var input UpdateClienteRequest
+	if err := c.Read(&input); err != nil {
+		r.logger.With(c.Request.Context()).Info(err)
+		return errors.BadRequest("")
+	}
+	cliente, err := r.service.ActualizarCliente(c.Request.Context(), input)
+	if err != nil {
+		return err
+	}
+	return c.WriteWithStatus(cliente, http.StatusCreated)
+}
+
+func (r resource) getClientePorId(c *routing.Context) error {
+	idCliente, _ := strconv.Atoi(c.Param("idCliente"))
+	cliente, err := r.service.GetClientePorId(c.Request.Context(), idCliente)
+	if err != nil {
+		return err
+	}
+
+	return c.Write(cliente)
 }
