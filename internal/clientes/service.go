@@ -86,8 +86,6 @@ func (s service) CrearCliente(ctx context.Context, req CreateClienteRequest) (Cl
 	if err := req.Validate(); err != nil {
 		return Cliente{}, err
 	}
-	//id := entity.GenerateID()
-	//now := time.Now()
 	clienteG, err := s.repo.CrearCliente(ctx, entity.Cliente{
 		Nombres:   req.Nombres,
 		Apellidos: req.Apellidos,
