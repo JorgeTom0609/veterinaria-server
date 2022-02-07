@@ -1,0 +1,75 @@
+package tipo_examen
+
+import (
+	"context"
+	"veterinaria-server/internal/entity"
+	"veterinaria-server/pkg/dbcontext"
+	"veterinaria-server/pkg/log"
+)
+
+// Repository encapsulates the logic to access tipoExamen from the data source.
+type Repository interface {
+	// GetTipoExamenPorId returns the tipoExamen with the specified tipoExamen ID.
+	GetTipoExamenPorId(ctx context.Context, idTipoExamen int) (entity.TipoExamen, error)
+	// GetTipoExamenes returns the list tipoExamenes.
+	GetTipoExamenes(ctx context.Context) ([]entity.TipoExamen, error)
+	CrearTipoExamen(ctx context.Context, tipoExamen entity.TipoExamen) (entity.TipoExamen, error)
+	ActualizarTipoExamen(ctx context.Context, tipoExamen entity.TipoExamen) (entity.TipoExamen, error)
+}
+
+// repository persists tipoExamenes in database
+type repository struct {
+	db     *dbcontext.DB
+	logger log.Logger
+}
+
+// NewRepository creates a new tipoExamen repository
+func NewRepository(db *dbcontext.DB, logger log.Logger) Repository {
+	return repository{db, logger}
+}
+
+// GetTipoExamenes reads the list tipoExamenes from the database.
+func (r repository) GetTipoExamenes(ctx context.Context) ([]entity.TipoExamen, error) {
+	var tipoExamenes []entity.TipoExamen
+
+	err := r.db.With(ctx).
+		Select().
+		From().
+		All(&tipoExamenes)
+	if err != nil {
+		return tipoExamenes, err
+	}
+	return tipoExamenes, err
+}
+
+// Create saves a new TipoExamen record in the database.
+// It returns the ID of the newly inserted tipoExamen record.
+func (r repository) CrearTipoExamen(ctx context.Context, tipoExamen entity.TipoExamen) (entity.TipoExamen, error) {
+	err := r.db.With(ctx).Model(&tipoExamen).Insert()
+	if err != nil {
+		return entity.TipoExamen{}, err
+	}
+	return tipoExamen, nil
+}
+
+// Create saves a new TipoExamen record in the database.
+// It returns the ID of the newly inserted tipoExamen record.
+func (r repository) ActualizarTipoExamen(ctx context.Context, tipoExamen entity.TipoExamen) (entity.TipoExamen, error) {
+	var err error
+	if tipoExamen.IdTipoExamen != 0 {
+		err = r.db.With(ctx).Model(&tipoExamen).Update()
+	} else {
+		err = r.db.With(ctx).Model(&tipoExamen).Insert()
+	}
+	if err != nil {
+		return entity.TipoExamen{}, err
+	}
+	return tipoExamen, nil
+}
+
+// GetTipoExamenPorId reads the tipoExamen with the specified ID from the database.
+func (r repository) GetTipoExamenPorId(ctx context.Context, idTipoExamen int) (entity.TipoExamen, error) {
+	var tipoExamen entity.TipoExamen
+	err := r.db.With(ctx).Select().Model(idTipoExamen, &tipoExamen)
+	return tipoExamen, err
+}
