@@ -12,6 +12,7 @@ import (
 // Service encapsulates usecase logic for detallesExamenCuantitativo.
 type Service interface {
 	GetDetallesExamenCuantitativo(ctx context.Context) ([]DetallesExamenCuantitativo, error)
+	GetDetallesExamenCuantitativoPorTipoExamen(ctx context.Context, idTipoDeExamen int) ([]DetallesExamenCuantitativo, error)
 	GetDetalleExamenCuantitativoPorId(ctx context.Context, idDetalleExamenCuantitativo int) (DetallesExamenCuantitativo, error)
 	CrearDetalleExamenCuantitativo(ctx context.Context, input CreateDetalleExamenCuantitativoRequest) (DetallesExamenCuantitativo, error)
 	ActualizarDetalleExamenCuantitativo(ctx context.Context, input UpdateDetalleExamenCuantitativoRequest) (DetallesExamenCuantitativo, error)
@@ -139,4 +140,16 @@ func (s service) GetDetalleExamenCuantitativoPorId(ctx context.Context, idDetall
 		return DetallesExamenCuantitativo{}, err
 	}
 	return DetallesExamenCuantitativo{detalleExamenCuantitativo}, nil
+}
+
+func (s service) GetDetallesExamenCuantitativoPorTipoExamen(ctx context.Context, idTipoDeExamen int) ([]DetallesExamenCuantitativo, error) {
+	detallesExamenCuantitativo, err := s.repo.GetDetallesExamenCuantitativoPorTipoExamen(ctx, idTipoDeExamen)
+	if err != nil {
+		return nil, err
+	}
+	result := []DetallesExamenCuantitativo{}
+	for _, item := range detallesExamenCuantitativo {
+		result = append(result, DetallesExamenCuantitativo{item})
+	}
+	return result, nil
 }

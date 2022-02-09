@@ -5,6 +5,8 @@ import (
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access detallesExamenInformativo from the data source.
@@ -13,6 +15,7 @@ type Repository interface {
 	GetDetalleExamenInformativoPorId(ctx context.Context, idDetalleExamenInformativo int) (entity.DetallesExamenInformativo, error)
 	// GetDetallesExamenInformativo returns the list detallesExamenInformativo.
 	GetDetallesExamenInformativo(ctx context.Context) ([]entity.DetallesExamenInformativo, error)
+	GetDetallesExamenInformativoPorTipoExamen(ctx context.Context, idTipoDeExamen int) ([]entity.DetallesExamenInformativo, error)
 	CrearDetalleExamenInformativo(ctx context.Context, detalleExamenInformativo entity.DetallesExamenInformativo) (entity.DetallesExamenInformativo, error)
 	ActualizarDetalleExamenInformativo(ctx context.Context, detalleExamenInformativo entity.DetallesExamenInformativo) (entity.DetallesExamenInformativo, error)
 }
@@ -72,4 +75,16 @@ func (r repository) GetDetalleExamenInformativoPorId(ctx context.Context, idDeta
 	var detalleExamenInformativo entity.DetallesExamenInformativo
 	err := r.db.With(ctx).Select().Model(idDetalleExamenInformativo, &detalleExamenInformativo)
 	return detalleExamenInformativo, err
+}
+
+func (r repository) GetDetallesExamenInformativoPorTipoExamen(ctx context.Context, idTipoDeExamen int) ([]entity.DetallesExamenInformativo, error) {
+	var detallesExamenInformativo []entity.DetallesExamenInformativo
+	err := r.db.With(ctx).
+		Select().
+		Where(dbx.HashExp{"id_tipo_examen": idTipoDeExamen}).
+		All(&detallesExamenInformativo)
+	if err != nil {
+		return detallesExamenInformativo, err
+	}
+	return detallesExamenInformativo, err
 }

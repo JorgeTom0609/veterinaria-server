@@ -16,6 +16,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	// the following endpoints require a valid JWT
 	r.Get("/detallesExamenCuantitativo", res.getDetallesExamenCuantitativo)
 	r.Get("/detallesExamenCuantitativo/<idDetalleExamenCuantitativo>", res.getDetalleExamenCuantitativoPorId)
+	r.Get("/detallesExamenCuantitativo/<idTipoDeExamen>", res.getDetallesExamenCuantitativoPorTipoExamen)
 	r.Post("/detallesExamenCuantitativo", res.crearDetalleExamenCuantitativo)
 	r.Put("/detallesExamenCuantitativo", res.actualizarDetalleExamenCuantitativo)
 }
@@ -27,6 +28,14 @@ type resource struct {
 
 func (r resource) getDetallesExamenCuantitativo(c *routing.Context) error {
 	detallesExamenCuantitativo, err := r.service.GetDetallesExamenCuantitativo(c.Request.Context())
+	if err != nil {
+		return err
+	}
+	return c.Write(detallesExamenCuantitativo)
+}
+func (r resource) getDetallesExamenCuantitativoPorTipoExamen(c *routing.Context) error {
+	idTipoDeExamen, _ := strconv.Atoi(c.Param("idTipoDeExamen"))
+	detallesExamenCuantitativo, err := r.service.GetDetallesExamenCuantitativoPorTipoExamen(c.Request.Context(), idTipoDeExamen)
 	if err != nil {
 		return err
 	}
@@ -65,6 +74,5 @@ func (r resource) getDetalleExamenCuantitativoPorId(c *routing.Context) error {
 	if err != nil {
 		return err
 	}
-
 	return c.Write(detalleExamenCuantitativo)
 }

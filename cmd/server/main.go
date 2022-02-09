@@ -14,11 +14,15 @@ import (
 	"veterinaria-server/internal/auth"
 	"veterinaria-server/internal/clientes"
 	"veterinaria-server/internal/config"
+	"veterinaria-server/internal/detalle_examen_cualitativo"
+	"veterinaria-server/internal/detalle_examen_cuantitativo"
+	"veterinaria-server/internal/detalle_examen_informativo"
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/internal/especies"
 	"veterinaria-server/internal/generos"
 	"veterinaria-server/internal/healthcheck"
 	"veterinaria-server/internal/mascotas"
+	"veterinaria-server/internal/tipo_examen"
 	"veterinaria-server/pkg/accesslog"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
@@ -121,6 +125,26 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	mascotas.RegisterHandlers(rg.Group(""),
 		mascotas.NewService(mascotas.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	tipo_examen.RegisterHandlers(rg.Group(""),
+		tipo_examen.NewService(tipo_examen.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	detalle_examen_cualitativo.RegisterHandlers(rg.Group(""),
+		detalle_examen_cualitativo.NewService(detalle_examen_cualitativo.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	detalle_examen_cuantitativo.RegisterHandlers(rg.Group(""),
+		detalle_examen_cuantitativo.NewService(detalle_examen_cuantitativo.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	detalle_examen_informativo.RegisterHandlers(rg.Group(""),
+		detalle_examen_informativo.NewService(detalle_examen_informativo.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 

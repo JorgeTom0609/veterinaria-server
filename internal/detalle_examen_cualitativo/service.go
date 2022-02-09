@@ -12,6 +12,7 @@ import (
 type Service interface {
 	GetDetallesExamenCualitativo(ctx context.Context) ([]DetallesExamenCualitativo, error)
 	GetDetalleExamenCualitativoPorId(ctx context.Context, idDetalleExamenCualitativo int) (DetallesExamenCualitativo, error)
+	GetDetallesExamenCualitativoPorTipoExamen(ctx context.Context, idTipoDeExamen int) ([]DetallesExamenCualitativo, error)
 	CrearDetalleExamenCualitativo(ctx context.Context, input CreateDetalleExamenCualitativoRequest) (DetallesExamenCualitativo, error)
 	ActualizarDetalleExamenCualitativo(ctx context.Context, input UpdateDetalleExamenCualitativoRequest) (DetallesExamenCualitativo, error)
 }
@@ -110,4 +111,16 @@ func (s service) GetDetalleExamenCualitativoPorId(ctx context.Context, idDetalle
 		return DetallesExamenCualitativo{}, err
 	}
 	return DetallesExamenCualitativo{detalleExamenCualitativo}, nil
+}
+
+func (s service) GetDetallesExamenCualitativoPorTipoExamen(ctx context.Context, idTipoDeExamen int) ([]DetallesExamenCualitativo, error) {
+	detallesExamenCualitativo, err := s.repo.GetDetallesExamenCualitativoPorTipoExamen(ctx, idTipoDeExamen)
+	if err != nil {
+		return nil, err
+	}
+	result := []DetallesExamenCualitativo{}
+	for _, item := range detallesExamenCualitativo {
+		result = append(result, DetallesExamenCualitativo{item})
+	}
+	return result, nil
 }

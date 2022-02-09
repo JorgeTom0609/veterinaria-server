@@ -12,6 +12,7 @@ import (
 type Service interface {
 	GetDetallesExamenInformativo(ctx context.Context) ([]DetallesExamenInformativo, error)
 	GetDetalleExamenInformativoPorId(ctx context.Context, idDetalleExamenInformativo int) (DetallesExamenInformativo, error)
+	GetDetallesExamenInformativoPorTipoExamen(ctx context.Context, idTipoDeExamen int) ([]DetallesExamenInformativo, error)
 	CrearDetalleExamenInformativo(ctx context.Context, input CreateDetalleExamenInformativoRequest) (DetallesExamenInformativo, error)
 	ActualizarDetalleExamenInformativo(ctx context.Context, input UpdateDetalleExamenInformativoRequest) (DetallesExamenInformativo, error)
 }
@@ -110,4 +111,16 @@ func (s service) GetDetalleExamenInformativoPorId(ctx context.Context, idDetalle
 		return DetallesExamenInformativo{}, err
 	}
 	return DetallesExamenInformativo{detalleExamenInformativo}, nil
+}
+
+func (s service) GetDetallesExamenInformativoPorTipoExamen(ctx context.Context, idTipoDeExamen int) ([]DetallesExamenInformativo, error) {
+	detallesExamenInformativo, err := s.repo.GetDetallesExamenInformativoPorTipoExamen(ctx, idTipoDeExamen)
+	if err != nil {
+		return nil, err
+	}
+	result := []DetallesExamenInformativo{}
+	for _, item := range detallesExamenInformativo {
+		result = append(result, DetallesExamenInformativo{item})
+	}
+	return result, nil
 }
