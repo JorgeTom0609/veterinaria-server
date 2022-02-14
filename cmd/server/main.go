@@ -90,6 +90,7 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		errors.Handler(logger),
 		content.TypeNegotiator(content.JSON),
 		cors.Handler(cors.AllowAll),
+		db.TransactionHandler(),
 	)
 
 	healthcheck.RegisterHandlers(router, Version)
@@ -130,7 +131,7 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	tipo_examen.RegisterHandlers(rg.Group(""),
 		tipo_examen.NewService(tipo_examen.NewRepository(db, logger), logger),
-		authHandler, logger,
+		authHandler, logger, db,
 	)
 
 	detalle_examen_cualitativo.RegisterHandlers(rg.Group(""),
