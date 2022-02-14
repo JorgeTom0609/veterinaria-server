@@ -35,6 +35,7 @@ func (r repository) GetClientes(ctx context.Context) ([]entity.Cliente, error) {
 	err := r.db.With(ctx).
 		Select().
 		From().
+		OrderBy("apellidos asc").
 		All(&clientes)
 	if err != nil {
 		return clientes, err

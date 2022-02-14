@@ -16,7 +16,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	// the following endpoints require a valid JWT
 	r.Get("/detallesExamenInformativo", res.getDetallesExamenInformativo)
 	r.Get("/detallesExamenInformativo/<idDetalleExamenInformativo>", res.getDetalleExamenInformativoPorId)
-	r.Get("/detallesExamenInformativo/<idTipoDeExamen>", res.getDetallesExamenInformativoPorTipoExamen)
+	r.Get("/detallesExamenInformativo/tipoExamen/<idTipoDeExamen>", res.getDetallesExamenInformativoPorTipoExamen)
 	r.Post("/detallesExamenInformativo", res.crearDetalleExamenInformativo)
 	r.Put("/detallesExamenInformativo", res.actualizarDetalleExamenInformativo)
 }

@@ -2,6 +2,9 @@ package tipo_examen
 
 import (
 	"context"
+	"veterinaria-server/internal/detalle_examen_cualitativo"
+	"veterinaria-server/internal/detalle_examen_cuantitativo"
+	"veterinaria-server/internal/detalle_examen_informativo"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/log"
 
@@ -43,25 +46,38 @@ func (s service) GetTipoExamenes(ctx context.Context) ([]TipoExamen, error) {
 type CreateTipoExamenRequest struct {
 	IdEspecie   int     `json:"id_especie"`
 	Descripcion *string `json:"descripcion"`
-	Muestra     *string `json:"muestra"`
+	Titulo      string  `json:"titulo"`
+	Muestra     string  `json:"muestra"`
 }
 
 type UpdateTipoExamenRequest struct {
 	IdTipoExamen int     `json:"id_tipo_examen"`
 	IdEspecie    int     `json:"id_especie"`
+	Titulo       string  `json:"titulo"`
+	Muestra      string  `json:"muestra"`
 	Descripcion  *string `json:"descripcion"`
-	Muestra      *string `json:"muestra"`
+}
+
+type UpdateTipoExamenConDetallesRequest struct {
+	TipoExamen    UpdateTipoExamenRequest                                              `json:"tipoDeExamen"`
+	Cualitativos  []detalle_examen_cualitativo.UpdateDetalleExamenCualitativoRequest   `json:"cualitativos"`
+	Cuantitativos []detalle_examen_cuantitativo.UpdateDetalleExamenCuantitativoRequest `json:"cuantitativos"`
+	Informativos  []detalle_examen_informativo.UpdateDetalleExamenInformativoRequest   `json:"informativos"`
 }
 
 func (m UpdateTipoExamenRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdEspecie, validation.Required),
+		validation.Field(&m.Titulo, validation.Required),
+		validation.Field(&m.Muestra, validation.Required),
 	)
 }
 
 func (m CreateTipoExamenRequest) Validate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdEspecie, validation.Required),
+		validation.Field(&m.Titulo, validation.Required),
+		validation.Field(&m.Muestra, validation.Required),
 	)
 }
 
@@ -73,6 +89,7 @@ func (s service) CrearTipoExamen(ctx context.Context, req CreateTipoExamenReques
 		IdEspecie:   req.IdEspecie,
 		Descripcion: req.Descripcion,
 		Muestra:     req.Muestra,
+		Titulo:      req.Titulo,
 	})
 	if err != nil {
 		return TipoExamen{}, err
@@ -89,6 +106,7 @@ func (s service) ActualizarTipoExamen(ctx context.Context, req UpdateTipoExamenR
 		IdEspecie:    req.IdEspecie,
 		Descripcion:  req.Descripcion,
 		Muestra:      req.Muestra,
+		Titulo:       req.Titulo,
 	})
 	if err != nil {
 		return TipoExamen{}, err

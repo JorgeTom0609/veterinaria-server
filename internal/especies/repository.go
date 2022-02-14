@@ -31,6 +31,7 @@ func (r repository) GetEspecies(ctx context.Context) ([]entity.Especie, error) {
 	err := r.db.With(ctx).
 		Select().
 		From("especies").
+		OrderBy("descripcion asc").
 		All(&especies)
 	if err != nil {
 		return especies, err

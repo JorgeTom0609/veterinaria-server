@@ -6,7 +6,6 @@ import (
 	"veterinaria-server/pkg/log"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 // Service encapsulates usecase logic for detallesExamenCuantitativo.
@@ -75,8 +74,6 @@ func (m UpdateDetalleExamenCuantitativoRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdTipoExamen, validation.Required),
 		validation.Field(&m.Parametro, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.RangoReferenciaInicial, validation.Required, is.Float),
-		validation.Field(&m.RangoReferenciaFinal, validation.Required, is.Float),
 	)
 }
 
@@ -85,8 +82,6 @@ func (m CreateDetalleExamenCuantitativoRequest) Validate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdTipoExamen, validation.Required),
 		validation.Field(&m.Parametro, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.RangoReferenciaInicial, validation.Required, is.Float),
-		validation.Field(&m.RangoReferenciaFinal, validation.Required, is.Float),
 	)
 }
 
