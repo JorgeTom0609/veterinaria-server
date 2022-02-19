@@ -9,6 +9,7 @@ import (
 // Service encapsulates usecase logic for especies.
 type Service interface {
 	GetEspecies(ctx context.Context) ([]Especies, error)
+	GetEspeciePorID(ctx context.Context, idEspecie int) (Especies, error)
 }
 
 // Especies represents the data about an especies.
@@ -37,4 +38,12 @@ func (s service) GetEspecies(ctx context.Context) ([]Especies, error) {
 		result = append(result, Especies{item})
 	}
 	return result, nil
+}
+
+func (s service) GetEspeciePorID(ctx context.Context, idEspecie int) (Especies, error) {
+	especie, err := s.repo.GetEspeciePorID(ctx, idEspecie)
+	if err != nil {
+		return Especies{}, err
+	}
+	return Especies{especie}, nil
 }

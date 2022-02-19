@@ -5,6 +5,8 @@ import (
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access tipoExamen from the data source.
@@ -13,6 +15,7 @@ type Repository interface {
 	GetTipoExamenPorId(ctx context.Context, idTipoExamen int) (entity.TipoExamen, error)
 	// GetTipoExamenes returns the list tipoExamenes.
 	GetTipoExamenes(ctx context.Context) ([]entity.TipoExamen, error)
+	GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) ([]entity.TipoExamen, error)
 	CrearTipoExamen(ctx context.Context, tipoExamen entity.TipoExamen) (entity.TipoExamen, error)
 	ActualizarTipoExamen(ctx context.Context, tipoExamen entity.TipoExamen) (entity.TipoExamen, error)
 }
@@ -35,6 +38,20 @@ func (r repository) GetTipoExamenes(ctx context.Context) ([]entity.TipoExamen, e
 	err := r.db.With(ctx).
 		Select().
 		From().
+		All(&tipoExamenes)
+	if err != nil {
+		return tipoExamenes, err
+	}
+	return tipoExamenes, err
+}
+
+func (r repository) GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) ([]entity.TipoExamen, error) {
+	var tipoExamenes []entity.TipoExamen
+
+	err := r.db.With(ctx).
+		Select().
+		From().
+		Where(dbx.HashExp{"id_especie": idEspecie}).
 		All(&tipoExamenes)
 	if err != nil {
 		return tipoExamenes, err

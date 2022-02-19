@@ -13,6 +13,7 @@ import (
 
 type Service interface {
 	GetTipoExamenes(ctx context.Context) ([]TipoExamen, error)
+	GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) ([]TipoExamen, error)
 	GetTipoExamenPorId(ctx context.Context, idTipoExamen int) (TipoExamen, error)
 	CrearTipoExamen(ctx context.Context, input CreateTipoExamenRequest) (TipoExamen, error)
 	ActualizarTipoExamen(ctx context.Context, input UpdateTipoExamenRequest) (TipoExamen, error)
@@ -33,6 +34,18 @@ func NewService(repo Repository, logger log.Logger) Service {
 
 func (s service) GetTipoExamenes(ctx context.Context) ([]TipoExamen, error) {
 	tipoExamenes, err := s.repo.GetTipoExamenes(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := []TipoExamen{}
+	for _, item := range tipoExamenes {
+		result = append(result, TipoExamen{item})
+	}
+	return result, nil
+}
+
+func (s service) GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) ([]TipoExamen, error) {
+	tipoExamenes, err := s.repo.GetTipoExamenPorEspecie(ctx, idEspecie)
 	if err != nil {
 		return nil, err
 	}

@@ -11,6 +11,7 @@ import (
 type Repository interface {
 	// Get returns the list generos.
 	GetGeneros(ctx context.Context) ([]entity.Genero, error)
+	GetGeneroPorID(ctx context.Context, idGenero int) (entity.Genero, error)
 }
 
 // repository persists generos in database
@@ -36,4 +37,10 @@ func (r repository) GetGeneros(ctx context.Context) ([]entity.Genero, error) {
 		return generos, err
 	}
 	return generos, err
+}
+
+func (r repository) GetGeneroPorID(ctx context.Context, idGenero int) (entity.Genero, error) {
+	var genero entity.Genero
+	err := r.db.With(ctx).Select().Model(idGenero, &genero)
+	return genero, err
 }

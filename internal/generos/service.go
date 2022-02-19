@@ -9,6 +9,7 @@ import (
 // Service encapsulates usecase logic for generos.
 type Service interface {
 	GetGeneros(ctx context.Context) ([]Generos, error)
+	GetGeneroPorID(ctx context.Context, idGenero int) (Generos, error)
 }
 
 // Generos represents the data about an generos.
@@ -37,4 +38,12 @@ func (s service) GetGeneros(ctx context.Context) ([]Generos, error) {
 		result = append(result, Generos{item})
 	}
 	return result, nil
+}
+
+func (s service) GetGeneroPorID(ctx context.Context, idGenero int) (Generos, error) {
+	genero, err := s.repo.GetGeneroPorID(ctx, idGenero)
+	if err != nil {
+		return Generos{}, err
+	}
+	return Generos{genero}, nil
 }

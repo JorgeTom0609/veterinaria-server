@@ -11,6 +11,7 @@ import (
 type Repository interface {
 	// Get returns the list especies.
 	GetEspecies(ctx context.Context) ([]entity.Especie, error)
+	GetEspeciePorID(ctx context.Context, idEspecie int) (entity.Especie, error)
 }
 
 // repository persists especies in database
@@ -37,4 +38,10 @@ func (r repository) GetEspecies(ctx context.Context) ([]entity.Especie, error) {
 		return especies, err
 	}
 	return especies, err
+}
+
+func (r repository) GetEspeciePorID(ctx context.Context, idEspecie int) (entity.Especie, error) {
+	var especie entity.Especie
+	err := r.db.With(ctx).Select().Model(idEspecie, &especie)
+	return especie, err
 }
