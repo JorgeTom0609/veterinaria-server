@@ -7,6 +7,10 @@ import (
 	"veterinaria-server/internal/detalle_examen_cuantitativo"
 	"veterinaria-server/internal/detalle_examen_informativo"
 	"veterinaria-server/internal/errors"
+	"veterinaria-server/internal/examen_mascota"
+	"veterinaria-server/internal/resultado_examen_cualitativo"
+	"veterinaria-server/internal/resultado_examen_cuantitativo"
+	"veterinaria-server/internal/resultado_examen_informativo"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
 
@@ -19,7 +23,9 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/tipo_examen", res.getTipoExamenes)
 	r.Get("/tipo_examen/<idTipoExamen>", res.getTipoExamenPorId)
 	r.Get("/tipo_examen/por_especie/<idEspecie>", res.getTipoExamenPorEspecie)
+	r.Get("/tipo_examen/detalles/<idTipoExamen>", res.getDetallesExamenPorTipoExamen)
 	r.Post("/tipo_examen", res.crearTipoExamen)
+	r.Post("/tipo_examen/con_resultados", res.guardarResultados)
 	r.Put("/tipo_examen", res.actualizarTipoExamen)
 	r.Put("/tipo_examen/con_detalles", res.actualizarTipoExamenConDetalles)
 }
@@ -45,6 +51,15 @@ func (r resource) getTipoExamenPorEspecie(c *routing.Context) error {
 		return err
 	}
 	return c.Write(tipoExamenes)
+}
+
+func (r resource) getDetallesExamenPorTipoExamen(c *routing.Context) error {
+	idTipoExamen, _ := strconv.Atoi(c.Param("idTipoExamen"))
+	detallesExamen, err := r.service.GetDetallesExamenPorTipoExamen(c.Request.Context(), idTipoExamen)
+	if err != nil {
+		return err
+	}
+	return c.Write(detallesExamen)
 }
 
 func (r resource) crearTipoExamen(c *routing.Context) error {
@@ -136,4 +151,55 @@ func (r resource) getTipoExamenPorId(c *routing.Context) error {
 	}
 
 	return c.Write(tipoExamen)
+}
+
+func (r resource) guardarResultados(c *routing.Context) error {
+	var input CreateResultadosRequest
+	if err := c.Read(&input); err != nil {
+		r.logger.With(c.Request.Context()).Info(err)
+		return errors.BadRequest("")
+	}
+	//Guardar resultados cualitativos
+	resultadosCualitativosG := []resultado_examen_cualitativo.ResultadoDetalleCualitativo{}
+	for i := 0; i < len(input.Cualitativos); i++ {
+		s := resultado_examen_cualitativo.NewService(resultado_examen_cualitativo.NewRepository(r.db, r.logger), r.logger)
+		resultadoCualitativo, err := s.CrearResultadoDetalleCualitativo(c.Request.Context(), input.Cualitativos[i])
+		if err != nil {
+			return err
+		}
+		resultadosCualitativosG = append(resultadosCualitativosG, resultadoCualitativo)
+	}
+
+	//Guardar resultados cuantitativos
+	resultadosCuantitativosG := []resultado_examen_cuantitativo.ResultadoDetalleCuantitativo{}
+	for i := 0; i < len(input.Cuantitativos); i++ {
+		s := resultado_examen_cuantitativo.NewService(resultado_examen_cuantitativo.NewRepository(r.db, r.logger), r.logger)
+		resultadoCuantitativo, err := s.CrearResultadoDetalleCuantitativo(c.Request.Context(), input.Cuantitativos[i])
+		if err != nil {
+			return err
+		}
+		resultadosCuantitativosG = append(resultadosCuantitativosG, resultadoCuantitativo)
+	}
+
+	//Guardar resultados informativos
+	resultadosInformativosG := []resultado_examen_informativo.ResultadoDetalleInformativo{}
+	for i := 0; i < len(input.Informativos); i++ {
+		s := resultado_examen_informativo.NewService(resultado_examen_informativo.NewRepository(r.db, r.logger), r.logger)
+		resultadoInformativo, err := s.CrearResultadoDetalleInformativo(c.Request.Context(), input.Informativos[i])
+		if err != nil {
+			return err
+		}
+		resultadosInformativosG = append(resultadosInformativosG, resultadoInformativo)
+	}
+	_, err := examen_mascota.ActualizarEstadoExamenMascota(c.Request.Context(), input.IdExamenMascota, r.db)
+	if err != nil {
+		return err
+	}
+
+	var result = struct {
+		Cualitativos  []resultado_examen_cualitativo.ResultadoDetalleCualitativo
+		Cuantitativos []resultado_examen_cuantitativo.ResultadoDetalleCuantitativo
+		Informativos  []resultado_examen_informativo.ResultadoDetalleInformativo
+	}{resultadosCualitativosG, resultadosCuantitativosG, resultadosInformativosG}
+	return c.WriteWithStatus(result, http.StatusCreated)
 }

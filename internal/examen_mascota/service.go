@@ -12,7 +12,8 @@ import (
 // Service encapsulates usecase logic for examenesMascota.
 type Service interface {
 	GetExamenesMascota(ctx context.Context) ([]ExamenMascota, error)
-	GetExamenesMascotaPorMascotayEstado(ctx context.Context, idExamenMascota int, estado string) ([]ExamenMascota, error)
+	GetExamenesMascotaPorMascotayEstado(ctx context.Context, idExamenMascota int, estado string) ([]ExamenMascotaAll, error)
+	GetExamenesMascotaPorEstado(ctx context.Context, estado string) ([]ExamenMascotaAll, error)
 	GetExamenMascotaPorId(ctx context.Context, idExamenMascota int) (ExamenMascota, error)
 	CrearExamenMascota(ctx context.Context, input CreateExamenMascotaRequest) (ExamenMascota, error)
 	ActualizarExamenMascota(ctx context.Context, input UpdateExamenMascotaRequest) (ExamenMascota, error)
@@ -21,6 +22,19 @@ type Service interface {
 // ExamenesMascota represents the data about an examenesMascota.
 type ExamenMascota struct {
 	entity.ExamenMascota
+}
+
+type ExamenMascotaAll struct {
+	IdExamenMascota int        `json:"id_examen_mascota"`
+	IdUsuario       int        `json:"id_usuario"`
+	IdMascota       int        `json:"id_mascota"`
+	IdTipoExamen    int        `json:"id_tipo_examen"`
+	FechaSolicitud  time.Time  `json:"fecha_solicitud"`
+	FechaLlenado    *time.Time `json:"fecha_llenado"`
+	Estado          string     `json:"estado"`
+	Solicitante     string     `json:"solicitante"`
+	Titulo          string     `json:"titulo"`
+	Mascota         string     `json:"mascota"`
 }
 
 type service struct {
@@ -46,49 +60,57 @@ func (s service) GetExamenesMascota(ctx context.Context) ([]ExamenMascota, error
 	return result, nil
 }
 
-func (s service) GetExamenesMascotaPorMascotayEstado(ctx context.Context, idMascota int, estado string) ([]ExamenMascota, error) {
+func (s service) GetExamenesMascotaPorMascotayEstado(ctx context.Context, idMascota int, estado string) ([]ExamenMascotaAll, error) {
 	examenesMascota, err := s.repo.GetExamenesMascotaPorMascotayEstado(ctx, idMascota, estado)
 	if err != nil {
 		return nil, err
 	}
-	result := []ExamenMascota{}
-	for _, item := range examenesMascota {
-		result = append(result, ExamenMascota{item})
+	return examenesMascota, nil
+}
+
+func (s service) GetExamenesMascotaPorEstado(ctx context.Context, estado string) ([]ExamenMascotaAll, error) {
+	examenesMascota, err := s.repo.GetExamenesMascotaPorEstado(ctx, estado)
+	if err != nil {
+		return nil, err
 	}
-	return result, nil
+	return examenesMascota, nil
 }
 
 // CreateExamenMascotaRequest represents an examenesMascota creation request.
 type CreateExamenMascotaRequest struct {
 	IdUsuario      int        `json:"id_usuario"`
-	IdMascota      string     `json:"id_mascota"`
-	FechaSolicitud time.Time  `json:"ruta"`
-	FechaLlenado   *time.Time `json:"icono"`
-	Estado         string     `json:"principal"`
+	IdMascota      int        `json:"id_mascota"`
+	IdTipoExamen   int        `json:"id_tipo_examen"`
+	FechaSolicitud time.Time  `json:"fecha_solicitud"`
+	FechaLlenado   *time.Time `json:"fecha_llenado"`
+	Estado         string     `json:"estado"`
 }
 
 type UpdateExamenMascotaRequest struct {
 	IdExamenMascota int        `json:"id_examen_mascota"`
 	IdUsuario       int        `json:"id_usuario"`
-	IdMascota       string     `json:"id_mascota"`
-	FechaSolicitud  time.Time  `json:"ruta"`
-	FechaLlenado    *time.Time `json:"icono"`
-	Estado          string     `json:"principal"`
+	IdMascota       int        `json:"id_mascota"`
+	IdTipoExamen    int        `json:"id_tipo_examen"`
+	FechaSolicitud  time.Time  `json:"fecha_solicitud"`
+	FechaLlenado    *time.Time `json:"fecha_llenado"`
+	Estado          string     `json:"estado"`
 }
 
 // Validate validates the UpdateExamenMascotaRequest fields.
 func (m UpdateExamenMascotaRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.IdMascota, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.IdUsuario, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.IdMascota, validation.Required),
+		validation.Field(&m.IdUsuario, validation.Required),
+		validation.Field(&m.IdTipoExamen, validation.Required),
 	)
 }
 
 // Validate validates the CreateExamenMascotaRequest fields.
 func (m CreateExamenMascotaRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.IdMascota, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.IdUsuario, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.IdMascota, validation.Required),
+		validation.Field(&m.IdUsuario, validation.Required),
+		validation.Field(&m.IdTipoExamen, validation.Required),
 	)
 }
 
@@ -100,6 +122,7 @@ func (s service) CrearExamenMascota(ctx context.Context, req CreateExamenMascota
 	ExamenMascotaG, err := s.repo.CrearExamenMascota(ctx, entity.ExamenMascota{
 		IdUsuario:      req.IdUsuario,
 		IdMascota:      req.IdMascota,
+		IdTipoExamen:   req.IdTipoExamen,
 		FechaSolicitud: req.FechaSolicitud,
 		FechaLlenado:   req.FechaLlenado,
 		Estado:         req.Estado,
@@ -119,6 +142,7 @@ func (s service) ActualizarExamenMascota(ctx context.Context, req UpdateExamenMa
 		IdExamenMascota: req.IdExamenMascota,
 		IdUsuario:       req.IdUsuario,
 		IdMascota:       req.IdMascota,
+		IdTipoExamen:    req.IdTipoExamen,
 		FechaSolicitud:  req.FechaSolicitud,
 		FechaLlenado:    req.FechaLlenado,
 		Estado:          req.Estado,

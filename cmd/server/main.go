@@ -19,6 +19,7 @@ import (
 	"veterinaria-server/internal/detalle_examen_informativo"
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/internal/especies"
+	"veterinaria-server/internal/examen_mascota"
 	"veterinaria-server/internal/generos"
 	"veterinaria-server/internal/healthcheck"
 	"veterinaria-server/internal/mascotas"
@@ -146,6 +147,11 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	detalle_examen_informativo.RegisterHandlers(rg.Group(""),
 		detalle_examen_informativo.NewService(detalle_examen_informativo.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	examen_mascota.RegisterHandlers(rg.Group(""),
+		examen_mascota.NewService(examen_mascota.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 

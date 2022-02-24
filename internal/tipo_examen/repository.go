@@ -16,6 +16,7 @@ type Repository interface {
 	// GetTipoExamenes returns the list tipoExamenes.
 	GetTipoExamenes(ctx context.Context) ([]entity.TipoExamen, error)
 	GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) ([]entity.TipoExamen, error)
+	GetDetallesExamenPorTipoExamen(ctx context.Context, idTipoExamen int) (DetallesExamen, error)
 	CrearTipoExamen(ctx context.Context, tipoExamen entity.TipoExamen) (entity.TipoExamen, error)
 	ActualizarTipoExamen(ctx context.Context, tipoExamen entity.TipoExamen) (entity.TipoExamen, error)
 }
@@ -57,6 +58,37 @@ func (r repository) GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) 
 		return tipoExamenes, err
 	}
 	return tipoExamenes, err
+}
+func (r repository) GetDetallesExamenPorTipoExamen(ctx context.Context, idTipoExamen int) (DetallesExamen, error) {
+	var detallesExamenCualitativo []entity.DetallesExamenCualitativo
+	var detallesExamenCuantitativo []entity.DetallesExamenCuantitativo
+	var detallesExamenInformativo []entity.DetallesExamenInformativo
+
+	err := r.db.With(ctx).
+		Select().
+		From("detalles_examen_cualitativo").
+		Where(dbx.HashExp{"id_tipo_examen": idTipoExamen}).
+		All(&detallesExamenCualitativo)
+	if err != nil {
+		return DetallesExamen{}, err
+	}
+	err = r.db.With(ctx).
+		Select().
+		From("detalles_examen_cuantitativo").
+		Where(dbx.HashExp{"id_tipo_examen": idTipoExamen}).
+		All(&detallesExamenCuantitativo)
+	if err != nil {
+		return DetallesExamen{}, err
+	}
+	err = r.db.With(ctx).
+		Select().
+		From("detalles_examen_informativo").
+		Where(dbx.HashExp{"id_tipo_examen": idTipoExamen}).
+		All(&detallesExamenInformativo)
+	if err != nil {
+		return DetallesExamen{}, err
+	}
+	return DetallesExamen{DetallesExamenCualitativo: detallesExamenCualitativo, DetallesExamenCuantitativo: detallesExamenCuantitativo, DetallesExamenInformativo: detallesExamenInformativo}, err
 }
 
 // Create saves a new TipoExamen record in the database.

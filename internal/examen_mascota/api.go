@@ -17,6 +17,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/examenesMascota", res.getExamenesMascota)
 	r.Get("/examenesMascota/<idExamenMascota>", res.getExamenMascotaPorId)
 	r.Get("/examenesMascota/examenes/<idMascota>/<estado>", res.getExamenesMascotaPorMascotayEstado)
+	r.Get("/examenesMascota/examenesPorEstado/<estado>", res.getExamenesMascotaPorEstado)
 	r.Post("/examenesMascota", res.crearExamenMascota)
 	r.Put("/examenesMascota", res.actualizarExamenMascota)
 }
@@ -38,6 +39,15 @@ func (r resource) getExamenesMascotaPorMascotayEstado(c *routing.Context) error 
 	idExamenMascota, _ := strconv.Atoi(c.Param("idMascota"))
 	estado := c.Param("estado")
 	examenesMascota, err := r.service.GetExamenesMascotaPorMascotayEstado(c.Request.Context(), idExamenMascota, estado)
+	if err != nil {
+		return err
+	}
+	return c.Write(examenesMascota)
+}
+
+func (r resource) getExamenesMascotaPorEstado(c *routing.Context) error {
+	estado := c.Param("estado")
+	examenesMascota, err := r.service.GetExamenesMascotaPorEstado(c.Request.Context(), estado)
 	if err != nil {
 		return err
 	}
@@ -76,6 +86,5 @@ func (r resource) getExamenMascotaPorId(c *routing.Context) error {
 	if err != nil {
 		return err
 	}
-
 	return c.Write(examenesMascota)
 }

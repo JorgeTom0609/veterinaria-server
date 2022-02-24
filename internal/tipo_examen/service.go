@@ -6,6 +6,9 @@ import (
 	"veterinaria-server/internal/detalle_examen_cuantitativo"
 	"veterinaria-server/internal/detalle_examen_informativo"
 	"veterinaria-server/internal/entity"
+	"veterinaria-server/internal/resultado_examen_cualitativo"
+	"veterinaria-server/internal/resultado_examen_cuantitativo"
+	"veterinaria-server/internal/resultado_examen_informativo"
 	"veterinaria-server/pkg/log"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -14,6 +17,7 @@ import (
 type Service interface {
 	GetTipoExamenes(ctx context.Context) ([]TipoExamen, error)
 	GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) ([]TipoExamen, error)
+	GetDetallesExamenPorTipoExamen(ctx context.Context, idTipoExamen int) (DetallesExamen, error)
 	GetTipoExamenPorId(ctx context.Context, idTipoExamen int) (TipoExamen, error)
 	CrearTipoExamen(ctx context.Context, input CreateTipoExamenRequest) (TipoExamen, error)
 	ActualizarTipoExamen(ctx context.Context, input UpdateTipoExamenRequest) (TipoExamen, error)
@@ -21,6 +25,12 @@ type Service interface {
 
 type TipoExamen struct {
 	entity.TipoExamen
+}
+
+type DetallesExamen struct {
+	DetallesExamenCualitativo  []entity.DetallesExamenCualitativo  `json:"cualitativos"`
+	DetallesExamenCuantitativo []entity.DetallesExamenCuantitativo `json:"cuantitativos"`
+	DetallesExamenInformativo  []entity.DetallesExamenInformativo  `json:"informativos"`
 }
 
 type service struct {
@@ -56,6 +66,14 @@ func (s service) GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) ([]
 	return result, nil
 }
 
+func (s service) GetDetallesExamenPorTipoExamen(ctx context.Context, idTipoExamen int) (DetallesExamen, error) {
+	tipoExamenes, err := s.repo.GetDetallesExamenPorTipoExamen(ctx, idTipoExamen)
+	if err != nil {
+		return DetallesExamen{}, err
+	}
+	return tipoExamenes, nil
+}
+
 type CreateTipoExamenRequest struct {
 	IdEspecie   int     `json:"id_especie"`
 	Descripcion *string `json:"descripcion"`
@@ -76,6 +94,13 @@ type UpdateTipoExamenConDetallesRequest struct {
 	Cualitativos  []detalle_examen_cualitativo.UpdateDetalleExamenCualitativoRequest   `json:"cualitativos"`
 	Cuantitativos []detalle_examen_cuantitativo.UpdateDetalleExamenCuantitativoRequest `json:"cuantitativos"`
 	Informativos  []detalle_examen_informativo.UpdateDetalleExamenInformativoRequest   `json:"informativos"`
+}
+
+type CreateResultadosRequest struct {
+	Cualitativos    []resultado_examen_cualitativo.CreateResultadoDetalleCualitativoRequest   `json:"cualitativos"`
+	Cuantitativos   []resultado_examen_cuantitativo.CreateResultadoDetalleCuantitativoRequest `json:"cuantitativos"`
+	Informativos    []resultado_examen_informativo.CreateResultadoDetalleInformativoRequest   `json:"informativos"`
+	IdExamenMascota int                                                                       `json:"id_examen_mascota"`
 }
 
 func (m UpdateTipoExamenRequest) ValidateUpdate() error {
