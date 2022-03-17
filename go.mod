@@ -3,6 +3,7 @@ module veterinaria-server
 go 1.13
 
 require (
+	baliance.com/gooxml v1.0.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-ozzo/ozzo-dbx v1.5.0
 	github.com/go-ozzo/ozzo-routing/v2 v2.3.0

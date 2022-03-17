@@ -32,6 +32,7 @@ import (
 	routing "github.com/go-ozzo/ozzo-routing/v2"
 	"github.com/go-ozzo/ozzo-routing/v2/content"
 	"github.com/go-ozzo/ozzo-routing/v2/cors"
+	"github.com/go-ozzo/ozzo-routing/v2/file"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -159,6 +160,11 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		auth.NewService(db, cfg.JWTSigningKey, cfg.JWTExpiration, logger),
 		logger,
 	)
+
+	// Serving Static Files
+	rg.Get("/files/*", file.Server(file.PathMap{
+		"/v1/files": "/resources/",
+	}))
 
 	return router
 }

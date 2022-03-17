@@ -34,3 +34,6 @@ temp/*
 #config folder and files 
 config/local.yml
 /.gtm/
+
+#resources folder and files 
+resources/*

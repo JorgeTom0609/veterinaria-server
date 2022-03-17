@@ -2,6 +2,7 @@ package examen_mascota
 
 import (
 	"context"
+	"database/sql"
 	"time"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/log"
@@ -15,6 +16,7 @@ type Service interface {
 	GetExamenesMascotaPorMascotayEstado(ctx context.Context, idExamenMascota int, estado string) ([]ExamenMascotaAll, error)
 	GetExamenesMascotaPorEstado(ctx context.Context, estado string) ([]ExamenMascotaAll, error)
 	GetExamenMascotaPorId(ctx context.Context, idExamenMascota int) (ExamenMascota, error)
+	ObtenerResultadosPorExamen(ctx context.Context, idExamenMascota int) (Resultados, error)
 	CrearExamenMascota(ctx context.Context, input CreateExamenMascotaRequest) (ExamenMascota, error)
 	ActualizarExamenMascota(ctx context.Context, input UpdateExamenMascotaRequest) (ExamenMascota, error)
 }
@@ -35,6 +37,33 @@ type ExamenMascotaAll struct {
 	Solicitante     string     `json:"solicitante"`
 	Titulo          string     `json:"titulo"`
 	Mascota         string     `json:"mascota"`
+}
+
+type ResultadosCualitativos struct {
+	Parametro string       `json:"parametro" db:"parametro"`
+	Resultado sql.NullBool `json:"resultado" db:"resultado"`
+}
+
+type ResultadosCuantitativos struct {
+	Parametro              string  `json:"parametro" db:"parametro"`
+	Resultado              float32 `json:"resultado" db:"resultado"`
+	Unidad                 string  `json:"unidad" db:"unidad"`
+	AlertaMenor            string  `json:"alerta_menor" db:"alerta_menor"`
+	AlertaRango            string  `json:"alerta_rango" db:"alerta_rango"`
+	AlertaMayor            string  `json:"alerta_mayor" db:"alerta_mayor"`
+	RangoReferenciaInicial float32 `json:"rango_referencia_inicial" db:"rango_referencia_inicial"`
+	RangoReferenciaFinal   float32 `json:"rango_referencia_final" db:"rango_referencia_final"`
+}
+
+type ResultadosInformativos struct {
+	Parametro string `json:"parametro" db:"parametro"`
+	Resultado string `json:"resultado" db:"resultado"`
+}
+
+type Resultados struct {
+	Cualitativos  []ResultadosCualitativos  `json:"cualitativos"`
+	Cuantitativos []ResultadosCuantitativos `json:"cuantitativos"`
+	Informativos  []ResultadosInformativos  `json:"informativos"`
 }
 
 type service struct {
@@ -84,6 +113,28 @@ type CreateExamenMascotaRequest struct {
 	FechaSolicitud time.Time  `json:"fecha_solicitud"`
 	FechaLlenado   *time.Time `json:"fecha_llenado"`
 	Estado         string     `json:"estado"`
+}
+
+type ResultadoRequest struct {
+	Parametro string `json:"parametro"`
+	Resultado string `json:"resultado"`
+	Alerta    string `json:"alerta"`
+}
+
+type DatosMascotaRequest struct {
+	Paciente     string
+	Propietario  string
+	Medico       string
+	Muestra      string
+	Especie      string
+	Genero       string
+	Raza         string
+	FechaLlenado time.Time
+}
+
+type ResultadosRequest struct {
+	Resultados []ResultadoRequest  `json:"resultados"`
+	Datos      DatosMascotaRequest `json:"datos"`
 }
 
 type UpdateExamenMascotaRequest struct {
@@ -160,4 +211,12 @@ func (s service) GetExamenMascotaPorId(ctx context.Context, idExamenMascota int)
 		return ExamenMascota{}, err
 	}
 	return ExamenMascota{examenesMascota}, nil
+}
+
+func (s service) ObtenerResultadosPorExamen(ctx context.Context, idExamenMascota int) (Resultados, error) {
+	resultados, err := s.repo.ObtenerResultadosPorExamen(ctx, idExamenMascota)
+	if err != nil {
+		return Resultados{}, err
+	}
+	return resultados, nil
 }

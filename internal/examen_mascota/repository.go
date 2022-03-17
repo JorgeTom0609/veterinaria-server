@@ -18,6 +18,7 @@ type Repository interface {
 	GetExamenesMascota(ctx context.Context) ([]entity.ExamenMascota, error)
 	GetExamenesMascotaPorMascotayEstado(ctx context.Context, idExamenMascota int, estado string) ([]ExamenMascotaAll, error)
 	GetExamenesMascotaPorEstado(ctx context.Context, estado string) ([]ExamenMascotaAll, error)
+	ObtenerResultadosPorExamen(ctx context.Context, idExamenMascota int) (Resultados, error)
 	CrearExamenMascota(ctx context.Context, examenesMascota entity.ExamenMascota) (entity.ExamenMascota, error)
 	ActualizarExamenMascota(ctx context.Context, examenesMascota entity.ExamenMascota) (entity.ExamenMascota, error)
 }
@@ -49,7 +50,7 @@ func (r repository) GetExamenesMascota(ctx context.Context) ([]entity.ExamenMasc
 
 func (r repository) GetExamenesMascotaPorMascotayEstado(ctx context.Context, idMascota int, estado string) ([]ExamenMascotaAll, error) {
 	var examenesMascota []entity.ExamenMascota
-	var examenesMascotaAll []ExamenMascotaAll
+	var examenesMascotaAll []ExamenMascotaAll = []ExamenMascotaAll{}
 	var nombre, apellido, titulo string
 
 	err := r.db.With(ctx).
@@ -102,7 +103,7 @@ func (r repository) GetExamenesMascotaPorMascotayEstado(ctx context.Context, idM
 
 func (r repository) GetExamenesMascotaPorEstado(ctx context.Context, estado string) ([]ExamenMascotaAll, error) {
 	var examenesMascota []entity.ExamenMascota
-	var examenesMascotaAll []ExamenMascotaAll
+	var examenesMascotaAll []ExamenMascotaAll = []ExamenMascotaAll{}
 	var nombre, apellido, titulo, nombreMascota string
 
 	err := r.db.With(ctx).
@@ -205,4 +206,44 @@ func ActualizarEstadoExamenMascota(ctx context.Context, idExamenMascota int, db 
 		return false, err
 	}
 	return true, nil
+}
+
+func (r repository) ObtenerResultadosPorExamen(ctx context.Context, idExamenMascota int) (Resultados, error) {
+	var resultadosCualitativos []ResultadosCualitativos = []ResultadosCualitativos{}
+	var resultadosCuantitativos []ResultadosCuantitativos = []ResultadosCuantitativos{}
+	var resultadosInformativos []ResultadosInformativos = []ResultadosInformativos{}
+	err := r.db.With(ctx).
+		Select("parametro", "resultado").
+		From("examenes_mascota as em").
+		InnerJoin("resultados_detalle_cualitativo as rdc", dbx.NewExp("rdc.id_examen_mascota = em.id_examen_mascota")).
+		InnerJoin("detalles_examen_cualitativo as dc", dbx.NewExp("dc.id_detalle_examen_cualitativo = rdc.id_detalle_examen_cualitativo")).
+		Where(dbx.HashExp{"em.id_examen_mascota": idExamenMascota}).
+		All(&resultadosCualitativos)
+	if err != nil {
+		return Resultados{}, err
+	}
+
+	err = r.db.With(ctx).
+		Select("parametro", "resultado", "unidad", "alerta_menor", "alerta_rango", "alerta_mayor", "rango_referencia_inicial", "rango_referencia_final").
+		From("examenes_mascota as em").
+		InnerJoin("resultados_detalle_cuantitativo as rdc", dbx.NewExp("rdc.id_examen_mascota = em.id_examen_mascota")).
+		InnerJoin("detalles_examen_cuantitativo as dc", dbx.NewExp("dc.id_detalle_examen_cuantitativo = rdc.id_detalle_examen_cuantitativo")).
+		Where(dbx.HashExp{"em.id_examen_mascota": idExamenMascota}).
+		All(&resultadosCuantitativos)
+	if err != nil {
+		return Resultados{}, err
+	}
+
+	err = r.db.With(ctx).
+		Select("parametro", "resultado").
+		From("examenes_mascota as em").
+		InnerJoin("resultados_detalle_informativo as rdi", dbx.NewExp("rdi.id_examen_mascota = em.id_examen_mascota")).
+		InnerJoin("detalles_examen_informativo as di", dbx.NewExp("di.id_detalle_examen_informativo = rdi.id_detalle_examen_informativo")).
+		Where(dbx.HashExp{"em.id_examen_mascota": idExamenMascota}).
+		All(&resultadosInformativos)
+	if err != nil {
+		return Resultados{}, err
+	}
+
+	return Resultados{resultadosCualitativos, resultadosCuantitativos, resultadosInformativos}, nil
 }
