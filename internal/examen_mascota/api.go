@@ -7,8 +7,8 @@ import (
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/pkg/log"
 
-	"baliance.com/gooxml/spreadsheet"
 	routing "github.com/go-ozzo/ozzo-routing/v2"
+	"github.com/xuri/excelize/v2"
 )
 
 // RegisterHandlers sets up the routing of the HTTP handlers.
@@ -109,36 +109,23 @@ func (r resource) create(c *routing.Context) error {
 		return errors.BadRequest("")
 	}
 
-	ss, err := spreadsheet.Open("./Resultados.xlsx")
+	ss, err := excelize.OpenFile("./Resultados.xlsx")
 	if err != nil {
 		return err
 	}
 
-	sheet, err := ss.GetSheet("Hoja1")
+	sheet := ss.GetSheetName(0)
 	if err != nil {
 		return err
 	}
-
-	sheet.Cell("C4").Clear()
-	sheet.Cell("C4").SetString(input.Datos.Paciente)
-	sheet.Cell("G4").Clear()
-	sheet.Cell("G4").SetString(input.Datos.Especie)
-
-	sheet.Cell("C5").Clear()
-	sheet.Cell("C5").SetString(input.Datos.Propietario)
-	sheet.Cell("G5").Clear()
-	sheet.Cell("G5").SetString(input.Datos.Genero)
-
-	sheet.Cell("C6").Clear()
-	sheet.Cell("C6").SetString(input.Datos.Medico)
-	sheet.Cell("G6").Clear()
-	sheet.Cell("G6").SetString(input.Datos.Raza)
-
-	sheet.Cell("C7").Clear()
-	sheet.Cell("C7").SetString(input.Datos.Muestra)
-
-	sheet.Cell("B8").Clear()
-	sheet.Cell("B8").SetString(input.Datos.FechaLlenado.Format("2006-01-02 15:04:05"))
+	ss.SetCellValue(sheet, "C4", input.Datos.Paciente)
+	ss.SetCellValue(sheet, "G4", input.Datos.Especie)
+	ss.SetCellValue(sheet, "C5", input.Datos.Propietario)
+	ss.SetCellValue(sheet, "G5", input.Datos.Genero)
+	ss.SetCellValue(sheet, "C6", input.Datos.Medico)
+	ss.SetCellValue(sheet, "G6", input.Datos.Raza)
+	ss.SetCellValue(sheet, "C7", input.Datos.Muestra)
+	ss.SetCellValue(sheet, "B8", input.Datos.FechaLlenado.Format("2006-01-02 15:04:05"))
 
 	for i := 0; i < len(input.Resultados); i++ {
 		celdaA := "A" + strconv.Itoa((11 + i))
@@ -147,18 +134,16 @@ func (r resource) create(c *routing.Context) error {
 		celdaD := "D" + strconv.Itoa((11 + i))
 		celdaE := "E" + strconv.Itoa((11 + i))
 		celdaF := "F" + strconv.Itoa((11 + i))
-		sheet.Cell(celdaA).Clear()
-		sheet.Cell(celdaA).SetString(input.Resultados[i].Parametro)
-		sheet.AddMergedCells(celdaA, celdaB)
-		sheet.Cell(celdaC).Clear()
-		sheet.Cell(celdaC).SetString(input.Resultados[i].Resultado)
-		sheet.AddMergedCells(celdaC, celdaD)
-		sheet.Cell(celdaE).Clear()
-		sheet.Cell(celdaE).SetString(input.Resultados[i].Alerta)
-		sheet.AddMergedCells(celdaE, celdaF)
+		ss.SetCellValue(sheet, celdaA, input.Resultados[i].Parametro)
+		ss.MergeCell(sheet, celdaA, celdaB)
+		ss.SetCellValue(sheet, celdaC, input.Resultados[i].Resultado)
+		ss.MergeCell(sheet, celdaC, celdaD)
+		ss.SetCellValue(sheet, celdaE, input.Resultados[i].Alerta)
+		ss.MergeCell(sheet, celdaE, celdaF)
 	}
+
 	fileName := fmt.Sprintf("resultado_%s_%s.xlsx", input.Datos.Paciente, input.Datos.FechaLlenado.Format("2006-01-02"))
-	ss.SaveToFile("./resources" + "/" + fileName)
+	ss.SaveAs("./resources" + "/" + fileName)
 	return c.Write(fileName)
 
 }

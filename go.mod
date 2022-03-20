@@ -12,7 +12,8 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/lib/pq v1.2.0
 	github.com/qiangxue/go-env v1.0.0
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.7.1
+	github.com/xuri/excelize/v2 v2.5.0 // indirect
 	go.uber.org/atomic v1.5.1 // indirect
 	go.uber.org/multierr v1.4.0 // indirect
 	go.uber.org/zap v1.13.0
