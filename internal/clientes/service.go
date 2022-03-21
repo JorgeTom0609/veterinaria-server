@@ -47,20 +47,24 @@ func (s service) GetClientes(ctx context.Context) ([]Cliente, error) {
 
 // CreateClienteRequest represents an cliente creation request.
 type CreateClienteRequest struct {
-	Nombres   string  `json:"nombres"`
-	Apellidos string  `json:"apellidos"`
-	Correo    *string `json:"correo"`
-	Telefono  *string `json:"telefono"`
-	Direccion *string `json:"direccion"`
+	Nombres      string  `json:"nombres"`
+	Apellidos    string  `json:"apellidos"`
+	Cedula       string  `json:"cedula"`
+	Correo       *string `json:"correo"`
+	Telefono     *string `json:"telefono"`
+	Direccion    *string `json:"direccion"`
+	Nacionalidad *string `json:"nacionalidad"`
 }
 
 type UpdateClienteRequest struct {
-	IdCliente int     `json:"id_cliente"`
-	Nombres   string  `json:"nombres"`
-	Apellidos string  `json:"apellidos"`
-	Correo    *string `json:"correo"`
-	Telefono  *string `json:"telefono"`
-	Direccion *string `json:"direccion"`
+	IdCliente    int     `json:"id_cliente"`
+	Nombres      string  `json:"nombres"`
+	Apellidos    string  `json:"apellidos"`
+	Cedula       string  `json:"cedula"`
+	Correo       *string `json:"correo"`
+	Telefono     *string `json:"telefono"`
+	Direccion    *string `json:"direccion"`
+	Nacionalidad *string `json:"nacionalidad"`
 }
 
 // Validate validates the UpdateClienteRequest fields.
@@ -87,11 +91,13 @@ func (s service) CrearCliente(ctx context.Context, req CreateClienteRequest) (Cl
 		return Cliente{}, err
 	}
 	clienteG, err := s.repo.CrearCliente(ctx, entity.Cliente{
-		Nombres:   req.Nombres,
-		Apellidos: req.Apellidos,
-		Correo:    req.Correo,
-		Telefono:  req.Telefono,
-		Direccion: req.Direccion,
+		Nombres:      req.Nombres,
+		Apellidos:    req.Apellidos,
+		Cedula:       req.Cedula,
+		Correo:       req.Correo,
+		Telefono:     req.Telefono,
+		Direccion:    req.Direccion,
+		Nacionalidad: req.Nacionalidad,
 	})
 	if err != nil {
 		return Cliente{}, err
@@ -105,12 +111,14 @@ func (s service) ActualizarCliente(ctx context.Context, req UpdateClienteRequest
 		return Cliente{}, err
 	}
 	clienteG, err := s.repo.ActualizarCliente(ctx, entity.Cliente{
-		IdCliente: req.IdCliente,
-		Nombres:   req.Nombres,
-		Apellidos: req.Apellidos,
-		Correo:    req.Correo,
-		Telefono:  req.Telefono,
-		Direccion: req.Direccion,
+		IdCliente:    req.IdCliente,
+		Nombres:      req.Nombres,
+		Apellidos:    req.Apellidos,
+		Cedula:       req.Cedula,
+		Correo:       req.Correo,
+		Telefono:     req.Telefono,
+		Direccion:    req.Direccion,
+		Nacionalidad: req.Nacionalidad,
 	})
 	if err != nil {
 		return Cliente{}, err

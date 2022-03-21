@@ -11,6 +11,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/uuid v1.1.1
 	github.com/lib/pq v1.2.0
+	github.com/nguyenthenguyen/docx v0.0.0-20211025112708-b6075f50a612
 	github.com/qiangxue/go-env v1.0.0
 	github.com/stretchr/testify v1.7.1
 	github.com/xuri/excelize/v2 v2.5.0 // indirect

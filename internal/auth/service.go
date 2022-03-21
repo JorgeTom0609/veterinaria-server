@@ -30,6 +30,7 @@ type Identity interface {
 	GetNombreUsuario() string
 	// IsEstado returns the user status
 	IsEstado() sql.NullBool
+	GetNombres() string
 }
 
 type service struct {
@@ -76,7 +77,8 @@ func (s service) authenticate(ctx context.Context, username, password string) Id
 		return nil
 	}
 	logger.Infof("authentication successful")
-	return entity.User{IdUsuario: user.IdUsuario, NombreUsuario: user.NombreUsuario, Estado: user.Estado}
+	u := entity.User{IdUsuario: user.IdUsuario, NombreUsuario: user.NombreUsuario, Estado: user.Estado, Nombre: user.Nombre, Apellido: user.Apellido}
+	return u
 }
 
 // generateJWT generates a JWT that encodes an identity.
@@ -85,5 +87,6 @@ func (s service) generateJWT(identity Identity) (string, error) {
 		"id":       identity.GetIdUsuario(),
 		"username": identity.GetNombreUsuario(),
 		"exp":      time.Now().Add(time.Duration(s.tokenExpiration) * time.Hour).Unix(),
+		"nombres":  identity.GetNombres(),
 	}).SignedString([]byte(s.signingKey))
 }

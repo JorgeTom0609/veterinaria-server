@@ -8,6 +8,7 @@ import (
 	"veterinaria-server/pkg/log"
 
 	routing "github.com/go-ozzo/ozzo-routing/v2"
+	"github.com/nguyenthenguyen/docx"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -22,7 +23,8 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/examenesMascota/examenesPorEstado/<estado>", res.getExamenesMascotaPorEstado)
 	r.Get("/examenesMascota/resultados/<idExamenMascota>", res.obtenerResultadosPorExamen)
 	r.Post("/examenesMascota", res.crearExamenMascota)
-	r.Post("/examenesMascota/archivo", res.create)
+	r.Post("/examenesMascota/archivo", res.archivo)
+	r.Post("/examenesMascota/autorizacion", res.autorizacion)
 	r.Put("/examenesMascota", res.actualizarExamenMascota)
 }
 
@@ -102,14 +104,14 @@ func (r resource) obtenerResultadosPorExamen(c *routing.Context) error {
 	return c.Write(resultados)
 }
 
-func (r resource) create(c *routing.Context) error {
+func (r resource) archivo(c *routing.Context) error {
 	var input ResultadosRequest
 	if err := c.Read(&input); err != nil {
 		r.logger.With(c.Request.Context()).Info(err)
 		return errors.BadRequest("")
 	}
 
-	ss, err := excelize.OpenFile("./Resultados.xlsx")
+	ss, err := excelize.OpenFile("./plantillas/Resultados.xlsx")
 	if err != nil {
 		return err
 	}
@@ -142,8 +144,80 @@ func (r resource) create(c *routing.Context) error {
 		ss.MergeCell(sheet, celdaE, celdaF)
 	}
 
-	fileName := fmt.Sprintf("resultado_%s_%s.xlsx", input.Datos.Paciente, input.Datos.FechaLlenado.Format("2006-01-02"))
+	fileName := fmt.Sprintf("Resultado-%s-%s.xlsx", input.Datos.Paciente, input.Datos.FechaLlenado.Format("2006-01-02"))
 	ss.SaveAs("./resources" + "/" + fileName)
 	return c.Write(fileName)
+}
 
+func (r resource) autorizacion(c *routing.Context) error {
+	var input DatosMascotaDueñoRequest
+	if err := c.Read(&input); err != nil {
+		r.logger.With(c.Request.Context()).Info(err)
+		return errors.BadRequest("")
+	}
+	var nombreDoc string
+	// Read from docx file
+	switch input.NumAutorizacion {
+	case 1:
+		nombreDoc = "Anestesia"
+	case 2:
+		nombreDoc = "Eutanasia"
+	case 3:
+		nombreDoc = "Hospitalizacion"
+	case 4:
+		nombreDoc = "PlanSanitario"
+	}
+	rd, err := docx.ReadDocxFile("./plantillas/" + nombreDoc + ".docx")
+	if err != nil {
+		return err
+	}
+	docx1 := rd.Editable()
+	docx1.Replace("cnombredueño", input.Propietario, -1)
+	docx1.Replace("cnacionalidaddueño", input.Nacionalidad, -1)
+	docx1.Replace("cdomiciliodueño", input.Direccion, -1)
+	docx1.Replace("cnombremascota", input.Paciente, -1)
+	docx1.Replace("cceduladueño", input.Cedula, -1)
+	docx1.Replace("ccedula", input.Cedula, -1)
+	docx1.Replace("csexomascota", input.Sexo, -1)
+	docx1.Replace("cedadmascota", input.Edad, -1)
+	docx1.Replace("crazamascota", input.Raza, -1)
+	docx1.Replace("cenfermedadmascota", input.Enfermedad, -1)
+	docx1.Replace("cintervención", input.Intervencion, -1)
+	docx1.Replace("caño", strconv.Itoa(input.Fecha.Year()), -1)
+	docx1.Replace("cabono", fmt.Sprintf("%f", input.Abono), -1)
+	docx1.Replace("cprofesional", input.Profesional, -1)
+	var mes string
+	switch input.Fecha.Month() {
+	case 1:
+		mes = "Enero"
+	case 2:
+		mes = "Febrero"
+	case 3:
+		mes = "Marzo"
+	case 4:
+		mes = "Abril"
+	case 5:
+		mes = "Mayo"
+	case 6:
+		mes = "Junio"
+	case 7:
+		mes = "Julio"
+	case 8:
+		mes = "Agosto"
+	case 9:
+		mes = "Septiembre"
+	case 10:
+		mes = "Octubre"
+	case 11:
+		mes = "Noviembre"
+	case 12:
+		mes = "Diciembre"
+	}
+	docx1.Replace("cmes", mes, -1)
+	docx1.Replace("cdías", strconv.Itoa(input.Fecha.Day()), -1)
+	docx1.Replace("cdía", strconv.Itoa(input.Fecha.Day()), -1)
+	fileName := fmt.Sprintf("%s-%s-%s.docx", nombreDoc, input.Paciente, input.Fecha.Format("2006-01-02"))
+	docx1.WriteToFile("./resources" + "/" + fileName)
+	rd.Close()
+	return c.Write(fileName)
 }

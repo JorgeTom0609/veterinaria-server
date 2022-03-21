@@ -137,6 +137,23 @@ type ResultadosRequest struct {
 	Datos      DatosMascotaRequest `json:"datos"`
 }
 
+type DatosMascotaDueñoRequest struct {
+	NumAutorizacion int       `json:"num_autorizacion"`
+	Paciente        string    `json:"paciente"`
+	Propietario     string    `json:"propietario"`
+	Nacionalidad    string    `json:"nacionalidad"`
+	Cedula          string    `json:"cedula"`
+	Sexo            string    `json:"sexo"`
+	Direccion       string    `json:"direccion"`
+	Raza            string    `json:"raza"`
+	Edad            string    `json:"edad"`
+	Enfermedad      string    `json:"enfermedad"`
+	Intervencion    string    `json:"intervencion"`
+	Profesional     string    `json:"profesional"`
+	Abono           float32   `json:"abono"`
+	Fecha           time.Time `json:"fecha"`
+}
+
 type UpdateExamenMascotaRequest struct {
 	IdExamenMascota int        `json:"id_examen_mascota"`
 	IdUsuario       int        `json:"id_usuario"`

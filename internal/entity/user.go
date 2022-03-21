@@ -1,6 +1,8 @@
 package entity
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 // User represents a user.
 type User struct {
@@ -30,4 +32,9 @@ func (u User) GetNombreUsuario() string {
 // GetEstado returns the user Nombre.
 func (u User) IsEstado() sql.NullBool {
 	return u.Estado
+}
+
+// GetNombres returns the Nombre.
+func (u User) GetNombres() string {
+	return (u.Apellido + " " + u.Nombre)
 }
