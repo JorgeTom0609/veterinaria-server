@@ -15,6 +15,7 @@ import (
 	"veterinaria-server/internal/clientes"
 	"veterinaria-server/internal/compra"
 	"veterinaria-server/internal/config"
+	"veterinaria-server/internal/detalle_compra_vp"
 	"veterinaria-server/internal/detalle_examen_cualitativo"
 	"veterinaria-server/internal/detalle_examen_cuantitativo"
 	"veterinaria-server/internal/detalle_examen_informativo"
