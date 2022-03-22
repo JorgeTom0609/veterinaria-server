@@ -13,16 +13,20 @@ import (
 	"veterinaria-server/internal/album"
 	"veterinaria-server/internal/auth"
 	"veterinaria-server/internal/clientes"
+	"veterinaria-server/internal/compra"
 	"veterinaria-server/internal/config"
 	"veterinaria-server/internal/detalle_examen_cualitativo"
 	"veterinaria-server/internal/detalle_examen_cuantitativo"
 	"veterinaria-server/internal/detalle_examen_informativo"
+	"veterinaria-server/internal/detalle_factura"
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/internal/especies"
 	"veterinaria-server/internal/examen_mascota"
+	"veterinaria-server/internal/factura"
 	"veterinaria-server/internal/generos"
 	"veterinaria-server/internal/healthcheck"
 	"veterinaria-server/internal/mascotas"
+	"veterinaria-server/internal/producto_vp"
 	"veterinaria-server/internal/tipo_examen"
 	"veterinaria-server/pkg/accesslog"
 	"veterinaria-server/pkg/dbcontext"
@@ -153,6 +157,31 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	examen_mascota.RegisterHandlers(rg.Group(""),
 		examen_mascota.NewService(examen_mascota.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	producto_vp.RegisterHandlers(rg.Group(""),
+		producto_vp.NewService(producto_vp.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	factura.RegisterHandlers(rg.Group(""),
+		factura.NewService(factura.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	detalle_factura.RegisterHandlers(rg.Group(""),
+		detalle_factura.NewService(detalle_factura.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	compra.RegisterHandlers(rg.Group(""),
+		compra.NewService(compra.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	detalle_compra_vp.RegisterHandlers(rg.Group(""),
+		detalle_compra_vp.NewService(detalle_compra_vp.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 

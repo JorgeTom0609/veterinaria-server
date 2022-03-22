@@ -1,4 +1,4 @@
-package detallesCompraVP
+package detalle_compra_vp
 
 import (
 	"context"
