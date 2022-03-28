@@ -13,6 +13,7 @@ import (
 type Service interface {
 	GetClientes(ctx context.Context) ([]Cliente, error)
 	GetClientePorId(ctx context.Context, idCliente int) (Cliente, error)
+	GetClientePorCedula(ctx context.Context, cedula string) (Cliente, error)
 	CrearCliente(ctx context.Context, input CreateClienteRequest) (Cliente, error)
 	ActualizarCliente(ctx context.Context, input UpdateClienteRequest) (Cliente, error)
 }
@@ -129,6 +130,14 @@ func (s service) ActualizarCliente(ctx context.Context, req UpdateClienteRequest
 // GetClientePorId returns the cliente with the specified the cliente ID.
 func (s service) GetClientePorId(ctx context.Context, idCliente int) (Cliente, error) {
 	cliente, err := s.repo.GetClientePorId(ctx, idCliente)
+	if err != nil {
+		return Cliente{}, err
+	}
+	return Cliente{cliente}, nil
+}
+
+func (s service) GetClientePorCedula(ctx context.Context, cedula string) (Cliente, error) {
+	cliente, err := s.repo.GetClientePorCedula(ctx, cedula)
 	if err != nil {
 		return Cliente{}, err
 	}

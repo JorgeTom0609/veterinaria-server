@@ -2,15 +2,19 @@ package clientes
 
 import (
 	"context"
+	"database/sql"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access clientes from the data source.
 type Repository interface {
 	// GetClientePorId returns the cliente with the specified cliente ID.
 	GetClientePorId(ctx context.Context, idCliente int) (entity.Cliente, error)
+	GetClientePorCedula(ctx context.Context, cedula string) (entity.Cliente, error)
 	// GetClientes returns the list clientes.
 	GetClientes(ctx context.Context) ([]entity.Cliente, error)
 	CrearCliente(ctx context.Context, cliente entity.Cliente) (entity.Cliente, error)
@@ -72,5 +76,14 @@ func (r repository) ActualizarCliente(ctx context.Context, cliente entity.Client
 func (r repository) GetClientePorId(ctx context.Context, idCliente int) (entity.Cliente, error) {
 	var cliente entity.Cliente
 	err := r.db.With(ctx).Select().Model(idCliente, &cliente)
+	return cliente, err
+}
+
+func (r repository) GetClientePorCedula(ctx context.Context, cedula string) (entity.Cliente, error) {
+	var cliente entity.Cliente
+	err := r.db.With(ctx).Select().Where(dbx.HashExp{"cedula": cedula}).One(&cliente)
+	if err == sql.ErrNoRows {
+		err = nil
+	}
 	return cliente, err
 }

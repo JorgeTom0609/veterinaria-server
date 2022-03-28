@@ -63,18 +63,18 @@ type UpdateDetalleCompraVPRequest struct {
 // Validate validates the UpdateDetalleCompraVPRequest fields.
 func (m UpdateDetalleCompraVPRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.IdCompra, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.IdProductoVp, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.Cantidad, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.IdCompra, validation.Required),
+		validation.Field(&m.IdProductoVp, validation.Required),
+		validation.Field(&m.Cantidad, validation.Required),
 	)
 }
 
 // Validate validates the CreateDetalleCompraVPRequest fields.
 func (m CreateDetalleCompraVPRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.IdCompra, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.IdProductoVp, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.Cantidad, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.IdCompra, validation.Required),
+		validation.Field(&m.IdProductoVp, validation.Required),
+		validation.Field(&m.Cantidad, validation.Required),
 	)
 }
 

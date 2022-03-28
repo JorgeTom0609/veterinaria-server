@@ -11,6 +11,8 @@ import (
 // Service encapsulates usecase logic for productosVP.
 type Service interface {
 	GetProductosVP(ctx context.Context) ([]ProductoVP, error)
+	GetProductosVPConStock(ctx context.Context) ([]ProductoVP, error)
+	GetProductosVPPocoStock(ctx context.Context) ([]ProductoVP, error)
 	GetProductoVPPorId(ctx context.Context, idProductoVP int) (ProductoVP, error)
 	CrearProductoVP(ctx context.Context, input CreateProductoVPRequest) (ProductoVP, error)
 	ActualizarProductoVP(ctx context.Context, input UpdateProductoVPRequest) (ProductoVP, error)
@@ -34,6 +36,30 @@ func NewService(repo Repository, logger log.Logger) Service {
 // Get returns the list productosVP.
 func (s service) GetProductosVP(ctx context.Context) ([]ProductoVP, error) {
 	productosVP, err := s.repo.GetProductosVP(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := []ProductoVP{}
+	for _, item := range productosVP {
+		result = append(result, ProductoVP{item})
+	}
+	return result, nil
+}
+
+func (s service) GetProductosVPConStock(ctx context.Context) ([]ProductoVP, error) {
+	productosVP, err := s.repo.GetProductosVPConStock(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := []ProductoVP{}
+	for _, item := range productosVP {
+		result = append(result, ProductoVP{item})
+	}
+	return result, nil
+}
+
+func (s service) GetProductosVPPocoStock(ctx context.Context) ([]ProductoVP, error) {
+	productosVP, err := s.repo.GetProductosVPPocoStock(ctx)
 	if err != nil {
 		return nil, err
 	}

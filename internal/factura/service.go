@@ -3,6 +3,8 @@ package factura
 import (
 	"context"
 	"time"
+	"veterinaria-server/internal/clientes"
+	"veterinaria-server/internal/detalle_factura"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/log"
 
@@ -48,6 +50,7 @@ func (s service) GetFacturas(ctx context.Context) ([]Factura, error) {
 // CreateFacturaRequest represents an factura creation request.
 type CreateFacturaRequest struct {
 	IdCliente int       `json:"id_cliente"`
+	IdUsuario int       `json:"id_usuario"`
 	Fecha     time.Time `json:"fecha"`
 	Valor     float32   `json:"valor"`
 }
@@ -55,21 +58,30 @@ type CreateFacturaRequest struct {
 type UpdateFacturaRequest struct {
 	IdFactura int       `json:"id_factura"`
 	IdCliente int       `json:"id_cliente"`
+	IdUsuario int       `json:"id_usuario"`
 	Fecha     time.Time `json:"fecha"`
 	Valor     float32   `json:"valor"`
+}
+
+type CreateFacturaConDetallesRequest struct {
+	Cliente         clientes.CreateClienteRequest                 `json:"cliente"`
+	Factura         CreateFacturaRequest                          `json:"factura"`
+	DetallesFactura []detalle_factura.CreateDetalleFacturaRequest `json:"detalles_factura"`
 }
 
 // Validate validates the UpdateFacturaRequest fields.
 func (m UpdateFacturaRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.IdCliente, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.IdCliente, validation.Required),
+		validation.Field(&m.IdUsuario, validation.Required),
 	)
 }
 
 // Validate validates the CreateFacturaRequest fields.
 func (m CreateFacturaRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.IdCliente, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.IdCliente, validation.Required),
+		validation.Field(&m.IdUsuario, validation.Required),
 	)
 }
 
@@ -80,6 +92,7 @@ func (s service) CrearFactura(ctx context.Context, req CreateFacturaRequest) (Fa
 	}
 	facturaG, err := s.repo.CrearFactura(ctx, entity.Factura{
 		IdCliente: req.IdCliente,
+		IdUsuario: req.IdUsuario,
 		Fecha:     req.Fecha,
 		Valor:     req.Valor,
 	})
@@ -97,6 +110,7 @@ func (s service) ActualizarFactura(ctx context.Context, req UpdateFacturaRequest
 	facturaG, err := s.repo.ActualizarFactura(ctx, entity.Factura{
 		IdFactura: req.IdFactura,
 		IdCliente: req.IdCliente,
+		IdUsuario: req.IdUsuario,
 		Fecha:     req.Fecha,
 		Valor:     req.Valor,
 	})

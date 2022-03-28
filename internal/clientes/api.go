@@ -16,6 +16,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	// the following endpoints require a valid JWT
 	r.Get("/clientes", res.getClientes)
 	r.Get("/clientes/<idCliente>", res.getClientePorId)
+	r.Get("/clientes/porCedula/<cedula>", res.getClientePorCedula)
 	r.Post("/clientes", res.crearCliente)
 	r.Put("/clientes", res.actualizarCliente)
 }
@@ -65,6 +66,14 @@ func (r resource) getClientePorId(c *routing.Context) error {
 	if err != nil {
 		return err
 	}
+	return c.Write(cliente)
+}
 
+func (r resource) getClientePorCedula(c *routing.Context) error {
+	cedula := c.Param("cedula")
+	cliente, err := r.service.GetClientePorCedula(c.Request.Context(), cedula)
+	if err != nil {
+		return err
+	}
 	return c.Write(cliente)
 }

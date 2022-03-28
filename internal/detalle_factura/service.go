@@ -63,18 +63,18 @@ type UpdateDetalleFacturaRequest struct {
 // Validate validates the UpdateDetalleFacturaRequest fields.
 func (m UpdateDetalleFacturaRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.IdFactura, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.IdProductoVp, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.Cantidad, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.IdFactura, validation.Required),
+		validation.Field(&m.IdProductoVp, validation.Required),
+		validation.Field(&m.Cantidad, validation.Required),
 	)
 }
 
 // Validate validates the CreateDetalleFacturaRequest fields.
 func (m CreateDetalleFacturaRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.IdFactura, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.IdProductoVp, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.Cantidad, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.IdFactura, validation.Required),
+		validation.Field(&m.IdProductoVp, validation.Required),
+		validation.Field(&m.Cantidad, validation.Required),
 	)
 }
 

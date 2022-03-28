@@ -5,6 +5,8 @@ import (
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access productosVP from the data source.
@@ -13,6 +15,8 @@ type Repository interface {
 	GetProductoVPPorId(ctx context.Context, idProductoVP int) (entity.ProductoVP, error)
 	// GetProductosVP returns the list productosVP.
 	GetProductosVP(ctx context.Context) ([]entity.ProductoVP, error)
+	GetProductosVPConStock(ctx context.Context) ([]entity.ProductoVP, error)
+	GetProductosVPPocoStock(ctx context.Context) ([]entity.ProductoVP, error)
 	CrearProductoVP(ctx context.Context, productoVP entity.ProductoVP) (entity.ProductoVP, error)
 	ActualizarProductoVP(ctx context.Context, productoVP entity.ProductoVP) (entity.ProductoVP, error)
 }
@@ -35,6 +39,35 @@ func (r repository) GetProductosVP(ctx context.Context) ([]entity.ProductoVP, er
 	err := r.db.With(ctx).
 		Select().
 		From().
+		All(&productosVP)
+	if err != nil {
+		return productosVP, err
+	}
+	return productosVP, err
+}
+
+func (r repository) GetProductosVPConStock(ctx context.Context) ([]entity.ProductoVP, error) {
+	var productosVP []entity.ProductoVP
+
+	err := r.db.With(ctx).
+		Select().
+		From().
+		//Where(dbx.NewExp("id={:id}", dbx.Params{"id": 100})).
+		Where(dbx.NewExp("stock>0")).
+		All(&productosVP)
+	if err != nil {
+		return productosVP, err
+	}
+	return productosVP, err
+}
+
+func (r repository) GetProductosVPPocoStock(ctx context.Context) ([]entity.ProductoVP, error) {
+	var productosVP []entity.ProductoVP
+
+	err := r.db.With(ctx).
+		Select().
+		From().
+		Where(dbx.NewExp("stock<=stock_minimo")).
 		All(&productosVP)
 	if err != nil {
 		return productosVP, err

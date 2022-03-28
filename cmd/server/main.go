@@ -168,7 +168,7 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	factura.RegisterHandlers(rg.Group(""),
 		factura.NewService(factura.NewRepository(db, logger), logger),
-		authHandler, logger,
+		authHandler, logger, db,
 	)
 
 	detalle_factura.RegisterHandlers(rg.Group(""),

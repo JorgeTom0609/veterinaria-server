@@ -109,7 +109,7 @@ func (r repository) GetExamenesMascotaPorEstado(ctx context.Context, estado stri
 	err := r.db.With(ctx).
 		Select().
 		From().
-		AndWhere(dbx.HashExp{"estado": estado}).
+		Where(dbx.HashExp{"estado": estado}).
 		All(&examenesMascota)
 
 	for i := 0; i < len(examenesMascota); i++ {
