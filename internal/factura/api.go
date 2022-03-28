@@ -90,6 +90,7 @@ func (r resource) crearFacturaConDetalles(c *routing.Context) error {
 		if err != nil {
 			return err
 		}
+		input.Factura.IdCliente = clienteG.IdCliente
 	} else {
 		clienteG = clientes.Cliente{
 			Cliente: entity.Cliente{
