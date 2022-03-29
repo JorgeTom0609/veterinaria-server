@@ -178,7 +178,7 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	compra.RegisterHandlers(rg.Group(""),
 		compra.NewService(compra.NewRepository(db, logger), logger),
-		authHandler, logger,
+		authHandler, logger, db,
 	)
 
 	detalle_compra_vp.RegisterHandlers(rg.Group(""),

@@ -3,6 +3,7 @@ package compra
 import (
 	"context"
 	"time"
+	"veterinaria-server/internal/detalle_compra_vp"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/log"
 
@@ -47,26 +48,35 @@ func (s service) GetCompras(ctx context.Context) ([]Compras, error) {
 
 // CreateCompraRequest represents an compra creation request.
 type CreateCompraRequest struct {
+	IdUsuario   int       `json:"id_usuario"`
 	Fecha       time.Time `json:"fecha"`
 	Valor       float32   `json:"valor"`
 	Descripcion *string   `json:"descripcion"`
 }
 
 type UpdateCompraRequest struct {
+	IdUsuario   int       `json:"id_usuario"`
 	IdCompra    int       `json:"id_compra"`
 	Fecha       time.Time `json:"fecha"`
 	Valor       float32   `json:"valor"`
 	Descripcion *string   `json:"descripcion"`
 }
 
+type CreateCompraConDetallesRequest struct {
+	Compra            CreateCompraRequest                              `json:"compra"`
+	DetallesComprasVP []detalle_compra_vp.CreateDetalleCompraVPRequest `json:"detalles_compra_vp"`
+}
+
 // Validate validates the UpdateCompraRequest fields.
 func (m UpdateCompraRequest) ValidateUpdate() error {
-	return validation.ValidateStruct(&m)
+	return validation.ValidateStruct(&m,
+		validation.Field(&m.IdUsuario, validation.Required))
 }
 
 // Validate validates the CreateCompraRequest fields.
 func (m CreateCompraRequest) Validate() error {
-	return validation.ValidateStruct(&m)
+	return validation.ValidateStruct(&m,
+		validation.Field(&m.IdUsuario, validation.Required))
 }
 
 // CrearCompra creates a new compra.
@@ -75,6 +85,7 @@ func (s service) CrearCompra(ctx context.Context, req CreateCompraRequest) (Comp
 		return Compras{}, err
 	}
 	compraG, err := s.repo.CrearCompra(ctx, entity.Compras{
+		IdUsuario:   req.IdUsuario,
 		Fecha:       req.Fecha,
 		Valor:       req.Valor,
 		Descripcion: req.Descripcion,
@@ -92,6 +103,7 @@ func (s service) ActualizarCompra(ctx context.Context, req UpdateCompraRequest) 
 	}
 	compraG, err := s.repo.ActualizarCompra(ctx, entity.Compras{
 		IdCompra:    req.IdCompra,
+		IdUsuario:   req.IdUsuario,
 		Fecha:       req.Fecha,
 		Valor:       req.Valor,
 		Descripcion: req.Descripcion,

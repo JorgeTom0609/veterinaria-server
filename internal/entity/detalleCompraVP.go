@@ -9,5 +9,5 @@ type DetalleCompraVP struct {
 }
 
 func (d DetalleCompraVP) TableName() string {
-	return "detalles_factura"
+	return "detalles_compra_vp"
 }
