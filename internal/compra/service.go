@@ -13,6 +13,7 @@ import (
 // Service encapsulates usecase logic for compras.
 type Service interface {
 	GetCompras(ctx context.Context) ([]Compras, error)
+	GetComprasConDatos(ctx context.Context) ([]ComprasConDatos, error)
 	GetCompraPorId(ctx context.Context, idCompra int) (Compras, error)
 	CrearCompra(ctx context.Context, input CreateCompraRequest) (Compras, error)
 	ActualizarCompra(ctx context.Context, input UpdateCompraRequest) (Compras, error)
@@ -21,6 +22,11 @@ type Service interface {
 // Compras represents the data about an compras.
 type Compras struct {
 	entity.Compras
+}
+
+type ComprasConDatos struct {
+	entity.Compras
+	Comprador string `json:"comprador"`
 }
 
 type service struct {
@@ -44,6 +50,14 @@ func (s service) GetCompras(ctx context.Context) ([]Compras, error) {
 		result = append(result, Compras{item})
 	}
 	return result, nil
+}
+
+func (s service) GetComprasConDatos(ctx context.Context) ([]ComprasConDatos, error) {
+	compras, err := s.repo.GetComprasConDatos(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return compras, nil
 }
 
 // CreateCompraRequest represents an compra creation request.

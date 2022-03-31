@@ -20,6 +20,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Use(authHandler)
 	// the following endpoints require a valid JWT
 	r.Get("/facturas", res.getFacturas)
+	r.Get("/facturas/conDatos", res.getFacturasConDatos)
 	r.Get("/facturas/<idFactura>", res.getFacturaPorId)
 	r.Post("/facturas", res.crearFactura)
 	r.Post("/facturas/conDetalle", res.crearFacturaConDetalles)
@@ -34,6 +35,14 @@ type resource struct {
 
 func (r resource) getFacturas(c *routing.Context) error {
 	facturas, err := r.service.GetFacturas(c.Request.Context())
+	if err != nil {
+		return err
+	}
+	return c.Write(facturas)
+}
+
+func (r resource) getFacturasConDatos(c *routing.Context) error {
+	facturas, err := r.service.GetFacturasConDatos(c.Request.Context())
 	if err != nil {
 		return err
 	}

@@ -5,6 +5,8 @@ import (
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access compras from the data source.
@@ -13,6 +15,7 @@ type Repository interface {
 	GetCompraPorId(ctx context.Context, idCompra int) (entity.Compras, error)
 	// GetCompras returns the list compras.
 	GetCompras(ctx context.Context) ([]entity.Compras, error)
+	GetComprasConDatos(ctx context.Context) ([]ComprasConDatos, error)
 	CrearCompra(ctx context.Context, compra entity.Compras) (entity.Compras, error)
 	ActualizarCompra(ctx context.Context, compra entity.Compras) (entity.Compras, error)
 }
@@ -40,6 +43,38 @@ func (r repository) GetCompras(ctx context.Context) ([]entity.Compras, error) {
 		return compras, err
 	}
 	return compras, err
+}
+
+func (r repository) GetComprasConDatos(ctx context.Context) ([]ComprasConDatos, error) {
+	var compras []entity.Compras
+	var comprasConDatos []ComprasConDatos = []ComprasConDatos{}
+	var compradorNombre, compradorApellido string
+
+	err := r.db.With(ctx).
+		Select().
+		All(&compras)
+
+	for i := 0; i < len(compras); i++ {
+		idUsuario := compras[i].IdUsuario
+		err := r.db.With(ctx).
+			Select("nombre", "apellido").
+			From("usuarios").
+			Where(dbx.HashExp{"id_usuario": idUsuario}).
+			Row(&compradorNombre, &compradorApellido)
+		if err != nil {
+			return []ComprasConDatos{}, err
+		}
+
+		comprasConDatos = append(comprasConDatos, ComprasConDatos{
+			compras[i],
+			compradorApellido + " " + compradorNombre,
+		})
+	}
+
+	if err != nil {
+		return []ComprasConDatos{}, err
+	}
+	return comprasConDatos, err
 }
 
 // Create saves a new Compras record in the database.

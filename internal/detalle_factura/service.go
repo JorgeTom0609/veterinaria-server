@@ -12,6 +12,7 @@ import (
 type Service interface {
 	GetDetallesFactura(ctx context.Context) ([]DetalleFactura, error)
 	GetDetalleFacturaPorId(ctx context.Context, idDetalleFactura int) (DetalleFactura, error)
+	GetDetalleFacturaPorIdFactura(ctx context.Context, idFactura int) ([]DetallesFacturaConDatos, error)
 	CrearDetalleFactura(ctx context.Context, input CreateDetalleFacturaRequest) (DetalleFactura, error)
 	ActualizarDetalleFactura(ctx context.Context, input UpdateDetalleFacturaRequest) (DetalleFactura, error)
 }
@@ -19,6 +20,11 @@ type Service interface {
 // DetallesFactura represents the data about an detallesFactura.
 type DetalleFactura struct {
 	entity.DetalleFactura
+}
+
+type DetallesFacturaConDatos struct {
+	entity.DetalleFactura
+	NombreProducto string `json:"nombreProducto"`
 }
 
 type service struct {
@@ -120,4 +126,12 @@ func (s service) GetDetalleFacturaPorId(ctx context.Context, idDetalleFactura in
 		return DetalleFactura{}, err
 	}
 	return DetalleFactura{detalleFactura}, nil
+}
+
+func (s service) GetDetalleFacturaPorIdFactura(ctx context.Context, idFactura int) ([]DetallesFacturaConDatos, error) {
+	detalleFactura, err := s.repo.GetDetalleFacturaPorIdFactura(ctx, idFactura)
+	if err != nil {
+		return nil, err
+	}
+	return detalleFactura, nil
 }

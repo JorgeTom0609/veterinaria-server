@@ -5,12 +5,15 @@ import (
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access detallesFactura from the data source.
 type Repository interface {
 	// GetDetalleFacturaPorId returns the detalleFactura with the specified detalleFactura ID.
 	GetDetalleFacturaPorId(ctx context.Context, idDetalleFactura int) (entity.DetalleFactura, error)
+	GetDetalleFacturaPorIdFactura(ctx context.Context, idFactura int) ([]DetallesFacturaConDatos, error)
 	// GetDetallesFactura returns the list detallesFactura.
 	GetDetallesFactura(ctx context.Context) ([]entity.DetalleFactura, error)
 	CrearDetalleFactura(ctx context.Context, detalleFactura entity.DetalleFactura) (entity.DetalleFactura, error)
@@ -72,4 +75,37 @@ func (r repository) GetDetalleFacturaPorId(ctx context.Context, idDetalleFactura
 	var detalleFactura entity.DetalleFactura
 	err := r.db.With(ctx).Select().Model(idDetalleFactura, &detalleFactura)
 	return detalleFactura, err
+}
+
+func (r repository) GetDetalleFacturaPorIdFactura(ctx context.Context, idFactura int) ([]DetallesFacturaConDatos, error) {
+	var detallesFactura []entity.DetalleFactura
+	var detallesFacturaConDatos []DetallesFacturaConDatos = []DetallesFacturaConDatos{}
+	var nombreProducto string
+
+	err := r.db.With(ctx).
+		Select().
+		Where(dbx.HashExp{"id_factura": idFactura}).
+		All(&detallesFactura)
+
+	for i := 0; i < len(detallesFactura); i++ {
+		idProductoVP := detallesFactura[i].IdProductoVp
+		err := r.db.With(ctx).
+			Select("descripcion").
+			From("productos_vp").
+			Where(dbx.HashExp{"id_producto_vp": idProductoVP}).
+			Row(&nombreProducto)
+		if err != nil {
+			return []DetallesFacturaConDatos{}, err
+		}
+
+		detallesFacturaConDatos = append(detallesFacturaConDatos, DetallesFacturaConDatos{
+			detallesFactura[i],
+			nombreProducto,
+		})
+	}
+
+	if err != nil {
+		return []DetallesFacturaConDatos{}, err
+	}
+	return detallesFacturaConDatos, err
 }

@@ -5,6 +5,8 @@ import (
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access facturas from the data source.
@@ -13,6 +15,7 @@ type Repository interface {
 	GetFacturaPorId(ctx context.Context, idFactura int) (entity.Factura, error)
 	// GetFacturas returns the list facturas.
 	GetFacturas(ctx context.Context) ([]entity.Factura, error)
+	GetFacturasConDatos(ctx context.Context) ([]FacturaConDatos, error)
 	CrearFactura(ctx context.Context, factura entity.Factura) (entity.Factura, error)
 	ActualizarFactura(ctx context.Context, factura entity.Factura) (entity.Factura, error)
 }
@@ -40,6 +43,49 @@ func (r repository) GetFacturas(ctx context.Context) ([]entity.Factura, error) {
 		return facturas, err
 	}
 	return facturas, err
+}
+
+func (r repository) GetFacturasConDatos(ctx context.Context) ([]FacturaConDatos, error) {
+	var facturas []entity.Factura
+	var facturasConDatos []FacturaConDatos = []FacturaConDatos{}
+	var clienteNombre, clienteApellido, vendedorNombre, vendedorApellido string
+
+	err := r.db.With(ctx).
+		Select().
+		All(&facturas)
+
+	for i := 0; i < len(facturas); i++ {
+		idCliente := facturas[i].IdCliente
+		err := r.db.With(ctx).
+			Select("nombres", "apellidos").
+			From("clientes").
+			Where(dbx.HashExp{"id_cliente": idCliente}).
+			Row(&clienteNombre, &clienteApellido)
+		if err != nil {
+			return []FacturaConDatos{}, err
+		}
+
+		idUsuario := facturas[i].IdUsuario
+		err = r.db.With(ctx).
+			Select("nombre", "apellido").
+			From("usuarios").
+			Where(dbx.HashExp{"id_usuario": idUsuario}).
+			Row(&vendedorNombre, &vendedorApellido)
+		if err != nil {
+			return []FacturaConDatos{}, err
+		}
+
+		facturasConDatos = append(facturasConDatos, FacturaConDatos{
+			facturas[i],
+			clienteApellido + " " + clienteNombre,
+			vendedorApellido + " " + vendedorNombre,
+		})
+	}
+
+	if err != nil {
+		return []FacturaConDatos{}, err
+	}
+	return facturasConDatos, err
 }
 
 // Create saves a new Factura record in the database.

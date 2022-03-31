@@ -5,12 +5,15 @@ import (
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access detallesCompraVP from the data source.
 type Repository interface {
 	// GetDetalleCompraVPPorId returns the detalleCompraVP with the specified detalleCompraVP ID.
 	GetDetalleCompraVPPorId(ctx context.Context, idDetalleCompraVP int) (entity.DetalleCompraVP, error)
+	GetDetalleCompraVPPorIdCompra(ctx context.Context, idCompra int) ([]DetallesCompraVPConDatos, error)
 	// GetDetallesCompraVP returns the list detallesCompraVP.
 	GetDetallesCompraVP(ctx context.Context) ([]entity.DetalleCompraVP, error)
 	CrearDetalleCompraVP(ctx context.Context, detalleCompraVP entity.DetalleCompraVP) (entity.DetalleCompraVP, error)
@@ -72,4 +75,37 @@ func (r repository) GetDetalleCompraVPPorId(ctx context.Context, idDetalleCompra
 	var detalleCompraVP entity.DetalleCompraVP
 	err := r.db.With(ctx).Select().Model(idDetalleCompraVP, &detalleCompraVP)
 	return detalleCompraVP, err
+}
+
+func (r repository) GetDetalleCompraVPPorIdCompra(ctx context.Context, idCompra int) ([]DetallesCompraVPConDatos, error) {
+	var detallesCompraVP []entity.DetalleCompraVP
+	var detallesCompraConDatos []DetallesCompraVPConDatos = []DetallesCompraVPConDatos{}
+	var nombreProducto string
+
+	err := r.db.With(ctx).
+		Select().
+		Where(dbx.HashExp{"id_compra": idCompra}).
+		All(&detallesCompraVP)
+
+	for i := 0; i < len(detallesCompraVP); i++ {
+		idProductoVP := detallesCompraVP[i].IdProductoVp
+		err := r.db.With(ctx).
+			Select("descripcion").
+			From("productos_vp").
+			Where(dbx.HashExp{"id_producto_vp": idProductoVP}).
+			Row(&nombreProducto)
+		if err != nil {
+			return []DetallesCompraVPConDatos{}, err
+		}
+
+		detallesCompraConDatos = append(detallesCompraConDatos, DetallesCompraVPConDatos{
+			detallesCompraVP[i],
+			nombreProducto,
+		})
+	}
+
+	if err != nil {
+		return []DetallesCompraVPConDatos{}, err
+	}
+	return detallesCompraConDatos, err
 }

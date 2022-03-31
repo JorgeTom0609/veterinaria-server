@@ -12,6 +12,7 @@ import (
 type Service interface {
 	GetDetallesCompraVP(ctx context.Context) ([]DetalleCompraVP, error)
 	GetDetalleCompraVPPorId(ctx context.Context, idDetalleCompraVP int) (DetalleCompraVP, error)
+	GetDetalleCompraVPPorIdCompra(ctx context.Context, idCompra int) ([]DetallesCompraVPConDatos, error)
 	CrearDetalleCompraVP(ctx context.Context, input CreateDetalleCompraVPRequest) (DetalleCompraVP, error)
 	ActualizarDetalleCompraVP(ctx context.Context, input UpdateDetalleCompraVPRequest) (DetalleCompraVP, error)
 }
@@ -19,6 +20,11 @@ type Service interface {
 // DetallesCompraVP represents the data about an detallesCompraVP.
 type DetalleCompraVP struct {
 	entity.DetalleCompraVP
+}
+
+type DetallesCompraVPConDatos struct {
+	entity.DetalleCompraVP
+	NombreProducto string `json:"nombreProducto"`
 }
 
 type service struct {
@@ -120,4 +126,12 @@ func (s service) GetDetalleCompraVPPorId(ctx context.Context, idDetalleCompraVP 
 		return DetalleCompraVP{}, err
 	}
 	return DetalleCompraVP{detalleCompraVP}, nil
+}
+
+func (s service) GetDetalleCompraVPPorIdCompra(ctx context.Context, idCompra int) ([]DetallesCompraVPConDatos, error) {
+	detalleCompraVP, err := s.repo.GetDetalleCompraVPPorIdCompra(ctx, idCompra)
+	if err != nil {
+		return nil, err
+	}
+	return detalleCompraVP, nil
 }

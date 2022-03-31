@@ -14,6 +14,7 @@ import (
 // Service encapsulates usecase logic for facturas.
 type Service interface {
 	GetFacturas(ctx context.Context) ([]Factura, error)
+	GetFacturasConDatos(ctx context.Context) ([]FacturaConDatos, error)
 	GetFacturaPorId(ctx context.Context, idFactura int) (Factura, error)
 	CrearFactura(ctx context.Context, input CreateFacturaRequest) (Factura, error)
 	ActualizarFactura(ctx context.Context, input UpdateFacturaRequest) (Factura, error)
@@ -22,6 +23,12 @@ type Service interface {
 // Facturas represents the data about an facturas.
 type Factura struct {
 	entity.Factura
+}
+
+type FacturaConDatos struct {
+	entity.Factura
+	Cliente  string `json:"cliente"`
+	Vendedor string `json:"vendedor"`
 }
 
 type service struct {
@@ -45,6 +52,14 @@ func (s service) GetFacturas(ctx context.Context) ([]Factura, error) {
 		result = append(result, Factura{item})
 	}
 	return result, nil
+}
+
+func (s service) GetFacturasConDatos(ctx context.Context) ([]FacturaConDatos, error) {
+	facturas, err := s.repo.GetFacturasConDatos(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return facturas, nil
 }
 
 // CreateFacturaRequest represents an factura creation request.
