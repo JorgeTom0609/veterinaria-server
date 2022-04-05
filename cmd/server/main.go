@@ -15,6 +15,7 @@ import (
 	"veterinaria-server/internal/clientes"
 	"veterinaria-server/internal/compra"
 	"veterinaria-server/internal/config"
+	"veterinaria-server/internal/consultas"
 	"veterinaria-server/internal/detalle_compra_vp"
 	"veterinaria-server/internal/detalle_examen_cualitativo"
 	"veterinaria-server/internal/detalle_examen_cuantitativo"
@@ -183,6 +184,11 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	detalle_compra_vp.RegisterHandlers(rg.Group(""),
 		detalle_compra_vp.NewService(detalle_compra_vp.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	consultas.RegisterHandlers(rg.Group(""),
+		consultas.NewService(consultas.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 
