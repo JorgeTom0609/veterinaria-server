@@ -23,6 +23,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/tipo_examen", res.getTipoExamenes)
 	r.Get("/tipo_examen/<idTipoExamen>", res.getTipoExamenPorId)
 	r.Get("/tipo_examen/por_especie/<idEspecie>", res.getTipoExamenPorEspecie)
+	r.Get("/tipo_examen/por_especie_disponibles/<idEspecie>/<idMascota>", res.getTipoExamenPorEspecieDisponibles)
 	r.Get("/tipo_examen/detalles/<idTipoExamen>", res.getDetallesExamenPorTipoExamen)
 	r.Post("/tipo_examen", res.crearTipoExamen)
 	r.Post("/tipo_examen/con_resultados", res.guardarResultados)
@@ -47,6 +48,16 @@ func (r resource) getTipoExamenes(c *routing.Context) error {
 func (r resource) getTipoExamenPorEspecie(c *routing.Context) error {
 	idEspecie, _ := strconv.Atoi(c.Param("idEspecie"))
 	tipoExamenes, err := r.service.GetTipoExamenPorEspecie(c.Request.Context(), idEspecie)
+	if err != nil {
+		return err
+	}
+	return c.Write(tipoExamenes)
+}
+
+func (r resource) getTipoExamenPorEspecieDisponibles(c *routing.Context) error {
+	idEspecie, _ := strconv.Atoi(c.Param("idEspecie"))
+	idMascota, _ := strconv.Atoi(c.Param("idMascota"))
+	tipoExamenes, err := r.service.GetTipoExamenPorEspecieDisponibles(c.Request.Context(), idEspecie, idMascota)
 	if err != nil {
 		return err
 	}

@@ -14,6 +14,8 @@ type Service interface {
 	GetConsultas(ctx context.Context) ([]Consulta, error)
 	GetConsultaPorId(ctx context.Context, idConsulta int) (Consulta, error)
 	GetConsultaActiva(ctx context.Context, idUsuario int) (Consulta, error)
+	GetConsultaPorMesYAnio(ctx context.Context) ([]ConsultaConDatos, error)
+	GetConsultaPorMascota(ctx context.Context, idMascota int) ([]Consulta, error)
 	CrearConsulta(ctx context.Context, input CreateConsultaRequest) (Consulta, error)
 	ActualizarConsulta(ctx context.Context, input UpdateConsultaRequest) (Consulta, error)
 }
@@ -21,6 +23,11 @@ type Service interface {
 // Consultas represents the data about an consultas.
 type Consulta struct {
 	entity.Consulta
+}
+
+type ConsultaConDatos struct {
+	entity.Consulta
+	Mascota string `json:"mascota"`
 }
 
 type service struct {
@@ -172,4 +179,24 @@ func (s service) GetConsultaActiva(ctx context.Context, idUsuario int) (Consulta
 		return Consulta{}, err
 	}
 	return Consulta{consulta}, nil
+}
+
+func (s service) GetConsultaPorMesYAnio(ctx context.Context) ([]ConsultaConDatos, error) {
+	consultas, err := s.repo.GetConsultaPorMesYAnio(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return consultas, nil
+}
+
+func (s service) GetConsultaPorMascota(ctx context.Context, idMascota int) ([]Consulta, error) {
+	consultas, err := s.repo.GetConsultaPorMascota(ctx, idMascota)
+	if err != nil {
+		return nil, err
+	}
+	result := []Consulta{}
+	for _, item := range consultas {
+		result = append(result, Consulta{item})
+	}
+	return result, nil
 }

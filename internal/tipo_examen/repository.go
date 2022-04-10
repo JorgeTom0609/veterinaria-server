@@ -2,6 +2,7 @@ package tipo_examen
 
 import (
 	"context"
+	"strconv"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
@@ -16,6 +17,7 @@ type Repository interface {
 	// GetTipoExamenes returns the list tipoExamenes.
 	GetTipoExamenes(ctx context.Context) ([]entity.TipoExamen, error)
 	GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) ([]entity.TipoExamen, error)
+	GetTipoExamenPorEspecieDisponibles(ctx context.Context, idEspecie int, idMascota int) ([]entity.TipoExamen, error)
 	GetDetallesExamenPorTipoExamen(ctx context.Context, idTipoExamen int) (DetallesExamen, error)
 	CrearTipoExamen(ctx context.Context, tipoExamen entity.TipoExamen) (entity.TipoExamen, error)
 	ActualizarTipoExamen(ctx context.Context, tipoExamen entity.TipoExamen) (entity.TipoExamen, error)
@@ -59,6 +61,39 @@ func (r repository) GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) 
 	}
 	return tipoExamenes, err
 }
+
+func (r repository) GetTipoExamenPorEspecieDisponibles(ctx context.Context, idEspecie int, idMascota int) ([]entity.TipoExamen, error) {
+	var tipoExamenes []entity.TipoExamen
+	var examenesMascota []entity.ExamenMascota
+	var idsTiposExamenes string = ""
+
+	err := r.db.With(ctx).
+		Select().
+		From().
+		Where(dbx.HashExp{"id_mascota": idMascota}).
+		AndWhere(dbx.HashExp{"estado": "PENDIENTE"}).
+		All(&examenesMascota)
+
+	for i := 0; i < len(examenesMascota); i++ {
+		if i == 0 {
+			idsTiposExamenes = idsTiposExamenes + strconv.Itoa(examenesMascota[i].IdTipoExamen)
+		} else {
+			idsTiposExamenes = idsTiposExamenes + ", " + strconv.Itoa(examenesMascota[i].IdTipoExamen)
+		}
+	}
+
+	err = r.db.With(ctx).
+		Select().
+		From().
+		Where(dbx.HashExp{"id_especie": idEspecie}).
+		AndWhere(dbx.NewExp("id_tipo_examen not in (" + idsTiposExamenes + ")")).
+		All(&tipoExamenes)
+	if err != nil {
+		return tipoExamenes, err
+	}
+	return tipoExamenes, err
+}
+
 func (r repository) GetDetallesExamenPorTipoExamen(ctx context.Context, idTipoExamen int) (DetallesExamen, error) {
 	var detallesExamenCualitativo []entity.DetallesExamenCualitativo
 	var detallesExamenCuantitativo []entity.DetallesExamenCuantitativo

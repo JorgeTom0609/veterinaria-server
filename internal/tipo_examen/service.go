@@ -17,6 +17,7 @@ import (
 type Service interface {
 	GetTipoExamenes(ctx context.Context) ([]TipoExamen, error)
 	GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) ([]TipoExamen, error)
+	GetTipoExamenPorEspecieDisponibles(ctx context.Context, idEspecie int, idMascota int) ([]TipoExamen, error)
 	GetDetallesExamenPorTipoExamen(ctx context.Context, idTipoExamen int) (DetallesExamen, error)
 	GetTipoExamenPorId(ctx context.Context, idTipoExamen int) (TipoExamen, error)
 	CrearTipoExamen(ctx context.Context, input CreateTipoExamenRequest) (TipoExamen, error)
@@ -56,6 +57,18 @@ func (s service) GetTipoExamenes(ctx context.Context) ([]TipoExamen, error) {
 
 func (s service) GetTipoExamenPorEspecie(ctx context.Context, idEspecie int) ([]TipoExamen, error) {
 	tipoExamenes, err := s.repo.GetTipoExamenPorEspecie(ctx, idEspecie)
+	if err != nil {
+		return nil, err
+	}
+	result := []TipoExamen{}
+	for _, item := range tipoExamenes {
+		result = append(result, TipoExamen{item})
+	}
+	return result, nil
+}
+
+func (s service) GetTipoExamenPorEspecieDisponibles(ctx context.Context, idEspecie int, idMascota int) ([]TipoExamen, error) {
+	tipoExamenes, err := s.repo.GetTipoExamenPorEspecieDisponibles(ctx, idEspecie, idMascota)
 	if err != nil {
 		return nil, err
 	}

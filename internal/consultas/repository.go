@@ -3,6 +3,7 @@ package consultas
 import (
 	"context"
 	"database/sql"
+	"time"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
@@ -17,6 +18,8 @@ type Repository interface {
 	GetConsultaActiva(ctx context.Context, idUsuario int) (entity.Consulta, error)
 	// GetConsultas returns the list consultas.
 	GetConsultas(ctx context.Context) ([]entity.Consulta, error)
+	GetConsultaPorMesYAnio(ctx context.Context) ([]ConsultaConDatos, error)
+	GetConsultaPorMascota(ctx context.Context, idMascota int) ([]entity.Consulta, error)
 	CrearConsulta(ctx context.Context, consulta entity.Consulta) (entity.Consulta, error)
 	ActualizarConsulta(ctx context.Context, consulta entity.Consulta) (entity.Consulta, error)
 }
@@ -38,8 +41,6 @@ func (r repository) GetConsultas(ctx context.Context) ([]entity.Consulta, error)
 
 	err := r.db.With(ctx).
 		Select().
-		From().
-		OrderBy("apellidos asc").
 		All(&consultas)
 	if err != nil {
 		return consultas, err
@@ -87,4 +88,50 @@ func (r repository) GetConsultaActiva(ctx context.Context, idUsuario int) (entit
 		err = nil
 	}
 	return consulta, err
+}
+
+func (r repository) GetConsultaPorMesYAnio(ctx context.Context) ([]ConsultaConDatos, error) {
+	var consultas []entity.Consulta
+	var consultasConDatos []ConsultaConDatos
+	var nombreMascota string
+	fecha := time.Now()
+	err := r.db.With(ctx).
+		Select().
+		Where(dbx.HashExp{"YEAR(fecha)": fecha.Year()}).
+		AndWhere(dbx.HashExp{"MONTH(fecha)": fecha.Month()}).
+		AndWhere(dbx.HashExp{"estado_consulta": "FINALIZADA"}).
+		All(&consultas)
+	if err != nil {
+		return []ConsultaConDatos{}, err
+	}
+	for i := 0; i < len(consultas); i++ {
+		idMascota := consultas[i].IdMascota
+		err = r.db.With(ctx).
+			Select("nombre").
+			From("mascotas").
+			Where(dbx.HashExp{"id_mascota": idMascota}).
+			Row(&nombreMascota)
+		if err != nil {
+			return []ConsultaConDatos{}, err
+		}
+
+		consultasConDatos = append(consultasConDatos, ConsultaConDatos{
+			consultas[i],
+			nombreMascota,
+		})
+	}
+	return consultasConDatos, err
+}
+
+func (r repository) GetConsultaPorMascota(ctx context.Context, idMascota int) ([]entity.Consulta, error) {
+	var consultas []entity.Consulta
+	err := r.db.With(ctx).
+		Select().
+		Where(dbx.HashExp{"id_mascota": idMascota}).
+		AndWhere(dbx.HashExp{"estado_consulta": "FINALIZADA"}).
+		All(&consultas)
+	if err != nil {
+		return consultas, err
+	}
+	return consultas, err
 }
