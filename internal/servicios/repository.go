@@ -35,7 +35,6 @@ func (r repository) GetServicios(ctx context.Context) ([]entity.Servicio, error)
 	err := r.db.With(ctx).
 		Select().
 		From().
-		OrderBy("apellidos asc").
 		All(&servicios)
 	if err != nil {
 		return servicios, err
