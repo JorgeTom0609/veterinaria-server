@@ -27,9 +27,16 @@ import (
 	"veterinaria-server/internal/factura"
 	"veterinaria-server/internal/generos"
 	"veterinaria-server/internal/healthcheck"
+	"veterinaria-server/internal/lote"
 	"veterinaria-server/internal/mascotas"
+	"veterinaria-server/internal/medida"
 	"veterinaria-server/internal/producto_vp"
+	"veterinaria-server/internal/productos"
+	"veterinaria-server/internal/proveedor"
+	"veterinaria-server/internal/proveedor_producto"
+	"veterinaria-server/internal/stock_individual"
 	"veterinaria-server/internal/tipo_examen"
+	"veterinaria-server/internal/unidad"
 	"veterinaria-server/pkg/accesslog"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
@@ -189,6 +196,41 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	consultas.RegisterHandlers(rg.Group(""),
 		consultas.NewService(consultas.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	proveedor.RegisterHandlers(rg.Group(""),
+		proveedor.NewService(proveedor.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	productos.RegisterHandlers(rg.Group(""),
+		productos.NewService(productos.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	proveedor_producto.RegisterHandlers(rg.Group(""),
+		proveedor_producto.NewService(proveedor_producto.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	lote.RegisterHandlers(rg.Group(""),
+		lote.NewService(lote.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	stock_individual.RegisterHandlers(rg.Group(""),
+		stock_individual.NewService(stock_individual.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	unidad.RegisterHandlers(rg.Group(""),
+		unidad.NewService(unidad.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	medida.RegisterHandlers(rg.Group(""),
+		medida.NewService(medida.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 
