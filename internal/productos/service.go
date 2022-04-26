@@ -12,6 +12,7 @@ import (
 // Service encapsulates usecase logic for productos.
 type Service interface {
 	GetProductos(ctx context.Context) ([]Producto, error)
+	GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]Producto, error)
 	GetProductoPorId(ctx context.Context, idProducto int) (Producto, error)
 	CrearProducto(ctx context.Context, input CreateProductoRequest) (Producto, error)
 	ActualizarProducto(ctx context.Context, input UpdateProductoRequest) (Producto, error)
@@ -45,6 +46,18 @@ func (s service) GetProductos(ctx context.Context) ([]Producto, error) {
 	return result, nil
 }
 
+func (s service) GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]Producto, error) {
+	productos, err := s.repo.GetProductosSinAsignarAProveedor(ctx, idProveedor)
+	if err != nil {
+		return nil, err
+	}
+	result := []Producto{}
+	for _, item := range productos {
+		result = append(result, Producto{item})
+	}
+	return result, nil
+}
+
 // CreateProductoRequest represents an producto creation request.
 type CreateProductoRequest struct {
 	Descripcion  string       `json:"descripcion"`
@@ -53,6 +66,7 @@ type CreateProductoRequest struct {
 	UsoInterno   sql.NullBool `json:"uso_interno"`
 	VentaPublico sql.NullBool `json:"venta_publico"`
 	PorMedida    sql.NullBool `json:"por_medida"`
+	StockMinimo  int          `json:"stock_minimo"`
 }
 
 type UpdateProductoRequest struct {
@@ -63,6 +77,7 @@ type UpdateProductoRequest struct {
 	UsoInterno   sql.NullBool `json:"uso_interno"`
 	VentaPublico sql.NullBool `json:"venta_publico"`
 	PorMedida    sql.NullBool `json:"por_medida"`
+	StockMinimo  int          `json:"stock_minimo"`
 }
 
 // Validate validates the UpdateProductoRequest fields.
@@ -91,6 +106,7 @@ func (s service) CrearProducto(ctx context.Context, req CreateProductoRequest) (
 		UsoInterno:   req.UsoInterno,
 		VentaPublico: req.VentaPublico,
 		PorMedida:    req.PorMedida,
+		StockMinimo:  req.StockMinimo,
 	})
 	if err != nil {
 		return Producto{}, err
@@ -111,6 +127,7 @@ func (s service) ActualizarProducto(ctx context.Context, req UpdateProductoReque
 		UsoInterno:   req.UsoInterno,
 		VentaPublico: req.VentaPublico,
 		PorMedida:    req.PorMedida,
+		StockMinimo:  req.StockMinimo,
 	})
 	if err != nil {
 		return Producto{}, err

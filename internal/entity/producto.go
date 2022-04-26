@@ -10,6 +10,7 @@ type Producto struct {
 	UsoInterno   sql.NullBool `json:"uso_interno" db:"uso_interno"`
 	VentaPublico sql.NullBool `json:"venta_publico" db:"venta_publico"`
 	PorMedida    sql.NullBool `json:"por_medida" db:"por_medida"`
+	StockMinimo  int          `json:"stock_minimo" db:"stock_minimo"`
 }
 
 func (r Producto) TableName() string {

@@ -5,12 +5,15 @@ import (
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access proveedoresProducto from the data source.
 type Repository interface {
 	// GetProveedorProductoPorId returns the proveedorProducto with the specified proveedorProducto ID.
 	GetProveedorProductoPorId(ctx context.Context, idProveedorProducto int) (entity.ProveedorProducto, error)
+	GetProveedorProductoPorIdProveedor(ctx context.Context, idProveedor int) ([]ProveedorProductoConDatos, error)
 	// GetProveedoresProducto returns the list proveedoresProducto.
 	GetProveedoresProducto(ctx context.Context) ([]entity.ProveedorProducto, error)
 	CrearProveedorProducto(ctx context.Context, proveedorProducto entity.ProveedorProducto) (entity.ProveedorProducto, error)
@@ -72,4 +75,36 @@ func (r repository) GetProveedorProductoPorId(ctx context.Context, idProveedorPr
 	var proveedorProducto entity.ProveedorProducto
 	err := r.db.With(ctx).Select().Model(idProveedorProducto, &proveedorProducto)
 	return proveedorProducto, err
+}
+
+func (r repository) GetProveedorProductoPorIdProveedor(ctx context.Context, idProveedor int) ([]ProveedorProductoConDatos, error) {
+	var proveedorProductos []entity.ProveedorProducto
+	var listaProveedorProductoConDatos []ProveedorProductoConDatos = []ProveedorProductoConDatos{}
+
+	err := r.db.With(ctx).Select().
+		Where(dbx.HashExp{"id_proveedor": idProveedor}).
+		All(&proveedorProductos)
+
+	if err != nil {
+		return []ProveedorProductoConDatos{}, err
+	}
+
+	for i := 0; i < len(proveedorProductos); i++ {
+		var producto entity.Producto
+		err = r.db.With(ctx).Select().
+			From("producto").
+			Where(dbx.HashExp{"id_producto": proveedorProductos[i].IdProducto}).
+			One(&producto)
+
+		if err != nil {
+			return []ProveedorProductoConDatos{}, err
+		}
+
+		listaProveedorProductoConDatos = append(listaProveedorProductoConDatos, ProveedorProductoConDatos{
+			ProveedorProducto: proveedorProductos[i],
+			Producto:          producto,
+		})
+	}
+
+	return listaProveedorProductoConDatos, nil
 }

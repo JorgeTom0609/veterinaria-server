@@ -82,12 +82,21 @@ func (r repository) GetTipoExamenPorEspecieDisponibles(ctx context.Context, idEs
 		}
 	}
 
-	err = r.db.With(ctx).
-		Select().
-		From().
-		Where(dbx.HashExp{"id_especie": idEspecie}).
-		AndWhere(dbx.NewExp("id_tipo_examen not in (" + idsTiposExamenes + ")")).
-		All(&tipoExamenes)
+	if len(examenesMascota) > 0 {
+		err = r.db.With(ctx).
+			Select().
+			From().
+			Where(dbx.HashExp{"id_especie": idEspecie}).
+			AndWhere(dbx.NewExp("id_tipo_examen not in (" + idsTiposExamenes + ")")).
+			All(&tipoExamenes)
+	} else {
+		err = r.db.With(ctx).
+			Select().
+			From().
+			Where(dbx.HashExp{"id_especie": idEspecie}).
+			All(&tipoExamenes)
+	}
+
 	if err != nil {
 		return tipoExamenes, err
 	}

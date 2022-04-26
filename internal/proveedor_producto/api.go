@@ -16,8 +16,10 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	// the following endpoints require a valid JWT
 	r.Get("/proveedoresProducto", res.getProveedoresProducto)
 	r.Get("/proveedoresProducto/<idProveedorProducto>", res.getProveedorProductoPorId)
+	r.Get("/proveedoresProducto/porProveedor/<idProveedor>", res.getProveedorProductoPorIdProveedor)
 	r.Post("/proveedoresProducto", res.crearProveedorProducto)
 	r.Put("/proveedoresProducto", res.actualizarProveedorProducto)
+	r.Put("/proveedoresProducto/varios", res.actualizarProveedorProductos)
 }
 
 type resource struct {
@@ -59,9 +61,36 @@ func (r resource) actualizarProveedorProducto(c *routing.Context) error {
 	return c.WriteWithStatus(proveedorProducto, http.StatusCreated)
 }
 
+func (r resource) actualizarProveedorProductos(c *routing.Context) error {
+	var input UpdateProveedorProductosRequest
+	if err := c.Read(&input); err != nil {
+		r.logger.With(c.Request.Context()).Info(err)
+		return errors.BadRequest("")
+	}
+
+	proveedorProductos := []ProveedorProducto{}
+	for i := 0; i < len(input.ProveedorProductos); i++ {
+		proveedorProducto, err := r.service.ActualizarProveedorProducto(c.Request.Context(), input.ProveedorProductos[i])
+		if err != nil {
+			return err
+		}
+		proveedorProductos = append(proveedorProductos, proveedorProducto)
+	}
+	return c.WriteWithStatus(proveedorProductos, http.StatusCreated)
+}
+
 func (r resource) getProveedorProductoPorId(c *routing.Context) error {
 	idProveedorProducto, _ := strconv.Atoi(c.Param("idProveedorProducto"))
 	proveedorProducto, err := r.service.GetProveedorProductoPorId(c.Request.Context(), idProveedorProducto)
+	if err != nil {
+		return err
+	}
+	return c.Write(proveedorProducto)
+}
+
+func (r resource) getProveedorProductoPorIdProveedor(c *routing.Context) error {
+	idProveedor, _ := strconv.Atoi(c.Param("idProveedor"))
+	proveedorProducto, err := r.service.GetProveedorProductoPorIdProveedor(c.Request.Context(), idProveedor)
 	if err != nil {
 		return err
 	}

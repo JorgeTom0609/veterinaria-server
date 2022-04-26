@@ -2,9 +2,12 @@ package productos
 
 import (
 	"context"
+	"strconv"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access productos from the data source.
@@ -13,6 +16,7 @@ type Repository interface {
 	GetProductoPorId(ctx context.Context, idProducto int) (entity.Producto, error)
 	// GetProductos returns the list productos.
 	GetProductos(ctx context.Context) ([]entity.Producto, error)
+	GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]entity.Producto, error)
 	CrearProducto(ctx context.Context, producto entity.Producto) (entity.Producto, error)
 	ActualizarProducto(ctx context.Context, producto entity.Producto) (entity.Producto, error)
 }
@@ -36,6 +40,44 @@ func (r repository) GetProductos(ctx context.Context) ([]entity.Producto, error)
 		Select().
 		From().
 		All(&productos)
+	if err != nil {
+		return productos, err
+	}
+	return productos, err
+}
+
+func (r repository) GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]entity.Producto, error) {
+	var productos []entity.Producto
+	var proveedorProductos []entity.ProveedorProducto
+	var idsProductos string = ""
+
+	err := r.db.With(ctx).
+		Select().
+		From().
+		Where(dbx.HashExp{"id_proveedor": idProveedor}).
+		All(&proveedorProductos)
+
+	for i := 0; i < len(proveedorProductos); i++ {
+		if i == 0 {
+			idsProductos = idsProductos + strconv.Itoa(proveedorProductos[i].IdProducto)
+		} else {
+			idsProductos = idsProductos + ", " + strconv.Itoa(proveedorProductos[i].IdProducto)
+		}
+	}
+
+	if len(proveedorProductos) > 0 {
+		err = r.db.With(ctx).
+			Select().
+			From().
+			Where(dbx.NewExp("id_producto not in (" + idsProductos + ")")).
+			All(&productos)
+	} else {
+		err = r.db.With(ctx).
+			Select().
+			From().
+			All(&productos)
+	}
+
 	if err != nil {
 		return productos, err
 	}

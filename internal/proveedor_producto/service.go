@@ -12,6 +12,7 @@ import (
 type Service interface {
 	GetProveedoresProducto(ctx context.Context) ([]ProveedorProducto, error)
 	GetProveedorProductoPorId(ctx context.Context, idProveedorProducto int) (ProveedorProducto, error)
+	GetProveedorProductoPorIdProveedor(ctx context.Context, idProveedor int) ([]ProveedorProductoConDatos, error)
 	CrearProveedorProducto(ctx context.Context, input CreateProveedorProductoRequest) (ProveedorProducto, error)
 	ActualizarProveedorProducto(ctx context.Context, input UpdateProveedorProductoRequest) (ProveedorProducto, error)
 }
@@ -56,6 +57,15 @@ type UpdateProveedorProductoRequest struct {
 	IdProveedor         int     `json:"id_proveedor"`
 	IdProducto          int     `json:"id_producto"`
 	PrecioCompra        float32 `json:"precio_compra"`
+}
+
+type UpdateProveedorProductosRequest struct {
+	ProveedorProductos []UpdateProveedorProductoRequest `json:"proveedorProductos"`
+}
+
+type ProveedorProductoConDatos struct {
+	entity.ProveedorProducto
+	entity.Producto `json:"producto"`
 }
 
 // Validate validates the UpdateProveedorProductoRequest fields.
@@ -114,4 +124,12 @@ func (s service) GetProveedorProductoPorId(ctx context.Context, idProveedorProdu
 		return ProveedorProducto{}, err
 	}
 	return ProveedorProducto{proveedorProducto}, nil
+}
+
+func (s service) GetProveedorProductoPorIdProveedor(ctx context.Context, idProveedor int) ([]ProveedorProductoConDatos, error) {
+	proveedorProductoConDatos, err := s.repo.GetProveedorProductoPorIdProveedor(ctx, idProveedor)
+	if err != nil {
+		return []ProveedorProductoConDatos{}, err
+	}
+	return proveedorProductoConDatos, nil
 }
