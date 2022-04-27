@@ -16,7 +16,7 @@ import (
 	"veterinaria-server/internal/compra"
 	"veterinaria-server/internal/config"
 	"veterinaria-server/internal/consultas"
-	"veterinaria-server/internal/detalle_compra_vp"
+	"veterinaria-server/internal/detalle_compra"
 	"veterinaria-server/internal/detalle_examen_cualitativo"
 	"veterinaria-server/internal/detalle_examen_cuantitativo"
 	"veterinaria-server/internal/detalle_examen_informativo"
@@ -30,7 +30,6 @@ import (
 	"veterinaria-server/internal/lote"
 	"veterinaria-server/internal/mascotas"
 	"veterinaria-server/internal/medida"
-	"veterinaria-server/internal/producto_vp"
 	"veterinaria-server/internal/productos"
 	"veterinaria-server/internal/proveedor"
 	"veterinaria-server/internal/proveedor_producto"
@@ -169,11 +168,6 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		authHandler, logger,
 	)
 
-	producto_vp.RegisterHandlers(rg.Group(""),
-		producto_vp.NewService(producto_vp.NewRepository(db, logger), logger),
-		authHandler, logger,
-	)
-
 	factura.RegisterHandlers(rg.Group(""),
 		factura.NewService(factura.NewRepository(db, logger), logger),
 		authHandler, logger, db,
@@ -189,8 +183,8 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		authHandler, logger, db,
 	)
 
-	detalle_compra_vp.RegisterHandlers(rg.Group(""),
-		detalle_compra_vp.NewService(detalle_compra_vp.NewRepository(db, logger), logger),
+	detalle_compra.RegisterHandlers(rg.Group(""),
+		detalle_compra.NewService(detalle_compra.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 

@@ -67,6 +67,8 @@ type CreateProductoRequest struct {
 	VentaPublico sql.NullBool `json:"venta_publico"`
 	PorMedida    sql.NullBool `json:"por_medida"`
 	StockMinimo  int          `json:"stock_minimo"`
+	Contenido    *float32     `json:"contenido"`
+	IdUnidad     *int         `json:"id_unidad"`
 }
 
 type UpdateProductoRequest struct {
@@ -78,6 +80,8 @@ type UpdateProductoRequest struct {
 	VentaPublico sql.NullBool `json:"venta_publico"`
 	PorMedida    sql.NullBool `json:"por_medida"`
 	StockMinimo  int          `json:"stock_minimo"`
+	Contenido    *float32     `json:"contenido"`
+	IdUnidad     *int         `json:"id_unidad"`
 }
 
 // Validate validates the UpdateProductoRequest fields.
@@ -107,6 +111,8 @@ func (s service) CrearProducto(ctx context.Context, req CreateProductoRequest) (
 		VentaPublico: req.VentaPublico,
 		PorMedida:    req.PorMedida,
 		StockMinimo:  req.StockMinimo,
+		IdUnidad:     req.IdUnidad,
+		Contenido:    req.Contenido,
 	})
 	if err != nil {
 		return Producto{}, err
@@ -128,6 +134,8 @@ func (s service) ActualizarProducto(ctx context.Context, req UpdateProductoReque
 		VentaPublico: req.VentaPublico,
 		PorMedida:    req.PorMedida,
 		StockMinimo:  req.StockMinimo,
+		IdUnidad:     req.IdUnidad,
+		Contenido:    req.Contenido,
 	})
 	if err != nil {
 		return Producto{}, err

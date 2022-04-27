@@ -3,7 +3,7 @@ package compra
 import (
 	"context"
 	"time"
-	"veterinaria-server/internal/detalle_compra_vp"
+	"veterinaria-server/internal/detalle_compra"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/log"
 
@@ -63,6 +63,7 @@ func (s service) GetComprasConDatos(ctx context.Context) ([]ComprasConDatos, err
 // CreateCompraRequest represents an compra creation request.
 type CreateCompraRequest struct {
 	IdUsuario   int       `json:"id_usuario"`
+	IdProveedor int       `json:"id_proveedor"`
 	Fecha       time.Time `json:"fecha"`
 	Valor       float32   `json:"valor"`
 	Descripcion *string   `json:"descripcion"`
@@ -71,26 +72,29 @@ type CreateCompraRequest struct {
 type UpdateCompraRequest struct {
 	IdUsuario   int       `json:"id_usuario"`
 	IdCompra    int       `json:"id_compra"`
+	IdProveedor int       `json:"id_proveedor"`
 	Fecha       time.Time `json:"fecha"`
 	Valor       float32   `json:"valor"`
 	Descripcion *string   `json:"descripcion"`
 }
 
 type CreateCompraConDetallesRequest struct {
-	Compra            CreateCompraRequest                              `json:"compra"`
-	DetallesComprasVP []detalle_compra_vp.CreateDetalleCompraVPRequest `json:"detalles_compra_vp"`
+	Compra          CreateCompraRequest                         `json:"compra"`
+	DetallesCompras []detalle_compra.CreateDetalleCompraRequest `json:"detalles_compra"`
 }
 
 // Validate validates the UpdateCompraRequest fields.
 func (m UpdateCompraRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.IdUsuario, validation.Required))
+		validation.Field(&m.IdUsuario, validation.Required),
+		validation.Field(&m.IdProveedor, validation.Required))
 }
 
 // Validate validates the CreateCompraRequest fields.
 func (m CreateCompraRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.IdUsuario, validation.Required))
+		validation.Field(&m.IdUsuario, validation.Required),
+		validation.Field(&m.IdProveedor, validation.Required))
 }
 
 // CrearCompra creates a new compra.
@@ -100,6 +104,7 @@ func (s service) CrearCompra(ctx context.Context, req CreateCompraRequest) (Comp
 	}
 	compraG, err := s.repo.CrearCompra(ctx, entity.Compras{
 		IdUsuario:   req.IdUsuario,
+		IdProveedor: req.IdProveedor,
 		Fecha:       req.Fecha,
 		Valor:       req.Valor,
 		Descripcion: req.Descripcion,
@@ -118,6 +123,7 @@ func (s service) ActualizarCompra(ctx context.Context, req UpdateCompraRequest) 
 	compraG, err := s.repo.ActualizarCompra(ctx, entity.Compras{
 		IdCompra:    req.IdCompra,
 		IdUsuario:   req.IdUsuario,
+		IdProveedor: req.IdProveedor,
 		Fecha:       req.Fecha,
 		Valor:       req.Valor,
 		Descripcion: req.Descripcion,

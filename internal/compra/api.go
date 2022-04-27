@@ -3,9 +3,8 @@ package compra
 import (
 	"net/http"
 	"strconv"
-	"veterinaria-server/internal/detalle_compra_vp"
+	"veterinaria-server/internal/detalle_compra"
 	"veterinaria-server/internal/errors"
-	"veterinaria-server/internal/producto_vp"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
 
@@ -94,37 +93,20 @@ func (r resource) crearCompraConDetalles(c *routing.Context) error {
 		return err
 	}
 	//Guardar detalles compra
-	detallesCompraG := []detalle_compra_vp.DetalleCompraVP{}
-	for i := 0; i < len(input.DetallesComprasVP); i++ {
-		input.DetallesComprasVP[i].IdCompra = compraG.IdCompra
-		s := detalle_compra_vp.NewService(detalle_compra_vp.NewRepository(r.db, r.logger), r.logger)
-		detalleCompraG, err := s.CrearDetalleCompraVP(c.Request.Context(), input.DetallesComprasVP[i])
+	detallesCompraG := []detalle_compra.DetalleCompra{}
+	for i := 0; i < len(input.DetallesCompras); i++ {
+		input.DetallesCompras[i].IdCompra = compraG.IdCompra
+		s := detalle_compra.NewService(detalle_compra.NewRepository(r.db, r.logger), r.logger)
+		detalleCompraG, err := s.CrearDetalleCompra(c.Request.Context(), input.DetallesCompras[i])
 		if err != nil {
 			return err
-		}
-		s2 := producto_vp.NewService(producto_vp.NewRepository(r.db, r.logger), r.logger)
-		productoCompraBD, err2 := s2.GetProductoVPPorId(c.Request.Context(), detalleCompraG.IdProductoVp)
-		if err2 != nil {
-			return err2
-		}
-		_, err3 := s2.ActualizarProductoVP(c.Request.Context(),
-			producto_vp.UpdateProductoVPRequest{
-				IdProductoVP: productoCompraBD.IdProductoVP,
-				Descripcion:  productoCompraBD.Descripcion,
-				PrecioCompra: productoCompraBD.PrecioCompra,
-				PrecioVenta:  productoCompraBD.PrecioVenta,
-				Stock:        productoCompraBD.Stock + detalleCompraG.Cantidad,
-				StockMinimo:  productoCompraBD.StockMinimo,
-			})
-		if err3 != nil {
-			return err3
 		}
 		detallesCompraG = append(detallesCompraG, detalleCompraG)
 	}
 
 	var result = struct {
-		Compra            Compras
-		DetallesComprasVP []detalle_compra_vp.DetalleCompraVP
+		Compra          Compras
+		DetallesCompras []detalle_compra.DetalleCompra
 	}{compraG, detallesCompraG}
 
 	return c.WriteWithStatus(result, http.StatusCreated)

@@ -46,17 +46,17 @@ func (s service) GetStocksIndividual(ctx context.Context) ([]StockIndividual, er
 
 // CreateStockIndividualRequest represents an stockIndividual creation request.
 type CreateStockIndividualRequest struct {
-	IdLote      int     `json:"id_lote"`
-	IdUnidad    int     `json:"id_unidad"`
-	Descripcion string  `json:"descripcion"`
-	Cantidad    float32 `json:"cantidad"`
+	IdLote          int     `json:"id_lote"`
+	Descripcion     string  `json:"descripcion"`
+	CantidadInicial float32 `json:"cantidad_inicial"`
+	Cantidad        float32 `json:"cantidad"`
 }
 
 type UpdateStockIndividualRequest struct {
 	IdStockIndividual int     `json:"id_stock_individual"`
 	IdLote            int     `json:"id_lote"`
-	IdUnidad          int     `json:"id_unidad"`
 	Descripcion       string  `json:"descripcion"`
+	CantidadInicial   float32 `json:"cantidad_inicial"`
 	Cantidad          float32 `json:"cantidad"`
 }
 
@@ -64,7 +64,7 @@ type UpdateStockIndividualRequest struct {
 func (m UpdateStockIndividualRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdLote, validation.Required),
-		validation.Field(&m.IdUnidad, validation.Required),
+		validation.Field(&m.CantidadInicial, validation.Required),
 		validation.Field(&m.Cantidad, validation.Required),
 		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
 	)
@@ -74,7 +74,7 @@ func (m UpdateStockIndividualRequest) ValidateUpdate() error {
 func (m CreateStockIndividualRequest) Validate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdLote, validation.Required),
-		validation.Field(&m.IdUnidad, validation.Required),
+		validation.Field(&m.CantidadInicial, validation.Required),
 		validation.Field(&m.Cantidad, validation.Required),
 		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
 	)
@@ -86,10 +86,10 @@ func (s service) CrearStockIndividual(ctx context.Context, req CreateStockIndivi
 		return StockIndividual{}, err
 	}
 	stockIndividualG, err := s.repo.CrearStockIndividual(ctx, entity.StockIndividual{
-		IdLote:      req.IdLote,
-		IdUnidad:    req.IdUnidad,
-		Descripcion: req.Descripcion,
-		Cantidad:    req.Cantidad,
+		IdLote:          req.IdLote,
+		CantidadInicial: req.CantidadInicial,
+		Descripcion:     req.Descripcion,
+		Cantidad:        req.Cantidad,
 	})
 	if err != nil {
 		return StockIndividual{}, err
@@ -105,7 +105,7 @@ func (s service) ActualizarStockIndividual(ctx context.Context, req UpdateStockI
 	stockIndividualG, err := s.repo.ActualizarStockIndividual(ctx, entity.StockIndividual{
 		IdStockIndividual: req.IdStockIndividual,
 		IdLote:            req.IdLote,
-		IdUnidad:          req.IdUnidad,
+		CantidadInicial:   req.CantidadInicial,
 		Descripcion:       req.Descripcion,
 		Cantidad:          req.Cantidad,
 	})

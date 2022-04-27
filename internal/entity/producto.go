@@ -11,6 +11,8 @@ type Producto struct {
 	VentaPublico sql.NullBool `json:"venta_publico" db:"venta_publico"`
 	PorMedida    sql.NullBool `json:"por_medida" db:"por_medida"`
 	StockMinimo  int          `json:"stock_minimo" db:"stock_minimo"`
+	IdUnidad     *int         `json:"id_unidad" db:"id_unidad"`
+	Contenido    *float32     `json:"contenido" db:"contenido"`
 }
 
 func (r Producto) TableName() string {

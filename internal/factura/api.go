@@ -4,10 +4,8 @@ import (
 	"net/http"
 	"strconv"
 	"veterinaria-server/internal/clientes"
-	"veterinaria-server/internal/detalle_factura"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/internal/errors"
-	"veterinaria-server/internal/producto_vp"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
 
@@ -120,7 +118,7 @@ func (r resource) crearFacturaConDetalles(c *routing.Context) error {
 		return err
 	}
 	//Guardar detalles factura
-	detallesFacturaG := []detalle_factura.DetalleFactura{}
+	/*detallesFacturaG := []detalle_factura.DetalleFactura{}
 	for i := 0; i < len(input.DetallesFactura); i++ {
 		input.DetallesFactura[i].IdFactura = facturaG.IdFactura
 		s := detalle_factura.NewService(detalle_factura.NewRepository(r.db, r.logger), r.logger)
@@ -128,14 +126,14 @@ func (r resource) crearFacturaConDetalles(c *routing.Context) error {
 		if err != nil {
 			return err
 		}
-		s2 := producto_vp.NewService(producto_vp.NewRepository(r.db, r.logger), r.logger)
-		productoVenderBD, err2 := s2.GetProductoVPPorId(c.Request.Context(), detalleFacturaG.IdProductoVp)
+		s2 := producto.NewService(producto.NewRepository(r.db, r.logger), r.logger)
+		productoVenderBD, err2 := s2.GetProductoPorId(c.Request.Context(), detalleFacturaG.IdProducto)
 		if err2 != nil {
 			return err2
 		}
-		_, err3 := s2.ActualizarProductoVP(c.Request.Context(),
-			producto_vp.UpdateProductoVPRequest{
-				IdProductoVP: productoVenderBD.IdProductoVP,
+		_, err3 := s2.ActualizarProducto(c.Request.Context(),
+			producto.UpdateProductoRequest{
+				IdProducto: productoVenderBD.IdProducto,
 				Descripcion:  productoVenderBD.Descripcion,
 				PrecioCompra: productoVenderBD.PrecioCompra,
 				PrecioVenta:  productoVenderBD.PrecioVenta,
@@ -147,12 +145,13 @@ func (r resource) crearFacturaConDetalles(c *routing.Context) error {
 		}
 		detallesFacturaG = append(detallesFacturaG, detalleFacturaG)
 	}
+	*/
 
 	var result = struct {
-		Cliente         clientes.Cliente
-		Factura         Factura
-		DetallesFactura []detalle_factura.DetalleFactura
-	}{clienteG, facturaG, detallesFacturaG}
+		Cliente clientes.Cliente
+		Factura Factura
+		//DetallesFactura []detalle_factura.DetalleFactura
+	}{clienteG, facturaG}
 
 	return c.WriteWithStatus(result, http.StatusCreated)
 }

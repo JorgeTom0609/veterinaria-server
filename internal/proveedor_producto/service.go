@@ -66,6 +66,7 @@ type UpdateProveedorProductosRequest struct {
 type ProveedorProductoConDatos struct {
 	entity.ProveedorProducto
 	entity.Producto `json:"producto"`
+	entity.Unidad   `json:"unidad"`
 }
 
 // Validate validates the UpdateProveedorProductoRequest fields.

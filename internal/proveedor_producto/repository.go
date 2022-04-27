@@ -91,6 +91,8 @@ func (r repository) GetProveedorProductoPorIdProveedor(ctx context.Context, idPr
 
 	for i := 0; i < len(proveedorProductos); i++ {
 		var producto entity.Producto
+		var unidad entity.Unidad
+
 		err = r.db.With(ctx).Select().
 			From("producto").
 			Where(dbx.HashExp{"id_producto": proveedorProductos[i].IdProducto}).
@@ -100,9 +102,21 @@ func (r repository) GetProveedorProductoPorIdProveedor(ctx context.Context, idPr
 			return []ProveedorProductoConDatos{}, err
 		}
 
+		if producto.IdUnidad != nil {
+			err = r.db.With(ctx).Select().
+				From("unidad").
+				Where(dbx.HashExp{"id_unidad": producto.IdUnidad}).
+				One(&unidad)
+
+			if err != nil {
+				return []ProveedorProductoConDatos{}, err
+			}
+		}
+
 		listaProveedorProductoConDatos = append(listaProveedorProductoConDatos, ProveedorProductoConDatos{
 			ProveedorProducto: proveedorProductos[i],
 			Producto:          producto,
+			Unidad:            unidad,
 		})
 	}
 
