@@ -20,7 +20,6 @@ import (
 	"veterinaria-server/internal/detalle_examen_cualitativo"
 	"veterinaria-server/internal/detalle_examen_cuantitativo"
 	"veterinaria-server/internal/detalle_examen_informativo"
-	"veterinaria-server/internal/detalle_factura"
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/internal/especies"
 	"veterinaria-server/internal/examen_mascota"
@@ -171,11 +170,6 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 	factura.RegisterHandlers(rg.Group(""),
 		factura.NewService(factura.NewRepository(db, logger), logger),
 		authHandler, logger, db,
-	)
-
-	detalle_factura.RegisterHandlers(rg.Group(""),
-		detalle_factura.NewService(detalle_factura.NewRepository(db, logger), logger),
-		authHandler, logger,
 	)
 
 	compra.RegisterHandlers(rg.Group(""),

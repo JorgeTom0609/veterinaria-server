@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"veterinaria-server/internal/detalle_compra"
 	"veterinaria-server/internal/errors"
+	"veterinaria-server/internal/lote"
+	"veterinaria-server/internal/stock_individual"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
 
@@ -92,22 +94,44 @@ func (r resource) crearCompraConDetalles(c *routing.Context) error {
 	if err != nil {
 		return err
 	}
+	detallesComprasConLoteG := []DetallesComprasConLote{}
 	//Guardar detalles compra
-	detallesCompraG := []detalle_compra.DetalleCompra{}
 	for i := 0; i < len(input.DetallesCompras); i++ {
-		input.DetallesCompras[i].IdCompra = compraG.IdCompra
-		s := detalle_compra.NewService(detalle_compra.NewRepository(r.db, r.logger), r.logger)
-		detalleCompraG, err := s.CrearDetalleCompra(c.Request.Context(), input.DetallesCompras[i])
+		s := lote.NewService(lote.NewRepository(r.db, r.logger), r.logger)
+		loteG, err := s.CrearLote(c.Request.Context(), input.DetallesCompras[i].Lote)
 		if err != nil {
 			return err
 		}
-		detallesCompraG = append(detallesCompraG, detalleCompraG)
+
+		stockIndiidualesG := []stock_individual.StockIndividual{}
+		for j := 0; j < len(input.DetallesCompras[i].StocksIndividuales); j++ {
+			input.DetallesCompras[i].StocksIndividuales[j].IdLote = loteG.IdLote
+			s2 := stock_individual.NewService(stock_individual.NewRepository(r.db, r.logger), r.logger)
+			stockIndividualG, err := s2.CrearStockIndividual(c.Request.Context(), input.DetallesCompras[i].StocksIndividuales[j])
+			if err != nil {
+				return err
+			}
+			stockIndiidualesG = append(stockIndiidualesG, stockIndividualG)
+		}
+		input.DetallesCompras[i].DetalleCompra.IdCompra = compraG.IdCompra
+		input.DetallesCompras[i].DetalleCompra.IdLote = loteG.IdLote
+		s3 := detalle_compra.NewService(detalle_compra.NewRepository(r.db, r.logger), r.logger)
+		detalleCompraG, err := s3.CrearDetalleCompra(c.Request.Context(), input.DetallesCompras[i].DetalleCompra)
+		if err != nil {
+			return err
+		}
+
+		detallesComprasConLoteG = append(detallesComprasConLoteG, DetallesComprasConLote{
+			Lote:               loteG.Lote,
+			DetalleCompra:      detalleCompraG.DetalleCompra,
+			StocksIndividuales: stockIndiidualesG,
+		})
 	}
 
 	var result = struct {
 		Compra          Compras
-		DetallesCompras []detalle_compra.DetalleCompra
-	}{compraG, detallesCompraG}
+		DetallesCompras []DetallesComprasConLote
+	}{compraG, detallesComprasConLoteG}
 
 	return c.WriteWithStatus(result, http.StatusCreated)
 }

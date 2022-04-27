@@ -5,6 +5,8 @@ import (
 	"time"
 	"veterinaria-server/internal/detalle_compra"
 	"veterinaria-server/internal/entity"
+	"veterinaria-server/internal/lote"
+	"veterinaria-server/internal/stock_individual"
 	"veterinaria-server/pkg/log"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -79,8 +81,20 @@ type UpdateCompraRequest struct {
 }
 
 type CreateCompraConDetallesRequest struct {
-	Compra          CreateCompraRequest                         `json:"compra"`
-	DetallesCompras []detalle_compra.CreateDetalleCompraRequest `json:"detalles_compra"`
+	Compra          CreateCompraRequest                   `json:"compra"`
+	DetallesCompras []CreateDetallesComprasConLoteRequest `json:"detalles_compra"`
+}
+
+type CreateDetallesComprasConLoteRequest struct {
+	Lote               lote.CreateLoteRequest                          `json:"lote"`
+	DetalleCompra      detalle_compra.CreateDetalleCompraRequest       `json:"detalle_compra"`
+	StocksIndividuales []stock_individual.CreateStockIndividualRequest `json:"stock_individuales"`
+}
+
+type DetallesComprasConLote struct {
+	Lote               entity.Lote                        `json:"lote"`
+	DetalleCompra      entity.DetalleCompra               `json:"detalle_compra"`
+	StocksIndividuales []stock_individual.StockIndividual `json:"stock_individuales"`
 }
 
 // Validate validates the UpdateCompraRequest fields.
