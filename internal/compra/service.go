@@ -29,6 +29,7 @@ type Compras struct {
 type ComprasConDatos struct {
 	entity.Compras
 	Comprador string `json:"comprador"`
+	Proveedor string `json:"proveedor"`
 }
 
 type service struct {

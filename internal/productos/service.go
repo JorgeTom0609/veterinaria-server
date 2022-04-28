@@ -13,6 +13,7 @@ import (
 type Service interface {
 	GetProductos(ctx context.Context) ([]Producto, error)
 	GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]Producto, error)
+	GetProductosConStock(ctx context.Context) ([]ProductosConStock, error)
 	GetProductoPorId(ctx context.Context, idProducto int) (Producto, error)
 	CrearProducto(ctx context.Context, input CreateProductoRequest) (Producto, error)
 	ActualizarProducto(ctx context.Context, input UpdateProductoRequest) (Producto, error)
@@ -21,6 +22,16 @@ type Service interface {
 // Productos represents the data about an productos.
 type Producto struct {
 	entity.Producto
+}
+
+type ProductosConStock struct {
+	Producto entity.Producto `json:"producto"`
+	Lote     []LoteConStock  `json:"lotes"`
+}
+
+type LoteConStock struct {
+	Lote            entity.Lote              `json:"lote"`
+	StockIndividual []entity.StockIndividual `json:"stock_individual"`
 }
 
 type service struct {
@@ -44,6 +55,14 @@ func (s service) GetProductos(ctx context.Context) ([]Producto, error) {
 		result = append(result, Producto{item})
 	}
 	return result, nil
+}
+
+func (s service) GetProductosConStock(ctx context.Context) ([]ProductosConStock, error) {
+	productos, err := s.repo.GetProductosConStock(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return productos, nil
 }
 
 func (s service) GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]Producto, error) {

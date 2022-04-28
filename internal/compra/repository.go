@@ -48,7 +48,7 @@ func (r repository) GetCompras(ctx context.Context) ([]entity.Compras, error) {
 func (r repository) GetComprasConDatos(ctx context.Context) ([]ComprasConDatos, error) {
 	var compras []entity.Compras
 	var comprasConDatos []ComprasConDatos = []ComprasConDatos{}
-	var compradorNombre, compradorApellido string
+	var compradorNombre, compradorApellido, proveedor string
 
 	err := r.db.With(ctx).
 		Select().
@@ -56,6 +56,7 @@ func (r repository) GetComprasConDatos(ctx context.Context) ([]ComprasConDatos, 
 
 	for i := 0; i < len(compras); i++ {
 		idUsuario := compras[i].IdUsuario
+		idProveedor := compras[i].IdProveedor
 		err := r.db.With(ctx).
 			Select("nombre", "apellido").
 			From("usuarios").
@@ -65,9 +66,19 @@ func (r repository) GetComprasConDatos(ctx context.Context) ([]ComprasConDatos, 
 			return []ComprasConDatos{}, err
 		}
 
+		err2 := r.db.With(ctx).
+			Select("descripcion").
+			From("proveedor").
+			Where(dbx.HashExp{"id_proveedor": idProveedor}).
+			Row(&proveedor)
+		if err2 != nil {
+			return []ComprasConDatos{}, err2
+		}
+
 		comprasConDatos = append(comprasConDatos, ComprasConDatos{
 			compras[i],
 			compradorApellido + " " + compradorNombre,
+			proveedor,
 		})
 	}
 
