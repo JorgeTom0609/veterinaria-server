@@ -25,8 +25,9 @@ type Producto struct {
 }
 
 type ProductosConStock struct {
-	Producto entity.Producto `json:"producto"`
-	Lote     []LoteConStock  `json:"lotes"`
+	StockPorProducto int             `json:"stock_por_producto"`
+	Producto         entity.Producto `json:"producto"`
+	Lote             []LoteConStock  `json:"lotes"`
 }
 
 type LoteConStock struct {

@@ -51,6 +51,7 @@ func (r repository) GetProductosConStock(ctx context.Context) ([]ProductosConSto
 	var productos []entity.Producto
 	var lotes []entity.Lote
 	var stockIndividuales []entity.StockIndividual
+	var stockPorProducto int
 
 	var productoConStock ProductosConStock
 	var productosConStock []ProductosConStock
@@ -64,6 +65,7 @@ func (r repository) GetProductosConStock(ctx context.Context) ([]ProductosConSto
 	}
 	for i := 0; i < len(productos); i++ {
 		productoConStock = ProductosConStock{}
+		stockPorProducto = 0
 		lotes = []entity.Lote{}
 		err := r.db.With(ctx).
 			Select().
@@ -93,6 +95,17 @@ func (r repository) GetProductosConStock(ctx context.Context) ([]ProductosConSto
 			}
 		}
 		if len(lotes) > 0 {
+			err = r.db.With(ctx).
+				Select("sum(stock)").
+				From("lote l").
+				InnerJoin("proveedor_producto as pp", dbx.NewExp("pp.id_proveedor_producto = l.id_proveedor_producto")).
+				Where(dbx.HashExp{"pp.id_producto": productos[i].IdProducto}).
+				AndWhere(dbx.NewExp("(DATE(now()) <= fecha_caducidad or fecha_caducidad is null) and stock > 0")).
+				Row(&stockPorProducto)
+			if err != nil {
+				return []ProductosConStock{}, err
+			}
+			productoConStock.StockPorProducto = stockPorProducto
 			productoConStock.Producto = productos[i]
 			productosConStock = append(productosConStock, productoConStock)
 		}
