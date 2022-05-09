@@ -4,8 +4,11 @@ import (
 	"net/http"
 	"strconv"
 	"veterinaria-server/internal/clientes"
+	"veterinaria-server/internal/detalle_factura"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/internal/errors"
+	"veterinaria-server/internal/lote"
+	"veterinaria-server/internal/stock_individual"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
 
@@ -118,7 +121,7 @@ func (r resource) crearFacturaConDetalles(c *routing.Context) error {
 		return err
 	}
 	//Guardar detalles factura
-	/*detallesFacturaG := []detalle_factura.DetalleFactura{}
+	detallesFacturaG := []detalle_factura.DetalleFactura{}
 	for i := 0; i < len(input.DetallesFactura); i++ {
 		input.DetallesFactura[i].IdFactura = facturaG.IdFactura
 		s := detalle_factura.NewService(detalle_factura.NewRepository(r.db, r.logger), r.logger)
@@ -126,32 +129,68 @@ func (r resource) crearFacturaConDetalles(c *routing.Context) error {
 		if err != nil {
 			return err
 		}
-		s2 := producto.NewService(producto.NewRepository(r.db, r.logger), r.logger)
-		productoVenderBD, err2 := s2.GetProductoPorId(c.Request.Context(), detalleFacturaG.IdProducto)
-		if err2 != nil {
-			return err2
+		if detalleFacturaG.Tabla == "lote" {
+			s2 := lote.NewService(lote.NewRepository(r.db, r.logger), r.logger)
+			productoVenderBD, err2 := s2.GetLotePorId(c.Request.Context(), detalleFacturaG.IdReferencia)
+			if err2 != nil {
+				return err2
+			}
+			_, err3 := s2.ActualizarLote(c.Request.Context(),
+				lote.UpdateLoteRequest{
+					IdLote:              productoVenderBD.IdLote,
+					Descripcion:         productoVenderBD.Descripcion,
+					IdProveedorProducto: productoVenderBD.IdProveedorProducto,
+					FechaCaducidad:      productoVenderBD.FechaCaducidad,
+					Stock:               productoVenderBD.Stock - int(detalleFacturaG.Cantidad),
+				})
+			if err3 != nil {
+				return err3
+			}
+		} else {
+			s2 := stock_individual.NewService(stock_individual.NewRepository(r.db, r.logger), r.logger)
+			productoVenderBD, err2 := s2.GetStockIndividualPorId(c.Request.Context(), detalleFacturaG.IdReferencia)
+			if err2 != nil {
+				return err2
+			}
+			_, err3 := s2.ActualizarStockIndividual(c.Request.Context(),
+				stock_individual.UpdateStockIndividualRequest{
+					IdLote:            productoVenderBD.IdLote,
+					Descripcion:       productoVenderBD.Descripcion,
+					IdStockIndividual: productoVenderBD.IdStockIndividual,
+					CantidadInicial:   productoVenderBD.CantidadInicial,
+					Cantidad:          productoVenderBD.Cantidad - detalleFacturaG.Cantidad,
+				})
+			if err3 != nil {
+				return err3
+			}
+			if (productoVenderBD.Cantidad - detalleFacturaG.Cantidad) == float32(0) {
+				s2 := lote.NewService(lote.NewRepository(r.db, r.logger), r.logger)
+				productoVenderBD, err2 := s2.GetLotePorId(c.Request.Context(), detalleFacturaG.IdReferencia)
+				if err2 != nil {
+					return err2
+				}
+				_, err3 := s2.ActualizarLote(c.Request.Context(),
+					lote.UpdateLoteRequest{
+						IdLote:              productoVenderBD.IdLote,
+						Descripcion:         productoVenderBD.Descripcion,
+						IdProveedorProducto: productoVenderBD.IdProveedorProducto,
+						FechaCaducidad:      productoVenderBD.FechaCaducidad,
+						Stock:               productoVenderBD.Stock - 1,
+					})
+				if err3 != nil {
+					return err3
+				}
+			}
 		}
-		_, err3 := s2.ActualizarProducto(c.Request.Context(),
-			producto.UpdateProductoRequest{
-				IdProducto: productoVenderBD.IdProducto,
-				Descripcion:  productoVenderBD.Descripcion,
-				PrecioCompra: productoVenderBD.PrecioCompra,
-				PrecioVenta:  productoVenderBD.PrecioVenta,
-				Stock:        productoVenderBD.Stock - detalleFacturaG.Cantidad,
-				StockMinimo:  productoVenderBD.StockMinimo,
-			})
-		if err3 != nil {
-			return err3
-		}
+
 		detallesFacturaG = append(detallesFacturaG, detalleFacturaG)
 	}
-	*/
 
 	var result = struct {
-		Cliente clientes.Cliente
-		Factura Factura
-		//DetallesFactura []detalle_factura.DetalleFactura
-	}{clienteG, facturaG}
+		Cliente         clientes.Cliente
+		Factura         Factura
+		DetallesFactura []detalle_factura.DetalleFactura
+	}{clienteG, facturaG, detallesFacturaG}
 
 	return c.WriteWithStatus(result, http.StatusCreated)
 }

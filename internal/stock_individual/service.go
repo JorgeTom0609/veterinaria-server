@@ -65,7 +65,7 @@ func (m UpdateStockIndividualRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdLote, validation.Required),
 		validation.Field(&m.CantidadInicial, validation.Required),
-		validation.Field(&m.Cantidad, validation.Required),
+		//validation.Field(&m.Cantidad, validation.Required),
 		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
 	)
 }

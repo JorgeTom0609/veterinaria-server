@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 	"veterinaria-server/internal/clientes"
+	"veterinaria-server/internal/detalle_factura"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/log"
 
@@ -78,9 +79,9 @@ type UpdateFacturaRequest struct {
 }
 
 type CreateFacturaConDetallesRequest struct {
-	Cliente clientes.CreateClienteRequest `json:"cliente"`
-	Factura CreateFacturaRequest          `json:"factura"`
-	//DetallesFactura []detalle_factura.CreateDetalleFacturaRequest `json:"detalles_factura"`
+	Cliente         clientes.CreateClienteRequest                 `json:"cliente"`
+	Factura         CreateFacturaRequest                          `json:"factura"`
+	DetallesFactura []detalle_factura.CreateDetalleFacturaRequest `json:"detalles_factura"`
 }
 
 // Validate validates the UpdateFacturaRequest fields.
