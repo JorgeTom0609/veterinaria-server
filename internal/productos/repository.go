@@ -17,6 +17,7 @@ type Repository interface {
 	// GetProductos returns the list productos.
 	GetProductos(ctx context.Context) ([]entity.Producto, error)
 	GetProductosConStock(ctx context.Context) ([]ProductosConStock, error)
+	GetProductosAComparar(ctx context.Context, idProveedor1 int, idProveedor2 int) ([]ProductoComparado, error)
 	GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]entity.Producto, error)
 	CrearProducto(ctx context.Context, producto entity.Producto) (entity.Producto, error)
 	ActualizarProducto(ctx context.Context, producto entity.Producto) (entity.Producto, error)
@@ -150,6 +151,20 @@ func (r repository) GetProductosSinAsignarAProveedor(ctx context.Context, idProv
 		return productos, err
 	}
 	return productos, err
+}
+
+func (r repository) GetProductosAComparar(ctx context.Context, idProveedor1 int, idProveedor2 int) ([]ProductoComparado, error) {
+	var productosComparados []ProductoComparado
+	err := r.db.With(ctx).
+		Select("pr.descripcion as producto", "pp1.precio_compra as precio1", "pp2.precio_compra as precio2").
+		From("producto pr").
+		InnerJoin("proveedor_producto as pp1", dbx.NewExp("pp1.id_producto = pr.id_producto and pp1.id_proveedor = "+strconv.Itoa(idProveedor1))).
+		InnerJoin("proveedor_producto as pp2", dbx.NewExp("pp2.id_producto = pr.id_producto and pp2.id_proveedor = "+strconv.Itoa(idProveedor2))).
+		All(&productosComparados)
+	if err != nil {
+		return []ProductoComparado{}, err
+	}
+	return productosComparados, err
 }
 
 // Create saves a new Producto record in the database.

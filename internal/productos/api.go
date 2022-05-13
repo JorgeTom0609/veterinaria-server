@@ -18,6 +18,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/productos/sinAsignar/<idProveedor>", res.getProductosSinAsignarAProveedor)
 	r.Get("/productos/conStock", res.getProductosConStock)
 	r.Get("/productos/<idProducto>", res.getProductoPorId)
+	r.Get("/productos/comparacion/<idProveedor1>/<idProveedor2>", res.getProductosAComparar)
 	r.Post("/productos", res.crearProducto)
 	r.Put("/productos", res.actualizarProducto)
 }
@@ -38,6 +39,16 @@ func (r resource) getProductos(c *routing.Context) error {
 func (r resource) getProductosSinAsignarAProveedor(c *routing.Context) error {
 	idProveedor, _ := strconv.Atoi(c.Param("idProveedor"))
 	productos, err := r.service.GetProductosSinAsignarAProveedor(c.Request.Context(), idProveedor)
+	if err != nil {
+		return err
+	}
+	return c.Write(productos)
+}
+
+func (r resource) getProductosAComparar(c *routing.Context) error {
+	idProveedor1, _ := strconv.Atoi(c.Param("idProveedor1"))
+	idProveedor2, _ := strconv.Atoi(c.Param("idProveedor2"))
+	productos, err := r.service.GetProductosAComparar(c.Request.Context(), idProveedor1, idProveedor2)
 	if err != nil {
 		return err
 	}

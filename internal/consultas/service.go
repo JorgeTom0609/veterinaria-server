@@ -14,7 +14,7 @@ type Service interface {
 	GetConsultas(ctx context.Context) ([]Consulta, error)
 	GetConsultaPorId(ctx context.Context, idConsulta int) (Consulta, error)
 	GetConsultaActiva(ctx context.Context, idUsuario int) (Consulta, error)
-	GetConsultaPorMesYAnio(ctx context.Context) ([]ConsultaConDatos, error)
+	GetConsultaPorMesYAnio(ctx context.Context, mes int, anio int) ([]ConsultaConDatos, error)
 	GetConsultaPorMascota(ctx context.Context, idMascota int) ([]Consulta, error)
 	CrearConsulta(ctx context.Context, input CreateConsultaRequest) (Consulta, error)
 	ActualizarConsulta(ctx context.Context, input UpdateConsultaRequest) (Consulta, error)
@@ -181,8 +181,8 @@ func (s service) GetConsultaActiva(ctx context.Context, idUsuario int) (Consulta
 	return Consulta{consulta}, nil
 }
 
-func (s service) GetConsultaPorMesYAnio(ctx context.Context) ([]ConsultaConDatos, error) {
-	consultas, err := s.repo.GetConsultaPorMesYAnio(ctx)
+func (s service) GetConsultaPorMesYAnio(ctx context.Context, mes int, anio int) ([]ConsultaConDatos, error) {
+	consultas, err := s.repo.GetConsultaPorMesYAnio(ctx, mes, anio)
 	if err != nil {
 		return nil, err
 	}

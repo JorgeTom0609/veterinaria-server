@@ -14,6 +14,7 @@ type Service interface {
 	GetProductos(ctx context.Context) ([]Producto, error)
 	GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]Producto, error)
 	GetProductosConStock(ctx context.Context) ([]ProductosConStock, error)
+	GetProductosAComparar(ctx context.Context, idProveedor1 int, idProveedor2 int) ([]ProductoComparado, error)
 	GetProductoPorId(ctx context.Context, idProducto int) (Producto, error)
 	CrearProducto(ctx context.Context, input CreateProductoRequest) (Producto, error)
 	ActualizarProducto(ctx context.Context, input UpdateProductoRequest) (Producto, error)
@@ -22,6 +23,12 @@ type Service interface {
 // Productos represents the data about an productos.
 type Producto struct {
 	entity.Producto
+}
+
+type ProductoComparado struct {
+	Producto string  `json:"producto"`
+	Precio1  float32 `json:"precio1"`
+	Precio2  float32 `json:"precio2"`
 }
 
 type ProductosConStock struct {
@@ -76,6 +83,14 @@ func (s service) GetProductosSinAsignarAProveedor(ctx context.Context, idProveed
 		result = append(result, Producto{item})
 	}
 	return result, nil
+}
+
+func (s service) GetProductosAComparar(ctx context.Context, idProveedor1 int, idProveedor2 int) ([]ProductoComparado, error) {
+	productos, err := s.repo.GetProductosAComparar(ctx, idProveedor1, idProveedor2)
+	if err != nil {
+		return nil, err
+	}
+	return productos, nil
 }
 
 // CreateProductoRequest represents an producto creation request.

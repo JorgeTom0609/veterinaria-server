@@ -3,7 +3,6 @@ package consultas
 import (
 	"context"
 	"database/sql"
-	"time"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
@@ -18,7 +17,7 @@ type Repository interface {
 	GetConsultaActiva(ctx context.Context, idUsuario int) (entity.Consulta, error)
 	// GetConsultas returns the list consultas.
 	GetConsultas(ctx context.Context) ([]entity.Consulta, error)
-	GetConsultaPorMesYAnio(ctx context.Context) ([]ConsultaConDatos, error)
+	GetConsultaPorMesYAnio(ctx context.Context, mes int, anio int) ([]ConsultaConDatos, error)
 	GetConsultaPorMascota(ctx context.Context, idMascota int) ([]entity.Consulta, error)
 	CrearConsulta(ctx context.Context, consulta entity.Consulta) (entity.Consulta, error)
 	ActualizarConsulta(ctx context.Context, consulta entity.Consulta) (entity.Consulta, error)
@@ -90,15 +89,14 @@ func (r repository) GetConsultaActiva(ctx context.Context, idUsuario int) (entit
 	return consulta, err
 }
 
-func (r repository) GetConsultaPorMesYAnio(ctx context.Context) ([]ConsultaConDatos, error) {
+func (r repository) GetConsultaPorMesYAnio(ctx context.Context, mes int, anio int) ([]ConsultaConDatos, error) {
 	var consultas []entity.Consulta
 	var consultasConDatos []ConsultaConDatos
 	var nombreMascota string
-	fecha := time.Now()
 	err := r.db.With(ctx).
 		Select().
-		Where(dbx.HashExp{"YEAR(fecha)": fecha.Year()}).
-		AndWhere(dbx.HashExp{"MONTH(fecha)": fecha.Month()}).
+		Where(dbx.HashExp{"YEAR(fecha)": anio}).
+		AndWhere(dbx.HashExp{"MONTH(fecha)": mes}).
 		AndWhere(dbx.HashExp{"estado_consulta": "FINALIZADA"}).
 		All(&consultas)
 	if err != nil {
