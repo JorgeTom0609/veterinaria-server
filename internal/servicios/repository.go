@@ -5,6 +5,8 @@ import (
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access servicios from the data source.
@@ -13,6 +15,7 @@ type Repository interface {
 	GetServicioPorId(ctx context.Context, idServicio int) (entity.Servicio, error)
 	// GetServicios returns the list servicios.
 	GetServicios(ctx context.Context) ([]entity.Servicio, error)
+	GetServiciosConProductos(ctx context.Context) ([]ServicioTieneProductos, error)
 	CrearServicio(ctx context.Context, servicio entity.Servicio) (entity.Servicio, error)
 	ActualizarServicio(ctx context.Context, servicio entity.Servicio) (entity.Servicio, error)
 }
@@ -40,6 +43,38 @@ func (r repository) GetServicios(ctx context.Context) ([]entity.Servicio, error)
 		return servicios, err
 	}
 	return servicios, err
+}
+
+func (r repository) GetServiciosConProductos(ctx context.Context) ([]ServicioTieneProductos, error) {
+	var servicios []entity.Servicio
+	var serviciosTieneProductos []ServicioTieneProductos
+
+	err := r.db.With(ctx).
+		Select().
+		From().
+		All(&servicios)
+	if err != nil {
+		return []ServicioTieneProductos{}, err
+	}
+
+	for i := 0; i < len(servicios); i++ {
+		idServicio := servicios[i].IdServicio
+		cant := 0
+		err := r.db.With(ctx).
+			Select("count(id_servicio)").
+			From("servicio_producto").
+			Where(dbx.HashExp{"id_servicio": idServicio}).
+			Row(&cant)
+		if err != nil {
+			return []ServicioTieneProductos{}, err
+		}
+		serviciosTieneProductos = append(serviciosTieneProductos, ServicioTieneProductos{
+			Servicio:         servicios[i],
+			CantidadProducto: cant,
+		})
+	}
+
+	return serviciosTieneProductos, err
 }
 
 // Create saves a new Servicio record in the database.

@@ -54,6 +54,10 @@ func (r repository) GetComprasConDatos(ctx context.Context) ([]ComprasConDatos, 
 		Select().
 		All(&compras)
 
+	if err != nil {
+		return []ComprasConDatos{}, err
+	}
+
 	for i := 0; i < len(compras); i++ {
 		idUsuario := compras[i].IdUsuario
 		idProveedor := compras[i].IdProveedor
@@ -80,10 +84,6 @@ func (r repository) GetComprasConDatos(ctx context.Context) ([]ComprasConDatos, 
 			compradorApellido + " " + compradorNombre,
 			proveedor,
 		})
-	}
-
-	if err != nil {
-		return []ComprasConDatos{}, err
 	}
 	return comprasConDatos, err
 }

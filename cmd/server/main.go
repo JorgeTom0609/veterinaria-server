@@ -33,6 +33,8 @@ import (
 	"veterinaria-server/internal/productos"
 	"veterinaria-server/internal/proveedor"
 	"veterinaria-server/internal/proveedor_producto"
+	"veterinaria-server/internal/servicio_producto"
+	"veterinaria-server/internal/servicios"
 	"veterinaria-server/internal/stock_individual"
 	"veterinaria-server/internal/tipo_examen"
 	"veterinaria-server/internal/unidad"
@@ -225,6 +227,16 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	medida.RegisterHandlers(rg.Group(""),
 		medida.NewService(medida.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	servicios.RegisterHandlers(rg.Group(""),
+		servicios.NewService(servicios.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	servicio_producto.RegisterHandlers(rg.Group(""),
+		servicio_producto.NewService(servicio_producto.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 

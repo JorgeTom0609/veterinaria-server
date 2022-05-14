@@ -15,6 +15,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Use(authHandler)
 	// the following endpoints require a valid JWT
 	r.Get("/servicios", res.getServicios)
+	r.Get("/servicios/conNumProductosUso", res.getServiciosConProductos)
 	r.Get("/servicios/<idServicio>", res.getServicioPorId)
 	r.Post("/servicios", res.crearServicio)
 	r.Put("/servicios", res.actualizarServicio)
@@ -27,6 +28,14 @@ type resource struct {
 
 func (r resource) getServicios(c *routing.Context) error {
 	servicios, err := r.service.GetServicios(c.Request.Context())
+	if err != nil {
+		return err
+	}
+	return c.Write(servicios)
+}
+
+func (r resource) getServiciosConProductos(c *routing.Context) error {
+	servicios, err := r.service.GetServiciosConProductos(c.Request.Context())
 	if err != nil {
 		return err
 	}

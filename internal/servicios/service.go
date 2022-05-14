@@ -11,6 +11,7 @@ import (
 // Service encapsulates usecase logic for servicios.
 type Service interface {
 	GetServicios(ctx context.Context) ([]Servicio, error)
+	GetServiciosConProductos(ctx context.Context) ([]ServicioTieneProductos, error)
 	GetServicioPorId(ctx context.Context, idServicio int) (Servicio, error)
 	CrearServicio(ctx context.Context, input CreateServicioRequest) (Servicio, error)
 	ActualizarServicio(ctx context.Context, input UpdateServicioRequest) (Servicio, error)
@@ -19,6 +20,11 @@ type Service interface {
 // Servicios represents the data about an servicios.
 type Servicio struct {
 	entity.Servicio
+}
+
+type ServicioTieneProductos struct {
+	entity.Servicio
+	CantidadProducto int `json:"cantidad_producto"`
 }
 
 type service struct {
@@ -42,6 +48,14 @@ func (s service) GetServicios(ctx context.Context) ([]Servicio, error) {
 		result = append(result, Servicio{item})
 	}
 	return result, nil
+}
+
+func (s service) GetServiciosConProductos(ctx context.Context) ([]ServicioTieneProductos, error) {
+	servicios, err := s.repo.GetServiciosConProductos(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return servicios, nil
 }
 
 // CreateServicioRequest represents an servicio creation request.

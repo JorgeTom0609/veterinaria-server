@@ -7,5 +7,5 @@ type Servicio struct {
 }
 
 func (c Servicio) TableName() string {
-	return "servicio"
+	return "servicios"
 }
