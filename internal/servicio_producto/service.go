@@ -13,6 +13,7 @@ type Service interface {
 	GetServicioProductos(ctx context.Context) ([]ServicioProducto, error)
 	GetServicioProductosConDatos(ctx context.Context) ([]ServicioProductoConDatos, error)
 	GetServicioProductoPorId(ctx context.Context, idServicioProducto int) (ServicioProducto, error)
+	GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]ServicioProducto, error)
 	CrearServicioProducto(ctx context.Context, input CreateServicioProductoRequest) (ServicioProducto, error)
 	ActualizarServicioProducto(ctx context.Context, input UpdateServicioProductoRequest) (ServicioProducto, error)
 }
@@ -125,4 +126,16 @@ func (s service) GetServicioProductoPorId(ctx context.Context, idServicioProduct
 		return ServicioProducto{}, err
 	}
 	return ServicioProducto{servicioProducto}, nil
+}
+
+func (s service) GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]ServicioProducto, error) {
+	servicioProductos, err := s.repo.GetServicioProductoPorServicio(ctx, idServicio)
+	if err != nil {
+		return []ServicioProducto{}, err
+	}
+	result := []ServicioProducto{}
+	for _, item := range servicioProductos {
+		result = append(result, ServicioProducto{item})
+	}
+	return result, nil
 }

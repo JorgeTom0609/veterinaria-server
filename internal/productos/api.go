@@ -17,6 +17,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/productos", res.getProductos)
 	r.Get("/productos/sinAsignar/<idProveedor>", res.getProductosSinAsignarAProveedor)
 	r.Get("/productos/conStock", res.getProductosConStock)
+	r.Get("/productos/usoInterno", res.getProductosUsoInterno)
 	r.Get("/productos/<idProducto>", res.getProductoPorId)
 	r.Get("/productos/comparacion/<idProveedor1>/<idProveedor2>", res.getProductosAComparar)
 	r.Post("/productos", res.crearProducto)
@@ -57,6 +58,14 @@ func (r resource) getProductosAComparar(c *routing.Context) error {
 
 func (r resource) getProductosConStock(c *routing.Context) error {
 	productos, err := r.service.GetProductosConStock(c.Request.Context())
+	if err != nil {
+		return err
+	}
+	return c.Write(productos)
+}
+
+func (r resource) getProductosUsoInterno(c *routing.Context) error {
+	productos, err := r.service.GetProductosUsoInterno(c.Request.Context())
 	if err != nil {
 		return err
 	}

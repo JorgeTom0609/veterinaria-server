@@ -17,6 +17,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/servicioProductos", res.getServicioProductos)
 	r.Get("/servicioProductos/conDatos", res.getServicioProductosConDatos)
 	r.Get("/servicioProductos/<idServicioProducto>", res.getServicioProductoPorId)
+	r.Get("/servicioProductos/porServicio/<idServicio>", res.getServicioProductoPorServicio)
 	r.Post("/servicioProductos", res.crearServicioProducto)
 	r.Put("/servicioProductos", res.actualizarServicioProducto)
 }
@@ -71,6 +72,15 @@ func (r resource) actualizarServicioProducto(c *routing.Context) error {
 func (r resource) getServicioProductoPorId(c *routing.Context) error {
 	idServicioProducto, _ := strconv.Atoi(c.Param("idServicioProducto"))
 	servicioProducto, err := r.service.GetServicioProductoPorId(c.Request.Context(), idServicioProducto)
+	if err != nil {
+		return err
+	}
+	return c.Write(servicioProducto)
+}
+
+func (r resource) getServicioProductoPorServicio(c *routing.Context) error {
+	idServicio, _ := strconv.Atoi(c.Param("idServicio"))
+	servicioProducto, err := r.service.GetServicioProductoPorServicio(c.Request.Context(), idServicio)
 	if err != nil {
 		return err
 	}

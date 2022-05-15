@@ -17,6 +17,7 @@ type Repository interface {
 	// GetProductos returns the list productos.
 	GetProductos(ctx context.Context) ([]entity.Producto, error)
 	GetProductosConStock(ctx context.Context) ([]ProductosConStock, error)
+	GetProductosUsoInterno(ctx context.Context) ([]entity.Producto, error)
 	GetProductosAComparar(ctx context.Context, idProveedor1 int, idProveedor2 int) ([]ProductoComparado, error)
 	GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]entity.Producto, error)
 	CrearProducto(ctx context.Context, producto entity.Producto) (entity.Producto, error)
@@ -41,6 +42,19 @@ func (r repository) GetProductos(ctx context.Context) ([]entity.Producto, error)
 	err := r.db.With(ctx).
 		Select().
 		From().
+		All(&productos)
+	if err != nil {
+		return productos, err
+	}
+	return productos, err
+}
+
+func (r repository) GetProductosUsoInterno(ctx context.Context) ([]entity.Producto, error) {
+	var productos []entity.Producto
+
+	err := r.db.With(ctx).
+		Select().
+		Where(dbx.NewExp("uso_interno = true")).
 		All(&productos)
 	if err != nil {
 		return productos, err

@@ -13,6 +13,7 @@ import (
 type Repository interface {
 	// GetServicioProductoPorId returns the servicioProducto with the specified servicioProducto ID.
 	GetServicioProductoPorId(ctx context.Context, idServicioProducto int) (entity.ServicioProducto, error)
+	GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]entity.ServicioProducto, error)
 	// GetServicioProductos returns the list servicioProductos.
 	GetServicioProductos(ctx context.Context) ([]entity.ServicioProducto, error)
 	GetServicioProductosConDatos(ctx context.Context) ([]ServicioProductoConDatos, error)
@@ -107,4 +108,13 @@ func (r repository) GetServicioProductoPorId(ctx context.Context, idServicioProd
 	var servicioProducto entity.ServicioProducto
 	err := r.db.With(ctx).Select().Model(idServicioProducto, &servicioProducto)
 	return servicioProducto, err
+}
+
+func (r repository) GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]entity.ServicioProducto, error) {
+	var servicioProductos []entity.ServicioProducto
+	err := r.db.With(ctx).
+		Select().
+		Where(dbx.HashExp{"id_servicio": idServicio}).
+		All(&servicioProductos)
+	return servicioProductos, err
 }
