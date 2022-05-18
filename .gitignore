@@ -37,3 +37,6 @@ config/local.yml
 
 #resources folder and files 
 resources/*
+
+#documentos-mascota folder and files 
+documentos-mascota/*

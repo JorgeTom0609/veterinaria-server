@@ -21,6 +21,7 @@ import (
 	"veterinaria-server/internal/detalle_examen_cuantitativo"
 	"veterinaria-server/internal/detalle_examen_informativo"
 	"veterinaria-server/internal/detalle_factura"
+	"veterinaria-server/internal/documento_mascota"
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/internal/especies"
 	"veterinaria-server/internal/examen_mascota"
@@ -240,6 +241,11 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		authHandler, logger,
 	)
 
+	documento_mascota.RegisterHandlers(rg.Group(""),
+		documento_mascota.NewService(documento_mascota.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
 	auth.RegisterHandlers(rg.Group(""),
 		auth.NewService(db, cfg.JWTSigningKey, cfg.JWTExpiration, logger),
 		logger,
@@ -247,7 +253,8 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	// Serving Static Files
 	rg.Get("/files/*", file.Server(file.PathMap{
-		"/v1/files": "/resources/",
+		"/v1/files":                   "/resources/",
+		"/v1/files/documentosMascota": "/documentos-mascota",
 	}))
 
 	return router
