@@ -14,7 +14,7 @@ type Service interface {
 	GetProductos(ctx context.Context) ([]Producto, error)
 	GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]Producto, error)
 	GetProductosConStock(ctx context.Context) ([]ProductosConStock, error)
-	GetProductosUsoInterno(ctx context.Context) ([]Producto, error)
+	GetProductosUsoInterno(ctx context.Context) ([]ProductoUsoInterno, error)
 	GetProductosAComparar(ctx context.Context, idProveedor1 int, idProveedor2 int) ([]ProductoComparado, error)
 	GetProductoPorId(ctx context.Context, idProducto int) (Producto, error)
 	CrearProducto(ctx context.Context, input CreateProductoRequest) (Producto, error)
@@ -36,6 +36,11 @@ type ProductosConStock struct {
 	StockPorProducto int             `json:"stock_por_producto"`
 	Producto         entity.Producto `json:"producto"`
 	Lote             []LoteConStock  `json:"lotes"`
+}
+
+type ProductoUsoInterno struct {
+	entity.Producto
+	Unidad string `json:"unidad"`
 }
 
 type LoteConStock struct {
@@ -74,16 +79,12 @@ func (s service) GetProductosConStock(ctx context.Context) ([]ProductosConStock,
 	return productos, nil
 }
 
-func (s service) GetProductosUsoInterno(ctx context.Context) ([]Producto, error) {
+func (s service) GetProductosUsoInterno(ctx context.Context) ([]ProductoUsoInterno, error) {
 	productos, err := s.repo.GetProductosUsoInterno(ctx)
 	if err != nil {
 		return nil, err
 	}
-	result := []Producto{}
-	for _, item := range productos {
-		result = append(result, Producto{item})
-	}
-	return result, nil
+	return productos, nil
 }
 
 func (s service) GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]Producto, error) {

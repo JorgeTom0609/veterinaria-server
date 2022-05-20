@@ -13,7 +13,7 @@ import (
 type Repository interface {
 	// GetServicioProductoPorId returns the servicioProducto with the specified servicioProducto ID.
 	GetServicioProductoPorId(ctx context.Context, idServicioProducto int) (entity.ServicioProducto, error)
-	GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]entity.ServicioProducto, error)
+	GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]ServicioProductoConCantidad, error)
 	// GetServicioProductos returns the list servicioProductos.
 	GetServicioProductos(ctx context.Context) ([]entity.ServicioProducto, error)
 	GetServicioProductosConDatos(ctx context.Context) ([]ServicioProductoConDatos, error)
@@ -110,11 +110,42 @@ func (r repository) GetServicioProductoPorId(ctx context.Context, idServicioProd
 	return servicioProducto, err
 }
 
-func (r repository) GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]entity.ServicioProducto, error) {
+func (r repository) GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]ServicioProductoConCantidad, error) {
+	var servicioProductosConCantidad []ServicioProductoConCantidad
 	var servicioProductos []entity.ServicioProducto
+
 	err := r.db.With(ctx).
 		Select().
 		Where(dbx.HashExp{"id_servicio": idServicio}).
 		All(&servicioProductos)
-	return servicioProductos, err
+
+	if err != nil {
+		return []ServicioProductoConCantidad{}, err
+	}
+
+	for i := 0; i < len(servicioProductos); i++ {
+		var producto entity.Producto
+		var cantidad_usar *float32 = nil
+		var unidad_usar *float32 = nil
+		idProducto := servicioProductos[i].IdProducto
+		err := r.db.With(ctx).
+			Select().
+			Where(dbx.HashExp{"id_producto": idProducto}).
+			One(&producto)
+		if err != nil {
+			return []ServicioProductoConCantidad{}, err
+		}
+		if producto.PorMedida.Bool {
+			unidad_usar = &servicioProductos[i].Cantidad
+		} else {
+			cantidad_usar = &servicioProductos[i].Cantidad
+		}
+		servicioProductosConCantidad = append(servicioProductosConCantidad, ServicioProductoConCantidad{
+			servicioProductos[i],
+			cantidad_usar,
+			unidad_usar,
+		})
+	}
+
+	return servicioProductosConCantidad, err
 }

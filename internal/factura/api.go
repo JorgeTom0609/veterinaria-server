@@ -165,7 +165,7 @@ func (r resource) crearFacturaConDetalles(c *routing.Context) error {
 			}
 			if (productoVenderBD.Cantidad - detalleFacturaG.Cantidad) == float32(0) {
 				s2 := lote.NewService(lote.NewRepository(r.db, r.logger), r.logger)
-				productoVenderBD, err2 := s2.GetLotePorId(c.Request.Context(), detalleFacturaG.IdReferencia)
+				productoVenderBD, err2 := s2.GetLotePorId(c.Request.Context(), productoVenderBD.IdLote)
 				if err2 != nil {
 					return err2
 				}

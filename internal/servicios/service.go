@@ -3,6 +3,7 @@ package servicios
 import (
 	"context"
 	"veterinaria-server/internal/entity"
+	"veterinaria-server/internal/servicio_producto"
 	"veterinaria-server/pkg/log"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -60,14 +61,23 @@ func (s service) GetServiciosConProductos(ctx context.Context) ([]ServicioTieneP
 
 // CreateServicioRequest represents an servicio creation request.
 type CreateServicioRequest struct {
+	IdEspecie   int     `json:"id_especie"`
+	IdUsuario   int     `json:"id_usuario"`
 	Descripcion string  `json:"descripcion"`
 	Valor       float32 `json:"valor"`
 }
 
 type UpdateServicioRequest struct {
 	IdServicio  int     `json:"id_servicio"`
+	IdEspecie   int     `json:"id_especie"`
+	IdUsuario   int     `json:"id_usuario"`
 	Descripcion string  `json:"descripcion"`
 	Valor       float32 `json:"valor"`
+}
+
+type UpdateServicioConDetallesRequest struct {
+	Servicio          UpdateServicioRequest                             `json:"servicio"`
+	ServicioProductos []servicio_producto.UpdateServicioProductoRequest `json:"productos"`
 }
 
 // Validate validates the UpdateServicioRequest fields.
@@ -90,6 +100,8 @@ func (s service) CrearServicio(ctx context.Context, req CreateServicioRequest) (
 		return Servicio{}, err
 	}
 	servicioG, err := s.repo.CrearServicio(ctx, entity.Servicio{
+		IdUsuario:   req.IdUsuario,
+		IdEspecie:   req.IdEspecie,
 		Descripcion: req.Descripcion,
 		Valor:       req.Valor,
 	})
@@ -106,6 +118,8 @@ func (s service) ActualizarServicio(ctx context.Context, req UpdateServicioReque
 	}
 	servicioG, err := s.repo.ActualizarServicio(ctx, entity.Servicio{
 		IdServicio:  req.IdServicio,
+		IdUsuario:   req.IdUsuario,
+		IdEspecie:   req.IdEspecie,
 		Descripcion: req.Descripcion,
 		Valor:       req.Valor,
 	})

@@ -13,7 +13,7 @@ type Service interface {
 	GetServicioProductos(ctx context.Context) ([]ServicioProducto, error)
 	GetServicioProductosConDatos(ctx context.Context) ([]ServicioProductoConDatos, error)
 	GetServicioProductoPorId(ctx context.Context, idServicioProducto int) (ServicioProducto, error)
-	GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]ServicioProducto, error)
+	GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]ServicioProductoConCantidad, error)
 	CrearServicioProducto(ctx context.Context, input CreateServicioProductoRequest) (ServicioProducto, error)
 	ActualizarServicioProducto(ctx context.Context, input UpdateServicioProductoRequest) (ServicioProducto, error)
 }
@@ -26,6 +26,12 @@ type ServicioProducto struct {
 type ServicioProductoConDatos struct {
 	entity.ServicioProducto
 	entity.Producto `json:"producto"`
+}
+
+type ServicioProductoConCantidad struct {
+	entity.ServicioProducto
+	CantidadUsar *float32 `json:"cantidad_usar"`
+	UnidadUsar   *float32 `json:"unidad_usar"`
 }
 
 type service struct {
@@ -62,14 +68,18 @@ func (s service) GetServicioProductosConDatos(ctx context.Context) ([]ServicioPr
 
 // CreateServicioProductoRequest represents an servicioProducto creation request.
 type CreateServicioProductoRequest struct {
-	IdServicio int `json:"id_servicio"`
-	IdProducto int `json:"id_producto"`
+	IdServicio int      `json:"id_servicio"`
+	IdProducto int      `json:"id_producto"`
+	Cantidad   float32  `json:"cantidad"`
+	Razon      *float32 `json:"razon"`
 }
 
 type UpdateServicioProductoRequest struct {
-	IdServicioProducto int `json:"id_servicio_producto"`
-	IdServicio         int `json:"id_servicio"`
-	IdProducto         int `json:"id_producto"`
+	IdServicioProducto int      `json:"id_servicio_producto"`
+	IdServicio         int      `json:"id_servicio"`
+	IdProducto         int      `json:"id_producto"`
+	Cantidad           float32  `json:"cantidad"`
+	Razon              *float32 `json:"razon"`
 }
 
 // Validate validates the UpdateServicioProductoRequest fields.
@@ -77,6 +87,7 @@ func (m UpdateServicioProductoRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdServicio, validation.Required),
 		validation.Field(&m.IdProducto, validation.Required),
+		validation.Field(&m.Cantidad, validation.Required),
 	)
 }
 
@@ -85,6 +96,7 @@ func (m CreateServicioProductoRequest) Validate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdServicio, validation.Required),
 		validation.Field(&m.IdProducto, validation.Required),
+		validation.Field(&m.Cantidad, validation.Required),
 	)
 }
 
@@ -96,6 +108,8 @@ func (s service) CrearServicioProducto(ctx context.Context, req CreateServicioPr
 	servicioProductoG, err := s.repo.CrearServicioProducto(ctx, entity.ServicioProducto{
 		IdServicio: req.IdServicio,
 		IdProducto: req.IdProducto,
+		Cantidad:   req.Cantidad,
+		Razon:      req.Razon,
 	})
 	if err != nil {
 		return ServicioProducto{}, err
@@ -112,6 +126,8 @@ func (s service) ActualizarServicioProducto(ctx context.Context, req UpdateServi
 		IdServicioProducto: req.IdServicioProducto,
 		IdServicio:         req.IdServicio,
 		IdProducto:         req.IdProducto,
+		Cantidad:           req.Cantidad,
+		Razon:              req.Razon,
 	})
 	if err != nil {
 		return ServicioProducto{}, err
@@ -128,14 +144,10 @@ func (s service) GetServicioProductoPorId(ctx context.Context, idServicioProduct
 	return ServicioProducto{servicioProducto}, nil
 }
 
-func (s service) GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]ServicioProducto, error) {
+func (s service) GetServicioProductoPorServicio(ctx context.Context, idServicio int) ([]ServicioProductoConCantidad, error) {
 	servicioProductos, err := s.repo.GetServicioProductoPorServicio(ctx, idServicio)
 	if err != nil {
-		return []ServicioProducto{}, err
+		return []ServicioProductoConCantidad{}, err
 	}
-	result := []ServicioProducto{}
-	for _, item := range servicioProductos {
-		result = append(result, ServicioProducto{item})
-	}
-	return result, nil
+	return servicioProductos, nil
 }

@@ -17,7 +17,7 @@ type Repository interface {
 	// GetProductos returns the list productos.
 	GetProductos(ctx context.Context) ([]entity.Producto, error)
 	GetProductosConStock(ctx context.Context) ([]ProductosConStock, error)
-	GetProductosUsoInterno(ctx context.Context) ([]entity.Producto, error)
+	GetProductosUsoInterno(ctx context.Context) ([]ProductoUsoInterno, error)
 	GetProductosAComparar(ctx context.Context, idProveedor1 int, idProveedor2 int) ([]ProductoComparado, error)
 	GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]entity.Producto, error)
 	CrearProducto(ctx context.Context, producto entity.Producto) (entity.Producto, error)
@@ -49,17 +49,34 @@ func (r repository) GetProductos(ctx context.Context) ([]entity.Producto, error)
 	return productos, err
 }
 
-func (r repository) GetProductosUsoInterno(ctx context.Context) ([]entity.Producto, error) {
+func (r repository) GetProductosUsoInterno(ctx context.Context) ([]ProductoUsoInterno, error) {
 	var productos []entity.Producto
+	productosUsoInterno := []ProductoUsoInterno{}
 
 	err := r.db.With(ctx).
 		Select().
 		Where(dbx.NewExp("uso_interno = true")).
 		All(&productos)
 	if err != nil {
-		return productos, err
+		return []ProductoUsoInterno{}, err
 	}
-	return productos, err
+
+	for i := 0; i < len(productos); i++ {
+		var unidad entity.Unidad
+		if productos[i].PorMedida.Bool {
+			err := r.db.With(ctx).
+				Select().
+				Where(dbx.HashExp{"id_unidad": productos[i].IdUnidad}).
+				One(&unidad)
+			if err != nil {
+				return []ProductoUsoInterno{}, err
+			}
+			productosUsoInterno = append(productosUsoInterno, ProductoUsoInterno{Producto: productos[i], Unidad: unidad.Descripcion})
+		} else {
+			productosUsoInterno = append(productosUsoInterno, ProductoUsoInterno{Producto: productos[i], Unidad: ""})
+		}
+	}
+	return productosUsoInterno, err
 }
 
 func (r repository) GetProductosConStock(ctx context.Context) ([]ProductosConStock, error) {

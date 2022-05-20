@@ -233,7 +233,7 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	servicios.RegisterHandlers(rg.Group(""),
 		servicios.NewService(servicios.NewRepository(db, logger), logger),
-		authHandler, logger,
+		authHandler, logger, db,
 	)
 
 	servicio_producto.RegisterHandlers(rg.Group(""),
