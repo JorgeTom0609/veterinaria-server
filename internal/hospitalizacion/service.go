@@ -2,6 +2,7 @@ package hospitalizacion
 
 import (
 	"context"
+	"database/sql"
 	"time"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/log"
@@ -12,6 +13,7 @@ import (
 // Service encapsulates usecase logic for hospitalizaciones.
 type Service interface {
 	GetHospitalizaciones(ctx context.Context) ([]Hospitalizacion, error)
+	GetHospitalizacionesActivas(ctx context.Context) ([]HospitalizacionesActivas, error)
 	GetHospitalizacionPorId(ctx context.Context, idHospitalizacion int) (Hospitalizacion, error)
 	CrearHospitalizacion(ctx context.Context, input CreateHospitalizacionRequest) (Hospitalizacion, error)
 	ActualizarHospitalizacion(ctx context.Context, input UpdateHospitalizacionRequest) (Hospitalizacion, error)
@@ -20,6 +22,13 @@ type Service interface {
 // Hospitalizaciones represents the data about an hospitalizaciones.
 type Hospitalizacion struct {
 	entity.Hospitalizacion
+}
+
+type HospitalizacionesActivas struct {
+	entity.Hospitalizacion `json:"hospitalizacion"`
+	entity.Mascota         `json:"mascota"`
+	entity.Especie         `json:"especie"`
+	entity.Consulta        `json:"consulta"`
 }
 
 type service struct {
@@ -45,24 +54,37 @@ func (s service) GetHospitalizaciones(ctx context.Context) ([]Hospitalizacion, e
 	return result, nil
 }
 
+func (s service) GetHospitalizacionesActivas(ctx context.Context) ([]HospitalizacionesActivas, error) {
+	hospitalizaciones, err := s.repo.GetHospitalizacionesActivas(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return hospitalizaciones, nil
+}
+
 // CreateHospitalizacionRequest represents an hospitalizacion creation request.
 type CreateHospitalizacionRequest struct {
-	IdConsulta            int        `json:"id_consulta"`
-	Motivo                string     `json:"motivo"`
-	FechaIngreso          time.Time  `json:"fecha_ingreso"`
-	FechaSalida           *time.Time `json:"fecha_salida"`
-	Valor                 *float32   `json:"valor"`
-	EstadoHospitalizacion string     `json:"estado_hospitalizacion"`
+	IdConsulta            int          `json:"id_consulta"`
+	Motivo                string       `json:"motivo"`
+	FechaIngreso          time.Time    `json:"fecha_ingreso"`
+	FechaSalida           *time.Time   `json:"fecha_salida"`
+	Valor                 *float32     `json:"valor"`
+	Abono                 float32      `json:"abono"`
+	AutorizaExamenes      sql.NullBool `json:"autoriza_examenes"`
+	EstadoHospitalizacion string       `json:"estado_hospitalizacion"`
 }
 
 type UpdateHospitalizacionRequest struct {
-	IdHospitalizacion     int        `json:"id_hospitalizacion"`
-	IdConsulta            int        `json:"id_consulta"`
-	Motivo                string     `json:"motivo"`
-	FechaIngreso          time.Time  `json:"fecha_ingreso"`
-	FechaSalida           *time.Time `json:"fecha_salida"`
-	Valor                 *float32   `json:"valor"`
-	EstadoHospitalizacion string     `json:"estado_hospitalizacion"`
+	IdHospitalizacion     int          `json:"id_hospitalizacion"`
+	IdConsulta            int          `json:"id_consulta"`
+	Motivo                string       `json:"motivo"`
+	FechaIngreso          time.Time    `json:"fecha_ingreso"`
+	FechaSalida           *time.Time   `json:"fecha_salida"`
+	Valor                 *float32     `json:"valor"`
+	Abono                 float32      `json:"abono"`
+	AutorizaExamenes      sql.NullBool `json:"autoriza_examenes"`
+	EstadoHospitalizacion string       `json:"estado_hospitalizacion"`
+	IdUsuario             int          `json:"id_usuario"`
 }
 
 // Validate validates the UpdateHospitalizacionRequest fields.
@@ -92,8 +114,10 @@ func (s service) CrearHospitalizacion(ctx context.Context, req CreateHospitaliza
 		IdConsulta:            req.IdConsulta,
 		Motivo:                req.Motivo,
 		FechaIngreso:          req.FechaIngreso,
-		FechaSalida:           &req.FechaIngreso,
+		FechaSalida:           req.FechaSalida,
 		Valor:                 req.Valor,
+		Abono:                 req.Abono,
+		AuorizaExamenes:       req.AutorizaExamenes,
 		EstadoHospitalizacion: req.EstadoHospitalizacion,
 	})
 	if err != nil {
@@ -112,8 +136,10 @@ func (s service) ActualizarHospitalizacion(ctx context.Context, req UpdateHospit
 		IdConsulta:            req.IdConsulta,
 		Motivo:                req.Motivo,
 		FechaIngreso:          req.FechaIngreso,
-		FechaSalida:           &req.FechaIngreso,
+		FechaSalida:           req.FechaSalida,
 		Valor:                 req.Valor,
+		Abono:                 req.Abono,
+		AuorizaExamenes:       req.AutorizaExamenes,
 		EstadoHospitalizacion: req.EstadoHospitalizacion,
 	})
 	if err != nil {

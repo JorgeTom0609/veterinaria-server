@@ -151,6 +151,7 @@ type DatosMascotaDueñoRequest struct {
 	Intervencion    string    `json:"intervencion"`
 	Profesional     string    `json:"profesional"`
 	Abono           float32   `json:"abono"`
+	Autoriza        string    `json:"autoriza"`
 	Fecha           time.Time `json:"fecha"`
 }
 

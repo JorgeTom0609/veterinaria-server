@@ -15,6 +15,7 @@ type Repository interface {
 	GetServicioPorId(ctx context.Context, idServicio int) (entity.Servicio, error)
 	// GetServicios returns the list servicios.
 	GetServicios(ctx context.Context) ([]entity.Servicio, error)
+	GetServicioPorEspecie(ctx context.Context, idEspecie int) ([]ServicioConProductos, error)
 	GetServiciosConProductos(ctx context.Context) ([]ServicioTieneProductos, error)
 	CrearServicio(ctx context.Context, servicio entity.Servicio) (entity.Servicio, error)
 	ActualizarServicio(ctx context.Context, servicio entity.Servicio) (entity.Servicio, error)
@@ -43,6 +44,35 @@ func (r repository) GetServicios(ctx context.Context) ([]entity.Servicio, error)
 		return servicios, err
 	}
 	return servicios, err
+}
+
+func (r repository) GetServicioPorEspecie(ctx context.Context, idEspecie int) ([]ServicioConProductos, error) {
+	var servicios []entity.Servicio
+	var serviciosConProductos []ServicioConProductos = []ServicioConProductos{}
+
+	err := r.db.With(ctx).
+		Select().
+		Where(dbx.HashExp{"id_especie": idEspecie}).
+		All(&servicios)
+	if err != nil {
+		return []ServicioConProductos{}, err
+	}
+
+	for i := 0; i < len(servicios); i++ {
+		var productosServicios []entity.ServicioProducto = []entity.ServicioProducto{}
+		err := r.db.With(ctx).
+			Select().
+			Where(dbx.HashExp{"id_servicio": servicios[i].IdServicio}).
+			All(&productosServicios)
+		if err != nil {
+			return []ServicioConProductos{}, err
+		}
+		serviciosConProductos = append(serviciosConProductos, ServicioConProductos{
+			Servicio:          servicios[i],
+			ServicioProductos: productosServicios,
+		})
+	}
+	return serviciosConProductos, err
 }
 
 func (r repository) GetServiciosConProductos(ctx context.Context) ([]ServicioTieneProductos, error) {

@@ -5,6 +5,8 @@ import (
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
+
+	dbx "github.com/go-ozzo/ozzo-dbx"
 )
 
 // Repository encapsulates the logic to access detallesHospitalizacion from the data source.
@@ -13,6 +15,7 @@ type Repository interface {
 	GetDetalleHospitalizacionPorId(ctx context.Context, idDetalleHospitalizacion int) (entity.DetalleHospitalizacion, error)
 	// GetDetallesHospitalizacion returns the list detallesHospitalizacion.
 	GetDetallesHospitalizacion(ctx context.Context) ([]entity.DetalleHospitalizacion, error)
+	GetDetalleHospitalizacionPorHospitalizacion(ctx context.Context, idHospitalizacion int) ([]DetalleHospitalizacionConResponsable, error)
 	CrearDetalleHospitalizacion(ctx context.Context, detalleHospitalizacion entity.DetalleHospitalizacion) (entity.DetalleHospitalizacion, error)
 	ActualizarDetalleHospitalizacion(ctx context.Context, detalleHospitalizacion entity.DetalleHospitalizacion) (entity.DetalleHospitalizacion, error)
 }
@@ -40,6 +43,44 @@ func (r repository) GetDetallesHospitalizacion(ctx context.Context) ([]entity.De
 		return detallesHospitalizacion, err
 	}
 	return detallesHospitalizacion, err
+}
+
+func (r repository) GetDetalleHospitalizacionPorHospitalizacion(ctx context.Context, idHospitalizacion int) ([]DetalleHospitalizacionConResponsable, error) {
+	var detallesHospitalizacion []entity.DetalleHospitalizacion
+	var detallesHospitalizacionConResponsable []DetalleHospitalizacionConResponsable = []DetalleHospitalizacionConResponsable{}
+
+	err := r.db.With(ctx).
+		Select().
+		From().
+		Where(dbx.HashExp{"id_hospitalizacion": idHospitalizacion}).
+		All(&detallesHospitalizacion)
+	if err != nil {
+		return detallesHospitalizacionConResponsable, err
+	}
+
+	for i := 0; i < len(detallesHospitalizacion); i++ {
+		var nombre string = ""
+		var apellido string = ""
+
+		err := r.db.With(ctx).
+			Select("apellido", "nombre").
+			From("usuarios").
+			Where(dbx.HashExp{"id_usuario": detallesHospitalizacion[i].IdUsuario}).
+			Row(&apellido, &nombre)
+		if err != nil {
+			return []DetalleHospitalizacionConResponsable{}, err
+		}
+
+		detallesHospitalizacion[i].Descripcion = detallesHospitalizacion[i].Descripcion + " - " + (apellido + " " + nombre)
+
+		detallesHospitalizacionConResponsable = append(detallesHospitalizacionConResponsable, DetalleHospitalizacionConResponsable{
+			DetalleHospitalizacion: detallesHospitalizacion[i],
+			Usuario:                (apellido + " " + nombre),
+		})
+
+	}
+
+	return detallesHospitalizacionConResponsable, err
 }
 
 // Create saves a new DetalleHospitalizacion record in the database.

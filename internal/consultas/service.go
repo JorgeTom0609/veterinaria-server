@@ -66,6 +66,7 @@ type CreateConsultaRequest struct {
 	CondicionCorporal      *string   `json:"condicion_corporal"`
 	NivelesDeshidratacion  *string   `json:"niveles_deshidratacion"`
 	Diagnostico            *string   `json:"diagnostico"`
+	Edad                   *string   `json:"edad"`
 	TiempoLlenadoCapilar   int       `json:"tiempo_llenado_capilar"`
 	FrecuenciaCardiaca     int       `json:"frecuencia_cardiaca"`
 	FrecuenciaRespiratoria int       `json:"frecuencia_respiratoria"`
@@ -85,6 +86,7 @@ type UpdateConsultaRequest struct {
 	CondicionCorporal      *string   `json:"condicion_corporal"`
 	NivelesDeshidratacion  *string   `json:"niveles_deshidratacion"`
 	Diagnostico            *string   `json:"diagnostico"`
+	Edad                   *string   `json:"edad"`
 	TiempoLlenadoCapilar   int       `json:"tiempo_llenado_capilar"`
 	FrecuenciaCardiaca     int       `json:"frecuencia_cardiaca"`
 	FrecuenciaRespiratoria int       `json:"frecuencia_respiratoria"`
@@ -128,6 +130,7 @@ func (s service) CrearConsulta(ctx context.Context, req CreateConsultaRequest) (
 		FrecuenciaCardiaca:     req.FrecuenciaCardiaca,
 		FrecuenciaRespiratoria: req.FrecuenciaRespiratoria,
 		EstadoConsulta:         req.EstadoConsulta,
+		Edad:                   req.Edad,
 	})
 	if err != nil {
 		return Consulta{}, err
@@ -157,6 +160,7 @@ func (s service) ActualizarConsulta(ctx context.Context, req UpdateConsultaReque
 		FrecuenciaCardiaca:     req.FrecuenciaCardiaca,
 		FrecuenciaRespiratoria: req.FrecuenciaRespiratoria,
 		EstadoConsulta:         req.EstadoConsulta,
+		Edad:                   req.Edad,
 	})
 	if err != nil {
 		return Consulta{}, err

@@ -50,7 +50,7 @@ type CreateDetalleServicioHospitalizacionRequest struct {
 	IdHospitalizacion int       `json:"id_hospitalizacion"`
 	IdUsuario         int       `json:"id_usuario"`
 	IdServicio        int       `json:"id_servicio"`
-	Descripcion       string    `json:"descripcion"`
+	Valor             float32   `json:"valor"`
 	Fecha             time.Time `json:"fecha"`
 }
 
@@ -59,7 +59,7 @@ type UpdateDetalleServicioHospitalizacionRequest struct {
 	IdHospitalizacion                int       `json:"id_hospitalizacion"`
 	IdUsuario                        int       `json:"id_usuario"`
 	IdServicio                       int       `json:"id_servicio"`
-	Descripcion                      string    `json:"descripcion"`
+	Valor                            float32   `json:"valor"`
 	Fecha                            time.Time `json:"fecha"`
 }
 
@@ -69,7 +69,6 @@ func (m UpdateDetalleServicioHospitalizacionRequest) ValidateUpdate() error {
 		validation.Field(&m.IdHospitalizacion, validation.Required),
 		validation.Field(&m.IdUsuario, validation.Required),
 		validation.Field(&m.IdServicio, validation.Required),
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
 	)
 }
 
@@ -79,7 +78,6 @@ func (m CreateDetalleServicioHospitalizacionRequest) Validate() error {
 		validation.Field(&m.IdHospitalizacion, validation.Required),
 		validation.Field(&m.IdUsuario, validation.Required),
 		validation.Field(&m.IdServicio, validation.Required),
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
 	)
 }
 
@@ -92,7 +90,7 @@ func (s service) CrearDetalleServicioHospitalizacion(ctx context.Context, req Cr
 		IdHospitalizacion: req.IdHospitalizacion,
 		IdUsuario:         req.IdUsuario,
 		IdServicio:        req.IdServicio,
-		Descripcion:       req.Descripcion,
+		Valor:             req.Valor,
 		Fecha:             req.Fecha,
 	})
 	if err != nil {
@@ -111,7 +109,7 @@ func (s service) ActualizarDetalleServicioHospitalizacion(ctx context.Context, r
 		IdHospitalizacion:                req.IdHospitalizacion,
 		IdUsuario:                        req.IdUsuario,
 		IdServicio:                       req.IdServicio,
-		Descripcion:                      req.Descripcion,
+		Valor:                            req.Valor,
 		Fecha:                            req.Fecha,
 	})
 	if err != nil {

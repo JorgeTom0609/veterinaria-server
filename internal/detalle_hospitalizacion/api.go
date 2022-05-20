@@ -16,6 +16,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	// the following endpoints require a valid JWT
 	r.Get("/detallesHospitalizacion", res.getDetallesHospitalizacion)
 	r.Get("/detallesHospitalizacion/<idDetalleHospitalizacion>", res.getDetalleHospitalizacionPorId)
+	r.Get("/detallesHospitalizacion/porHospitalizacion/<idHospitalizacion>", res.getDetalleHospitalizacionPorHospitalizacion)
 	r.Post("/detallesHospitalizacion", res.crearDetalleHospitalizacion)
 	r.Put("/detallesHospitalizacion", res.actualizarDetalleHospitalizacion)
 }
@@ -27,6 +28,15 @@ type resource struct {
 
 func (r resource) getDetallesHospitalizacion(c *routing.Context) error {
 	detallesHospitalizacion, err := r.service.GetDetallesHospitalizacion(c.Request.Context())
+	if err != nil {
+		return err
+	}
+	return c.Write(detallesHospitalizacion)
+}
+
+func (r resource) getDetalleHospitalizacionPorHospitalizacion(c *routing.Context) error {
+	idHospitalizacion, _ := strconv.Atoi(c.Param("idHospitalizacion"))
+	detallesHospitalizacion, err := r.service.GetDetalleHospitalizacionPorHospitalizacion(c.Request.Context(), idHospitalizacion)
 	if err != nil {
 		return err
 	}

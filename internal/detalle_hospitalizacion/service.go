@@ -13,6 +13,7 @@ import (
 type Service interface {
 	GetDetallesHospitalizacion(ctx context.Context) ([]DetalleHospitalizacion, error)
 	GetDetalleHospitalizacionPorId(ctx context.Context, idDetalleHospitalizacion int) (DetalleHospitalizacion, error)
+	GetDetalleHospitalizacionPorHospitalizacion(ctx context.Context, idHospitalizacion int) ([]DetalleHospitalizacionConResponsable, error)
 	CrearDetalleHospitalizacion(ctx context.Context, input CreateDetalleHospitalizacionRequest) (DetalleHospitalizacion, error)
 	ActualizarDetalleHospitalizacion(ctx context.Context, input UpdateDetalleHospitalizacionRequest) (DetalleHospitalizacion, error)
 }
@@ -20,6 +21,11 @@ type Service interface {
 // DetallesHospitalizacion represents the data about an detallesHospitalizacion.
 type DetalleHospitalizacion struct {
 	entity.DetalleHospitalizacion
+}
+
+type DetalleHospitalizacionConResponsable struct {
+	entity.DetalleHospitalizacion
+	Usuario string `json:"usuario"`
 }
 
 type service struct {
@@ -43,6 +49,14 @@ func (s service) GetDetallesHospitalizacion(ctx context.Context) ([]DetalleHospi
 		result = append(result, DetalleHospitalizacion{item})
 	}
 	return result, nil
+}
+
+func (s service) GetDetalleHospitalizacionPorHospitalizacion(ctx context.Context, idHospitalizacion int) ([]DetalleHospitalizacionConResponsable, error) {
+	detallesHospitalizacion, err := s.repo.GetDetalleHospitalizacionPorHospitalizacion(ctx, idHospitalizacion)
+	if err != nil {
+		return []DetalleHospitalizacionConResponsable{}, err
+	}
+	return detallesHospitalizacion, nil
 }
 
 // CreateDetalleHospitalizacionRequest represents an detalleHospitalizacion creation request.

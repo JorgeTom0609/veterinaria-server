@@ -15,6 +15,7 @@ type Consulta struct {
 	CondicionCorporal      *string   `json:"condicion_corporal" db:"condicion_corporal"`
 	NivelesDeshidratacion  *string   `json:"niveles_deshidratacion" db:"niveles_deshidratacion"`
 	Diagnostico            *string   `json:"diagnostico" db:"diagnostico"`
+	Edad                   *string   `json:"edad" db:"edad"`
 	TiempoLlenadoCapilar   int       `json:"tiempo_llenado_capilar" db:"tiempo_llenado_capilar"`
 	FrecuenciaCardiaca     int       `json:"frecuencia_cardiaca" db:"frecuencia_cardiaca"`
 	FrecuenciaRespiratoria int       `json:"frecuencia_respiratoria" db:"frecuencia_respiratoria"`

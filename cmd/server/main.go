@@ -252,7 +252,7 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	hospitalizacion.RegisterHandlers(rg.Group(""),
 		hospitalizacion.NewService(hospitalizacion.NewRepository(db, logger), logger),
-		authHandler, logger,
+		authHandler, logger, db,
 	)
 
 	detalle_hospitalizacion.RegisterHandlers(rg.Group(""),

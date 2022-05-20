@@ -19,6 +19,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/servicios", res.getServicios)
 	r.Get("/servicios/conNumProductosUso", res.getServiciosConProductos)
 	r.Get("/servicios/<idServicio>", res.getServicioPorId)
+	r.Get("/servicios/porEspecie/<idEspecie>", res.getServicioPorEspecie)
 	r.Post("/servicios", res.crearServicio)
 	r.Put("/servicios", res.actualizarServicio)
 	r.Put("/servicios/conDetalle", res.actualizarServicioConDetalles)
@@ -32,6 +33,15 @@ type resource struct {
 
 func (r resource) getServicios(c *routing.Context) error {
 	servicios, err := r.service.GetServicios(c.Request.Context())
+	if err != nil {
+		return err
+	}
+	return c.Write(servicios)
+}
+
+func (r resource) getServicioPorEspecie(c *routing.Context) error {
+	idEspecie, _ := strconv.Atoi(c.Param("idEspecie"))
+	servicios, err := r.service.GetServicioPorEspecie(c.Request.Context(), idEspecie)
 	if err != nil {
 		return err
 	}

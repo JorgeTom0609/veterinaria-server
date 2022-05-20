@@ -172,6 +172,8 @@ func (r resource) autorizacion(c *routing.Context) error {
 		return err
 	}
 	docx1 := rd.Editable()
+	fmt.Println(input.Abono)
+	fmt.Println(input.Autoriza)
 	docx1.Replace("cnombredueño", input.Propietario, -1)
 	docx1.Replace("cnacionalidaddueño", input.Nacionalidad, -1)
 	docx1.Replace("cdomiciliodueño", input.Direccion, -1)
@@ -181,10 +183,11 @@ func (r resource) autorizacion(c *routing.Context) error {
 	docx1.Replace("csexomascota", input.Sexo, -1)
 	docx1.Replace("cedadmascota", input.Edad, -1)
 	docx1.Replace("crazamascota", input.Raza, -1)
+	docx1.Replace("cautoriza", input.Autoriza, -1)
 	docx1.Replace("cenfermedadmascota", input.Enfermedad, -1)
 	docx1.Replace("cintervención", input.Intervencion, -1)
 	docx1.Replace("caño", strconv.Itoa(input.Fecha.Year()), -1)
-	docx1.Replace("cabono", fmt.Sprintf("%f", input.Abono), -1)
+	docx1.Replace("cabono", fmt.Sprintf("%.2f", input.Abono), -1)
 	docx1.Replace("cprofesional", input.Profesional, -1)
 	var mes string
 	switch input.Fecha.Month() {
