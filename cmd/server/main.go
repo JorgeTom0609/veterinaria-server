@@ -21,6 +21,9 @@ import (
 	"veterinaria-server/internal/detalle_examen_cuantitativo"
 	"veterinaria-server/internal/detalle_examen_informativo"
 	"veterinaria-server/internal/detalle_factura"
+	"veterinaria-server/internal/detalle_hospitalizacion"
+	"veterinaria-server/internal/detalle_servicio_hospitalizacion"
+	"veterinaria-server/internal/detalle_uso_servicio"
 	"veterinaria-server/internal/documento_mascota"
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/internal/especies"
@@ -28,6 +31,7 @@ import (
 	"veterinaria-server/internal/factura"
 	"veterinaria-server/internal/generos"
 	"veterinaria-server/internal/healthcheck"
+	"veterinaria-server/internal/hospitalizacion"
 	"veterinaria-server/internal/lote"
 	"veterinaria-server/internal/mascotas"
 	"veterinaria-server/internal/medida"
@@ -243,6 +247,26 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	documento_mascota.RegisterHandlers(rg.Group(""),
 		documento_mascota.NewService(documento_mascota.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	hospitalizacion.RegisterHandlers(rg.Group(""),
+		hospitalizacion.NewService(hospitalizacion.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	detalle_hospitalizacion.RegisterHandlers(rg.Group(""),
+		detalle_hospitalizacion.NewService(detalle_hospitalizacion.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	detalle_servicio_hospitalizacion.RegisterHandlers(rg.Group(""),
+		detalle_servicio_hospitalizacion.NewService(detalle_servicio_hospitalizacion.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	detalle_uso_servicio.RegisterHandlers(rg.Group(""),
+		detalle_uso_servicio.NewService(detalle_uso_servicio.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 
