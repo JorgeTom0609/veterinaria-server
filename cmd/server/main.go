@@ -280,12 +280,12 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 	if runtime.GOOS == "windows" {
 		rg.Get("/files/*", file.Server(file.PathMap{
 			"/v1/files":                   "/resources/",
-			"/v1/files/documentosMascota": "/documentos-mascota",
+			"/v1/files/documentosMascota": "/documentos-mascota/",
 		}))
 	} else {
 		rg.Get("/files/*", file.Server(file.PathMap{
 			"/v1/files":                   "/root/go/src/github.com/JorgeTom0609/veterinaria-server/resources/",
-			"/v1/files/documentosMascota": "/root/go/src/github.com/JorgeTom0609/veterinaria-server/documentos-mascota",
+			"/v1/files/documentosMascota": "/root/go/src/github.com/JorgeTom0609/veterinaria-server/documentos-mascota/",
 		}))
 	}
 
