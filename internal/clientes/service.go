@@ -71,8 +71,8 @@ type UpdateClienteRequest struct {
 // Validate validates the UpdateClienteRequest fields.
 func (m UpdateClienteRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Nombres, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.Apellidos, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Nombres, validation.Required, validation.Length(0, 1000)),
+		validation.Field(&m.Apellidos, validation.Required, validation.Length(0, 1000)),
 		validation.Field(&m.Correo, is.Email),
 	)
 }
@@ -80,8 +80,8 @@ func (m UpdateClienteRequest) ValidateUpdate() error {
 // Validate validates the CreateClienteRequest fields.
 func (m CreateClienteRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Nombres, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.Apellidos, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Nombres, validation.Required, validation.Length(0, 1000)),
+		validation.Field(&m.Apellidos, validation.Required, validation.Length(0, 1000)),
 		validation.Field(&m.Correo, is.Email),
 	)
 }

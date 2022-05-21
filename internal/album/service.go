@@ -32,7 +32,7 @@ type CreateAlbumRequest struct {
 // Validate validates the CreateAlbumRequest fields.
 func (m CreateAlbumRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Name, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Name, validation.Required, validation.Length(0, 1000)),
 	)
 }
 
@@ -44,7 +44,7 @@ type UpdateAlbumRequest struct {
 // Validate validates the CreateAlbumRequest fields.
 func (m UpdateAlbumRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Name, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Name, validation.Required, validation.Length(0, 1000)),
 	)
 }
 

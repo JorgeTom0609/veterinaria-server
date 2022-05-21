@@ -97,14 +97,14 @@ type UpdateServicioConDetallesRequest struct {
 // Validate validates the UpdateServicioRequest fields.
 func (m UpdateServicioRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 
 // Validate validates the CreateServicioRequest fields.
 func (m CreateServicioRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 

@@ -67,7 +67,7 @@ func (m UpdateDetalleUsoServicioRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdDetalleServicioHospitalizacion, validation.Required),
 		validation.Field(&m.IdReferencia, validation.Required),
-		validation.Field(&m.Tabla, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Tabla, validation.Required, validation.Length(0, 1000)),
 		validation.Field(&m.Cantidad, validation.Required),
 	)
 }
@@ -77,7 +77,7 @@ func (m CreateDetalleUsoServicioRequest) Validate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdDetalleServicioHospitalizacion, validation.Required),
 		validation.Field(&m.IdReferencia, validation.Required),
-		validation.Field(&m.Tabla, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Tabla, validation.Required, validation.Length(0, 1000)),
 		validation.Field(&m.Cantidad, validation.Required),
 	)
 }

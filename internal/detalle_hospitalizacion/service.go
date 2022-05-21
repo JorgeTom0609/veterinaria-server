@@ -80,7 +80,7 @@ func (m UpdateDetalleHospitalizacionRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdHospitalizacion, validation.Required),
 		validation.Field(&m.IdUsuario, validation.Required),
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 
@@ -89,7 +89,7 @@ func (m CreateDetalleHospitalizacionRequest) Validate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdHospitalizacion, validation.Required),
 		validation.Field(&m.IdUsuario, validation.Required),
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 

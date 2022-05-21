@@ -64,7 +64,7 @@ type UpdateLoteRequest struct {
 // Validate validates the UpdateLoteRequest fields.
 func (m UpdateLoteRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 		validation.Field(&m.IdProveedorProducto, validation.Required),
 	)
 }
@@ -72,7 +72,7 @@ func (m UpdateLoteRequest) ValidateUpdate() error {
 // Validate validates the CreateLoteRequest fields.
 func (m CreateLoteRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 		validation.Field(&m.IdProveedorProducto, validation.Required),
 	)
 }

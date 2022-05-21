@@ -65,14 +65,14 @@ type UpdateProveedorRequest struct {
 // Validate validates the UpdateProveedorRequest fields.
 func (m UpdateProveedorRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 
 // Validate validates the CreateProveedorRequest fields.
 func (m CreateProveedorRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 

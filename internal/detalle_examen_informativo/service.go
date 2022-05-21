@@ -61,7 +61,7 @@ type UpdateDetalleExamenInformativoRequest struct {
 func (m UpdateDetalleExamenInformativoRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdTipoExamen, validation.Required),
-		validation.Field(&m.Parametro, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Parametro, validation.Required, validation.Length(0, 1000)),
 	)
 }
 
@@ -69,7 +69,7 @@ func (m UpdateDetalleExamenInformativoRequest) ValidateUpdate() error {
 func (m CreateDetalleExamenInformativoRequest) Validate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdTipoExamen, validation.Required),
-		validation.Field(&m.Parametro, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Parametro, validation.Required, validation.Length(0, 1000)),
 	)
 }
 

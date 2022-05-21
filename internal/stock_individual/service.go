@@ -66,7 +66,7 @@ func (m UpdateStockIndividualRequest) ValidateUpdate() error {
 		validation.Field(&m.IdLote, validation.Required),
 		validation.Field(&m.CantidadInicial, validation.Required),
 		//validation.Field(&m.Cantidad, validation.Required),
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 
@@ -76,7 +76,7 @@ func (m CreateStockIndividualRequest) Validate() error {
 		validation.Field(&m.IdLote, validation.Required),
 		validation.Field(&m.CantidadInicial, validation.Required),
 		validation.Field(&m.Cantidad, validation.Required),
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 

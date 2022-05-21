@@ -136,14 +136,14 @@ type UpdateProductoRequest struct {
 // Validate validates the UpdateProductoRequest fields.
 func (m UpdateProductoRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 
 // Validate validates the CreateProductoRequest fields.
 func (m CreateProductoRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 

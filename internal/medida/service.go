@@ -57,14 +57,14 @@ type UpdateMedidaRequest struct {
 // Validate validates the UpdateMedidaRequest fields.
 func (m UpdateMedidaRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 
 // Validate validates the CreateMedidaRequest fields.
 func (m CreateMedidaRequest) Validate() error {
 	return validation.ValidateStruct(&m,
-		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Descripcion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 

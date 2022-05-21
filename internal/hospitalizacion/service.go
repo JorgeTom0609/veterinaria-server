@@ -91,8 +91,8 @@ type UpdateHospitalizacionRequest struct {
 func (m UpdateHospitalizacionRequest) ValidateUpdate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdConsulta, validation.Required),
-		validation.Field(&m.Motivo, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.EstadoHospitalizacion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Motivo, validation.Required, validation.Length(0, 1000)),
+		validation.Field(&m.EstadoHospitalizacion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 
@@ -100,8 +100,8 @@ func (m UpdateHospitalizacionRequest) ValidateUpdate() error {
 func (m CreateHospitalizacionRequest) Validate() error {
 	return validation.ValidateStruct(&m,
 		validation.Field(&m.IdConsulta, validation.Required),
-		validation.Field(&m.Motivo, validation.Required, validation.Length(0, 128)),
-		validation.Field(&m.EstadoHospitalizacion, validation.Required, validation.Length(0, 128)),
+		validation.Field(&m.Motivo, validation.Required, validation.Length(0, 1000)),
+		validation.Field(&m.EstadoHospitalizacion, validation.Required, validation.Length(0, 1000)),
 	)
 }
 
