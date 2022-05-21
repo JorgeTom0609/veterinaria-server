@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"net/http"
 	"os"
+	"runtime"
 	"strconv"
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/pkg/log"
@@ -70,9 +71,17 @@ func (r resource) actualizarDocumentoMascota(c *routing.Context) error {
 	}
 
 	input.Nombre = input.Nombre + " - " + input.Fecha.Format("2006-01-02")
-	input.Ruta = "./documentos-mascota/"
-
-	f, err := os.Create("./documentos-mascota/" + input.Nombre + "." + input.Extension)
+	if runtime.GOOS == "windows" {
+		input.Ruta = "./documentos-mascota/"
+	} else {
+		input.Ruta = "/root/go/src/github.com/JorgeTom0609/veterinaria-server/documentos-mascota/"
+	}
+	var f *os.File
+	if runtime.GOOS == "windows" {
+		f, err = os.Create("./documentos-mascota/" + input.Nombre + "." + input.Extension)
+	} else {
+		f, err = os.Create("/root/go/src/github.com/JorgeTom0609/veterinaria-server/documentos-mascota/" + input.Nombre + "." + input.Extension)
+	}
 	if err != nil {
 		panic(err)
 	}

@@ -3,6 +3,7 @@ package examen_mascota
 import (
 	"fmt"
 	"net/http"
+	"runtime"
 	"strconv"
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/pkg/log"
@@ -111,7 +112,14 @@ func (r resource) archivo(c *routing.Context) error {
 		return errors.BadRequest("")
 	}
 
-	ss, err := excelize.OpenFile("./plantillas/Resultados.xlsx")
+	var err error
+	var ss *excelize.File
+	if runtime.GOOS == "windows" {
+		ss, err = excelize.OpenFile("./plantillas/Resultados.xlsx")
+	} else {
+		ss, err = excelize.OpenFile("/root/go/src/github.com/JorgeTom0609/veterinaria-server/plantillas/Resultados.xlsx")
+	}
+
 	if err != nil {
 		return err
 	}
@@ -145,7 +153,11 @@ func (r resource) archivo(c *routing.Context) error {
 	}
 
 	fileName := fmt.Sprintf("Resultado-%s-%s.xlsx", input.Datos.Paciente, input.Datos.FechaLlenado.Format("2006-01-02"))
-	ss.SaveAs("./resources" + "/" + fileName)
+	if runtime.GOOS == "windows" {
+		ss.SaveAs("./resources" + "/" + fileName)
+	} else {
+		ss.SaveAs("/root/go/src/github.com/JorgeTom0609/veterinaria-server/resources" + "/" + fileName)
+	}
 	return c.Write(fileName)
 }
 
@@ -167,7 +179,13 @@ func (r resource) autorizacion(c *routing.Context) error {
 	case 4:
 		nombreDoc = "PlanSanitario"
 	}
-	rd, err := docx.ReadDocxFile("./plantillas/" + nombreDoc + ".docx")
+	var err error
+	var rd *docx.ReplaceDocx
+	if runtime.GOOS == "windows" {
+		rd, err = docx.ReadDocxFile("./plantillas/" + nombreDoc + ".docx")
+	} else {
+		rd, err = docx.ReadDocxFile("/root/go/src/github.com/JorgeTom0609/veterinaria-server/plantillas/" + nombreDoc + ".docx")
+	}
 	if err != nil {
 		return err
 	}
@@ -220,7 +238,11 @@ func (r resource) autorizacion(c *routing.Context) error {
 	docx1.Replace("cdías", strconv.Itoa(input.Fecha.Day()), -1)
 	docx1.Replace("cdía", strconv.Itoa(input.Fecha.Day()), -1)
 	fileName := fmt.Sprintf("%s-%s-%s.docx", nombreDoc, input.Paciente, input.Fecha.Format("2006-01-02"))
-	docx1.WriteToFile("./resources" + "/" + fileName)
+	if runtime.GOOS == "windows" {
+		docx1.WriteToFile("./resources" + "/" + fileName)
+	} else {
+		docx1.WriteToFile("/root/go/src/github.com/JorgeTom0609/veterinaria-server/resources" + "/" + fileName)
+	}
 	rd.Close()
 	return c.Write(fileName)
 }
