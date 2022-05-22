@@ -26,6 +26,7 @@ type ServicioProducto struct {
 type ServicioProductoConDatos struct {
 	entity.ServicioProducto
 	entity.Producto `json:"producto"`
+	Unidad          string `json:"unidad"`
 }
 
 type ServicioProductoConCantidad struct {

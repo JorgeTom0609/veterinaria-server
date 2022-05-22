@@ -15,7 +15,7 @@ type Repository interface {
 	GetServicioPorId(ctx context.Context, idServicio int) (entity.Servicio, error)
 	// GetServicios returns the list servicios.
 	GetServicios(ctx context.Context) ([]entity.Servicio, error)
-	GetServicioPorEspecie(ctx context.Context, idEspecie int) ([]ServicioConProductos, error)
+	GetServicioPorEspecie(ctx context.Context, idEspecie int) ([]ServicioTieneProductos, error)
 	GetServiciosConProductos(ctx context.Context) ([]ServicioTieneProductos, error)
 	CrearServicio(ctx context.Context, servicio entity.Servicio) (entity.Servicio, error)
 	ActualizarServicio(ctx context.Context, servicio entity.Servicio) (entity.Servicio, error)
@@ -46,33 +46,36 @@ func (r repository) GetServicios(ctx context.Context) ([]entity.Servicio, error)
 	return servicios, err
 }
 
-func (r repository) GetServicioPorEspecie(ctx context.Context, idEspecie int) ([]ServicioConProductos, error) {
+func (r repository) GetServicioPorEspecie(ctx context.Context, idEspecie int) ([]ServicioTieneProductos, error) {
 	var servicios []entity.Servicio
-	var serviciosConProductos []ServicioConProductos = []ServicioConProductos{}
+	var serviciosTieneProductos []ServicioTieneProductos
 
 	err := r.db.With(ctx).
 		Select().
 		Where(dbx.HashExp{"id_especie": idEspecie}).
 		All(&servicios)
 	if err != nil {
-		return []ServicioConProductos{}, err
+		return []ServicioTieneProductos{}, err
 	}
 
 	for i := 0; i < len(servicios); i++ {
-		var productosServicios []entity.ServicioProducto = []entity.ServicioProducto{}
+		idServicio := servicios[i].IdServicio
+		cant := 0
 		err := r.db.With(ctx).
-			Select().
-			Where(dbx.HashExp{"id_servicio": servicios[i].IdServicio}).
-			All(&productosServicios)
+			Select("count(id_servicio)").
+			From("servicio_producto").
+			Where(dbx.HashExp{"id_servicio": idServicio}).
+			Row(&cant)
 		if err != nil {
-			return []ServicioConProductos{}, err
+			return []ServicioTieneProductos{}, err
 		}
-		serviciosConProductos = append(serviciosConProductos, ServicioConProductos{
-			Servicio:          servicios[i],
-			ServicioProductos: productosServicios,
+		serviciosTieneProductos = append(serviciosTieneProductos, ServicioTieneProductos{
+			Servicio:         servicios[i],
+			CantidadProducto: cant,
 		})
 	}
-	return serviciosConProductos, err
+
+	return serviciosTieneProductos, err
 }
 
 func (r repository) GetServiciosConProductos(ctx context.Context) ([]ServicioTieneProductos, error) {

@@ -61,6 +61,7 @@ func (r repository) GetServicioProductosConDatos(ctx context.Context) ([]Servici
 
 	for i := 0; i < len(servicioProductos); i++ {
 		var producto entity.Producto
+		var unidad string = ""
 		idProducto := servicioProductos[i].IdProducto
 		err := r.db.With(ctx).
 			Select().
@@ -69,9 +70,22 @@ func (r repository) GetServicioProductosConDatos(ctx context.Context) ([]Servici
 		if err != nil {
 			return []ServicioProductoConDatos{}, err
 		}
+
+		if producto.IdUnidad != nil {
+			err = r.db.With(ctx).
+				Select("descripcion").
+				From("unidad").
+				Where(dbx.HashExp{"id_unidad": producto.IdUnidad}).
+				Row(&unidad)
+			if err != nil {
+				return []ServicioProductoConDatos{}, err
+			}
+		}
+
 		servicioProductosConDatos = append(servicioProductosConDatos, ServicioProductoConDatos{
 			servicioProductos[i],
 			producto,
+			unidad,
 		})
 	}
 

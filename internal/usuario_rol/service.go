@@ -12,7 +12,7 @@ import (
 type Service interface {
 	GetUsuarioRoles(ctx context.Context) ([]UsuarioRol, error)
 	GetUsuarioRolPorId(ctx context.Context, idUsuarioRol int) (UsuarioRol, error)
-	GetUsuarioRolPorCedula(ctx context.Context, cedula string) (UsuarioRol, error)
+	GetUsuarioRolPorUsuario(ctx context.Context, idUsuario int) (UsuarioRol, error)
 	CrearUsuarioRol(ctx context.Context, input CreateUsuarioRolRequest) (UsuarioRol, error)
 	ActualizarUsuarioRol(ctx context.Context, input UpdateUsuarioRolRequest) (UsuarioRol, error)
 }
@@ -113,8 +113,8 @@ func (s service) GetUsuarioRolPorId(ctx context.Context, idUsuarioRol int) (Usua
 	return UsuarioRol{usuarioRol}, nil
 }
 
-func (s service) GetUsuarioRolPorCedula(ctx context.Context, cedula string) (UsuarioRol, error) {
-	usuarioRol, err := s.repo.GetUsuarioRolPorCedula(ctx, cedula)
+func (s service) GetUsuarioRolPorUsuario(ctx context.Context, idUsuario int) (UsuarioRol, error) {
+	usuarioRol, err := s.repo.GetUsuarioRolPorUsuario(ctx, idUsuario)
 	if err != nil {
 		return UsuarioRol{}, err
 	}

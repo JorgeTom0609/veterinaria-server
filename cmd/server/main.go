@@ -39,11 +39,15 @@ import (
 	"veterinaria-server/internal/productos"
 	"veterinaria-server/internal/proveedor"
 	"veterinaria-server/internal/proveedor_producto"
+	"veterinaria-server/internal/receta"
+	"veterinaria-server/internal/rol"
 	"veterinaria-server/internal/servicio_producto"
 	"veterinaria-server/internal/servicios"
 	"veterinaria-server/internal/stock_individual"
 	"veterinaria-server/internal/tipo_examen"
 	"veterinaria-server/internal/unidad"
+	"veterinaria-server/internal/usuario_rol"
+	"veterinaria-server/internal/usuarios"
 	"veterinaria-server/pkg/accesslog"
 	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
@@ -268,6 +272,26 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	detalle_uso_servicio.RegisterHandlers(rg.Group(""),
 		detalle_uso_servicio.NewService(detalle_uso_servicio.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	usuarios.RegisterHandlers(rg.Group(""),
+		usuarios.NewService(usuarios.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	rol.RegisterHandlers(rg.Group(""),
+		rol.NewService(rol.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	usuario_rol.RegisterHandlers(rg.Group(""),
+		usuario_rol.NewService(usuario_rol.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	receta.RegisterHandlers(rg.Group(""),
+		receta.NewService(receta.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 

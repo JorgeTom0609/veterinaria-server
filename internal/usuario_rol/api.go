@@ -16,7 +16,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	// the following endpoints require a valid JWT
 	r.Get("/usuarioRoles", res.getUsuarioRoles)
 	r.Get("/usuarioRoles/<idUsuarioRol>", res.getUsuarioRolPorId)
-	r.Get("/usuarioRoles/porCedula/<cedula>", res.getUsuarioRolPorCedula)
+	r.Get("/usuarioRoles/porUsuario/<idUsuario>", res.getUsuarioRolPorUsuario)
 	r.Post("/usuarioRoles", res.crearUsuarioRol)
 	r.Put("/usuarioRoles", res.actualizarUsuarioRol)
 }
@@ -69,9 +69,9 @@ func (r resource) getUsuarioRolPorId(c *routing.Context) error {
 	return c.Write(usuarioRol)
 }
 
-func (r resource) getUsuarioRolPorCedula(c *routing.Context) error {
-	cedula := c.Param("cedula")
-	usuarioRol, err := r.service.GetUsuarioRolPorCedula(c.Request.Context(), cedula)
+func (r resource) getUsuarioRolPorUsuario(c *routing.Context) error {
+	idUsuario, _ := strconv.Atoi(c.Param("idUsuario"))
+	usuarioRol, err := r.service.GetUsuarioRolPorUsuario(c.Request.Context(), idUsuario)
 	if err != nil {
 		return err
 	}

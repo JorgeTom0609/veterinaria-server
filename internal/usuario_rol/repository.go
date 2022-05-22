@@ -14,7 +14,7 @@ import (
 type Repository interface {
 	// GetUsuarioRolPorId returns the usuarioRol with the specified usuarioRol ID.
 	GetUsuarioRolPorId(ctx context.Context, idUsuarioRol int) (entity.UsuarioRol, error)
-	GetUsuarioRolPorCedula(ctx context.Context, cedula string) (entity.UsuarioRol, error)
+	GetUsuarioRolPorUsuario(ctx context.Context, idUsuario int) (entity.UsuarioRol, error)
 	// GetUsuarioRoles returns the list usuarioRoles.
 	GetUsuarioRoles(ctx context.Context) ([]entity.UsuarioRol, error)
 	CrearUsuarioRol(ctx context.Context, usuarioRol entity.UsuarioRol) (entity.UsuarioRol, error)
@@ -78,9 +78,9 @@ func (r repository) GetUsuarioRolPorId(ctx context.Context, idUsuarioRol int) (e
 	return usuarioRol, err
 }
 
-func (r repository) GetUsuarioRolPorCedula(ctx context.Context, cedula string) (entity.UsuarioRol, error) {
+func (r repository) GetUsuarioRolPorUsuario(ctx context.Context, idUsuario int) (entity.UsuarioRol, error) {
 	var usuarioRol entity.UsuarioRol
-	err := r.db.With(ctx).Select().Where(dbx.HashExp{"cedula": cedula}).One(&usuarioRol)
+	err := r.db.With(ctx).Select().Where(dbx.HashExp{"id_usuario": idUsuario}).One(&usuarioRol)
 	if err == sql.ErrNoRows {
 		err = nil
 	}
