@@ -17,6 +17,7 @@ type Repository interface {
 	// GetProductos returns the list productos.
 	GetProductos(ctx context.Context) ([]entity.Producto, error)
 	GetProductosConStock(ctx context.Context) ([]ProductosConStock, error)
+	GetProductosConStockUsoInternoPorServicio(ctx context.Context, idServicio int) ([]ProductosConStock, error)
 	GetProductosUsoInterno(ctx context.Context) ([]ProductoUsoInterno, error)
 	GetProductosAComparar(ctx context.Context, idProveedor1 int, idProveedor2 int) ([]ProductoComparado, error)
 	GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]entity.Producto, error)
@@ -91,6 +92,76 @@ func (r repository) GetProductosConStock(ctx context.Context) ([]ProductosConSto
 	err := r.db.With(ctx).
 		Select().
 		Where(dbx.NewExp("venta_publico = true")).
+		All(&productos)
+	if err != nil {
+		return []ProductosConStock{}, err
+	}
+	for i := 0; i < len(productos); i++ {
+		productoConStock = ProductosConStock{}
+		stockPorProducto = 0
+		lotes = []entity.Lote{}
+		err := r.db.With(ctx).
+			Select().
+			From("lote l").
+			InnerJoin("proveedor_producto as pp", dbx.NewExp("pp.id_proveedor_producto = l.id_proveedor_producto")).
+			Where(dbx.HashExp{"pp.id_producto": productos[i].IdProducto}).
+			AndWhere(dbx.NewExp("(DATE(now()) <= fecha_caducidad or fecha_caducidad is null) and stock > 0")).
+			All(&lotes)
+		if err != nil {
+			return []ProductosConStock{}, err
+		}
+
+		for j := 0; j < len(lotes); j++ {
+			productoConStock.Lote = append(productoConStock.Lote, LoteConStock{})
+			productoConStock.Lote[j].Lote = lotes[j]
+			stockIndividuales = []entity.StockIndividual{}
+			if productos[i].PorMedida.Bool {
+				err := r.db.With(ctx).
+					Select().
+					Where(dbx.HashExp{"id_lote": lotes[j].IdLote}).
+					AndWhere(dbx.NewExp("cantidad > 0")).
+					All(&stockIndividuales)
+				if err != nil {
+					return []ProductosConStock{}, err
+				}
+				productoConStock.Lote[j].StockIndividual = stockIndividuales
+			}
+		}
+		if len(lotes) > 0 {
+			err = r.db.With(ctx).
+				Select("sum(stock)").
+				From("lote l").
+				InnerJoin("proveedor_producto as pp", dbx.NewExp("pp.id_proveedor_producto = l.id_proveedor_producto")).
+				Where(dbx.HashExp{"pp.id_producto": productos[i].IdProducto}).
+				AndWhere(dbx.NewExp("(DATE(now()) <= fecha_caducidad or fecha_caducidad is null) and stock > 0")).
+				Row(&stockPorProducto)
+			if err != nil {
+				return []ProductosConStock{}, err
+			}
+			productoConStock.StockPorProducto = stockPorProducto
+			productoConStock.Producto = productos[i]
+			productosConStock = append(productosConStock, productoConStock)
+		}
+
+	}
+	return productosConStock, err
+}
+
+func (r repository) GetProductosConStockUsoInternoPorServicio(ctx context.Context, idServicio int) ([]ProductosConStock, error) {
+	var productos []entity.Producto
+	var lotes []entity.Lote
+	var stockIndividuales []entity.StockIndividual
+	var stockPorProducto int
+
+	var productoConStock ProductosConStock
+	var productosConStock []ProductosConStock
+
+	err := r.db.With(ctx).
+		Select().
+		From("producto p").
+		InnerJoin("servicio_producto as sp", dbx.NewExp("sp.id_producto = p.id_producto")).
+		Where(dbx.NewExp("p.uso_interno = true")).
+		AndWhere(dbx.HashExp{"sp.id_servicio": idServicio}).
 		All(&productos)
 	if err != nil {
 		return []ProductosConStock{}, err

@@ -14,6 +14,7 @@ type Service interface {
 	GetProductos(ctx context.Context) ([]Producto, error)
 	GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]Producto, error)
 	GetProductosConStock(ctx context.Context) ([]ProductosConStock, error)
+	GetProductosConStockUsoInternoPorServicio(ctx context.Context, idServicio int) ([]ProductosConStock, error)
 	GetProductosUsoInterno(ctx context.Context) ([]ProductoUsoInterno, error)
 	GetProductosAComparar(ctx context.Context, idProveedor1 int, idProveedor2 int) ([]ProductoComparado, error)
 	GetProductoPorId(ctx context.Context, idProducto int) (Producto, error)
@@ -73,6 +74,14 @@ func (s service) GetProductos(ctx context.Context) ([]Producto, error) {
 
 func (s service) GetProductosConStock(ctx context.Context) ([]ProductosConStock, error) {
 	productos, err := s.repo.GetProductosConStock(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return productos, nil
+}
+
+func (s service) GetProductosConStockUsoInternoPorServicio(ctx context.Context, idServicio int) ([]ProductosConStock, error) {
+	productos, err := s.repo.GetProductosConStockUsoInternoPorServicio(ctx, idServicio)
 	if err != nil {
 		return nil, err
 	}
