@@ -51,7 +51,6 @@ func (r repository) GetExamenesMascota(ctx context.Context) ([]entity.ExamenMasc
 func (r repository) GetExamenesMascotaPorMascotayEstado(ctx context.Context, idMascota int, estado string) ([]ExamenMascotaAll, error) {
 	var examenesMascota []entity.ExamenMascota
 	var examenesMascotaAll []ExamenMascotaAll = []ExamenMascotaAll{}
-	var nombre, apellido, titulo string
 
 	err := r.db.With(ctx).
 		Select().
@@ -62,6 +61,7 @@ func (r repository) GetExamenesMascotaPorMascotayEstado(ctx context.Context, idM
 
 	for i := 0; i < len(examenesMascota); i++ {
 		idUsuario := examenesMascota[i].IdUsuario
+		var nombre, apellido, titulo, muestra string
 		err := r.db.With(ctx).
 			Select("apellido", "nombre").
 			From("usuarios").
@@ -73,10 +73,10 @@ func (r repository) GetExamenesMascotaPorMascotayEstado(ctx context.Context, idM
 
 		idTipoDeExamen := examenesMascota[i].IdTipoExamen
 		err = r.db.With(ctx).
-			Select("titulo").
+			Select("titulo", "muestra").
 			From("tipos_examenes").
 			Where(dbx.HashExp{"id_tipo_examen": idTipoDeExamen}).
-			Row(&titulo)
+			Row(&titulo, &muestra)
 		if err != nil {
 			return []ExamenMascotaAll{}, err
 		}
@@ -92,6 +92,7 @@ func (r repository) GetExamenesMascotaPorMascotayEstado(ctx context.Context, idM
 			apellido + " " + nombre,
 			titulo,
 			"",
+			muestra,
 		})
 	}
 
@@ -104,7 +105,6 @@ func (r repository) GetExamenesMascotaPorMascotayEstado(ctx context.Context, idM
 func (r repository) GetExamenesMascotaPorEstado(ctx context.Context, estado string) ([]ExamenMascotaAll, error) {
 	var examenesMascota []entity.ExamenMascota
 	var examenesMascotaAll []ExamenMascotaAll = []ExamenMascotaAll{}
-	var nombre, apellido, titulo, nombreMascota string
 
 	err := r.db.With(ctx).
 		Select().
@@ -113,6 +113,7 @@ func (r repository) GetExamenesMascotaPorEstado(ctx context.Context, estado stri
 		All(&examenesMascota)
 
 	for i := 0; i < len(examenesMascota); i++ {
+		var nombre, apellido, titulo, nombreMascota, muestra string
 		idUsuario := examenesMascota[i].IdUsuario
 		err := r.db.With(ctx).
 			Select("apellido", "nombre").
@@ -125,10 +126,10 @@ func (r repository) GetExamenesMascotaPorEstado(ctx context.Context, estado stri
 
 		idTipoDeExamen := examenesMascota[i].IdTipoExamen
 		err = r.db.With(ctx).
-			Select("titulo").
+			Select("titulo", "muestra").
 			From("tipos_examenes").
 			Where(dbx.HashExp{"id_tipo_examen": idTipoDeExamen}).
-			Row(&titulo)
+			Row(&titulo, &muestra)
 		if err != nil {
 			return []ExamenMascotaAll{}, err
 		}
@@ -154,6 +155,7 @@ func (r repository) GetExamenesMascotaPorEstado(ctx context.Context, estado stri
 			apellido + " " + nombre,
 			titulo,
 			nombreMascota,
+			muestra,
 		})
 	}
 

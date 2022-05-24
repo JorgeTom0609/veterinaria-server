@@ -6,7 +6,6 @@ type DetalleUsoServicio struct {
 	IdReferencia                     int     `json:"id_referencia" db:"id_referencia"`
 	Tabla                            string  `json:"tabla" db:"tabla"`
 	Cantidad                         float32 `json:"cantidad" db:"cantidad"`
-	Valor                            float32 `json:"valor" db:"valor"`
 }
 
 func (dus DetalleUsoServicio) TableName() string {

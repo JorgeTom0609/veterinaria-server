@@ -19,7 +19,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/servicios", res.getServicios)
 	r.Get("/servicios/conNumProductosUso", res.getServiciosConProductos)
 	r.Get("/servicios/<idServicio>", res.getServicioPorId)
-	r.Get("/servicios/porEspecie/<idEspecie>", res.getServicioPorEspecie)
+	r.Get("/servicios/porEspecie/<idEspecie>/<modo>", res.getServicioPorEspecie)
 	r.Post("/servicios", res.crearServicio)
 	r.Put("/servicios", res.actualizarServicio)
 	r.Put("/servicios/conDetalle", res.actualizarServicioConDetalles)
@@ -41,7 +41,8 @@ func (r resource) getServicios(c *routing.Context) error {
 
 func (r resource) getServicioPorEspecie(c *routing.Context) error {
 	idEspecie, _ := strconv.Atoi(c.Param("idEspecie"))
-	servicios, err := r.service.GetServicioPorEspecie(c.Request.Context(), idEspecie)
+	modo, _ := strconv.Atoi(c.Param("modo"))
+	servicios, err := r.service.GetServicioPorEspecie(c.Request.Context(), idEspecie, modo)
 	if err != nil {
 		return err
 	}

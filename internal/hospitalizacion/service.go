@@ -68,7 +68,7 @@ type CreateHospitalizacionRequest struct {
 	Motivo                string       `json:"motivo"`
 	FechaIngreso          time.Time    `json:"fecha_ingreso"`
 	FechaSalida           *time.Time   `json:"fecha_salida"`
-	Valor                 *float32     `json:"valor"`
+	Valor                 float32      `json:"valor"`
 	Abono                 float32      `json:"abono"`
 	AutorizaExamenes      sql.NullBool `json:"autoriza_examenes"`
 	EstadoHospitalizacion string       `json:"estado_hospitalizacion"`
@@ -80,7 +80,7 @@ type UpdateHospitalizacionRequest struct {
 	Motivo                string       `json:"motivo"`
 	FechaIngreso          time.Time    `json:"fecha_ingreso"`
 	FechaSalida           *time.Time   `json:"fecha_salida"`
-	Valor                 *float32     `json:"valor"`
+	Valor                 float32      `json:"valor"`
 	Abono                 float32      `json:"abono"`
 	AutorizaExamenes      sql.NullBool `json:"autoriza_examenes"`
 	EstadoHospitalizacion string       `json:"estado_hospitalizacion"`

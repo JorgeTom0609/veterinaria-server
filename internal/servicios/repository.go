@@ -15,7 +15,7 @@ type Repository interface {
 	GetServicioPorId(ctx context.Context, idServicio int) (entity.Servicio, error)
 	// GetServicios returns the list servicios.
 	GetServicios(ctx context.Context) ([]entity.Servicio, error)
-	GetServicioPorEspecie(ctx context.Context, idEspecie int) ([]ServicioTieneProductos, error)
+	GetServicioPorEspecie(ctx context.Context, idEspecie int, modo int) ([]ServicioTieneProductos, error)
 	GetServiciosConProductos(ctx context.Context) ([]ServicioTieneProductos, error)
 	CrearServicio(ctx context.Context, servicio entity.Servicio) (entity.Servicio, error)
 	ActualizarServicio(ctx context.Context, servicio entity.Servicio) (entity.Servicio, error)
@@ -46,14 +46,30 @@ func (r repository) GetServicios(ctx context.Context) ([]entity.Servicio, error)
 	return servicios, err
 }
 
-func (r repository) GetServicioPorEspecie(ctx context.Context, idEspecie int) ([]ServicioTieneProductos, error) {
+func (r repository) GetServicioPorEspecie(ctx context.Context, idEspecie int, modo int) ([]ServicioTieneProductos, error) {
 	var servicios []entity.Servicio
 	var serviciosTieneProductos []ServicioTieneProductos
 
-	err := r.db.With(ctx).
-		Select().
-		Where(dbx.HashExp{"id_especie": idEspecie}).
-		All(&servicios)
+	var err error
+	if modo == 1 {
+		err = r.db.With(ctx).
+			Select().
+			Where(dbx.HashExp{"id_especie": idEspecie}).
+			AndWhere(dbx.NewExp("aplica_consulta = true")).
+			All(&servicios)
+	} else if modo == 2 {
+		err = r.db.With(ctx).
+			Select().
+			Where(dbx.HashExp{"id_especie": idEspecie}).
+			AndWhere(dbx.NewExp("aplica_hospitalizacion = true")).
+			All(&servicios)
+	} else {
+		err = r.db.With(ctx).
+			Select().
+			Where(dbx.HashExp{"id_especie": idEspecie}).
+			All(&servicios)
+	}
+
 	if err != nil {
 		return []ServicioTieneProductos{}, err
 	}

@@ -37,6 +37,7 @@ type ExamenMascotaAll struct {
 	Solicitante     string     `json:"solicitante"`
 	Titulo          string     `json:"titulo"`
 	Mascota         string     `json:"mascota"`
+	Muestra         string     `json:"muestra"`
 }
 
 type ResultadosCualitativos struct {

@@ -89,9 +89,10 @@ func (s service) GetDetallesExamenPorTipoExamen(ctx context.Context, idTipoExame
 
 type CreateTipoExamenRequest struct {
 	IdEspecie   int     `json:"id_especie"`
-	Descripcion *string `json:"descripcion"`
+	Descripcion string  `json:"descripcion"`
 	Titulo      string  `json:"titulo"`
 	Muestra     string  `json:"muestra"`
+	Valor       float32 `json:"valor"`
 }
 
 type UpdateTipoExamenRequest struct {
@@ -99,7 +100,8 @@ type UpdateTipoExamenRequest struct {
 	IdEspecie    int     `json:"id_especie"`
 	Titulo       string  `json:"titulo"`
 	Muestra      string  `json:"muestra"`
-	Descripcion  *string `json:"descripcion"`
+	Descripcion  string  `json:"descripcion"`
+	Valor        float32 `json:"valor"`
 }
 
 type UpdateTipoExamenConDetallesRequest struct {
@@ -141,6 +143,7 @@ func (s service) CrearTipoExamen(ctx context.Context, req CreateTipoExamenReques
 		Descripcion: req.Descripcion,
 		Muestra:     req.Muestra,
 		Titulo:      req.Titulo,
+		Valor:       req.Valor,
 	})
 	if err != nil {
 		return TipoExamen{}, err
@@ -158,6 +161,7 @@ func (s service) ActualizarTipoExamen(ctx context.Context, req UpdateTipoExamenR
 		Descripcion:  req.Descripcion,
 		Muestra:      req.Muestra,
 		Titulo:       req.Titulo,
+		Valor:        req.Valor,
 	})
 	if err != nil {
 		return TipoExamen{}, err

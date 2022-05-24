@@ -2,6 +2,7 @@ package servicios
 
 import (
 	"context"
+	"database/sql"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/internal/servicio_producto"
 	"veterinaria-server/pkg/log"
@@ -12,7 +13,7 @@ import (
 // Service encapsulates usecase logic for servicios.
 type Service interface {
 	GetServicios(ctx context.Context) ([]Servicio, error)
-	GetServicioPorEspecie(ctx context.Context, idEspecie int) ([]ServicioTieneProductos, error)
+	GetServicioPorEspecie(ctx context.Context, idEspecie int, modo int) ([]ServicioTieneProductos, error)
 	GetServiciosConProductos(ctx context.Context) ([]ServicioTieneProductos, error)
 	GetServicioPorId(ctx context.Context, idServicio int) (Servicio, error)
 	CrearServicio(ctx context.Context, input CreateServicioRequest) (Servicio, error)
@@ -52,8 +53,8 @@ func (s service) GetServicios(ctx context.Context) ([]Servicio, error) {
 	return result, nil
 }
 
-func (s service) GetServicioPorEspecie(ctx context.Context, idEspecie int) ([]ServicioTieneProductos, error) {
-	servicios, err := s.repo.GetServicioPorEspecie(ctx, idEspecie)
+func (s service) GetServicioPorEspecie(ctx context.Context, idEspecie int, modo int) ([]ServicioTieneProductos, error) {
+	servicios, err := s.repo.GetServicioPorEspecie(ctx, idEspecie, modo)
 	if err != nil {
 		return nil, err
 	}
@@ -70,18 +71,22 @@ func (s service) GetServiciosConProductos(ctx context.Context) ([]ServicioTieneP
 
 // CreateServicioRequest represents an servicio creation request.
 type CreateServicioRequest struct {
-	IdEspecie   int     `json:"id_especie"`
-	IdUsuario   int     `json:"id_usuario"`
-	Descripcion string  `json:"descripcion"`
-	Valor       float32 `json:"valor"`
+	IdEspecie             int          `json:"id_especie"`
+	IdUsuario             int          `json:"id_usuario"`
+	Descripcion           string       `json:"descripcion"`
+	Valor                 float32      `json:"valor"`
+	AplicaConsulta        sql.NullBool `json:"aplica_consulta"`
+	AplicaHospitalizacion sql.NullBool `json:"aplica_hospitalizacion"`
 }
 
 type UpdateServicioRequest struct {
-	IdServicio  int     `json:"id_servicio"`
-	IdEspecie   int     `json:"id_especie"`
-	IdUsuario   int     `json:"id_usuario"`
-	Descripcion string  `json:"descripcion"`
-	Valor       float32 `json:"valor"`
+	IdServicio            int          `json:"id_servicio"`
+	IdEspecie             int          `json:"id_especie"`
+	IdUsuario             int          `json:"id_usuario"`
+	Descripcion           string       `json:"descripcion"`
+	Valor                 float32      `json:"valor"`
+	AplicaConsulta        sql.NullBool `json:"aplica_consulta"`
+	AplicaHospitalizacion sql.NullBool `json:"aplica_hospitalizacion"`
 }
 
 type UpdateServicioConDetallesRequest struct {
@@ -109,10 +114,12 @@ func (s service) CrearServicio(ctx context.Context, req CreateServicioRequest) (
 		return Servicio{}, err
 	}
 	servicioG, err := s.repo.CrearServicio(ctx, entity.Servicio{
-		IdUsuario:   req.IdUsuario,
-		IdEspecie:   req.IdEspecie,
-		Descripcion: req.Descripcion,
-		Valor:       req.Valor,
+		IdUsuario:             req.IdUsuario,
+		IdEspecie:             req.IdEspecie,
+		Descripcion:           req.Descripcion,
+		Valor:                 req.Valor,
+		AplicaConsulta:        req.AplicaConsulta,
+		AplicaHospitalizacion: req.AplicaHospitalizacion,
 	})
 	if err != nil {
 		return Servicio{}, err
@@ -126,11 +133,13 @@ func (s service) ActualizarServicio(ctx context.Context, req UpdateServicioReque
 		return Servicio{}, err
 	}
 	servicioG, err := s.repo.ActualizarServicio(ctx, entity.Servicio{
-		IdServicio:  req.IdServicio,
-		IdUsuario:   req.IdUsuario,
-		IdEspecie:   req.IdEspecie,
-		Descripcion: req.Descripcion,
-		Valor:       req.Valor,
+		IdServicio:            req.IdServicio,
+		IdUsuario:             req.IdUsuario,
+		IdEspecie:             req.IdEspecie,
+		Descripcion:           req.Descripcion,
+		Valor:                 req.Valor,
+		AplicaConsulta:        req.AplicaConsulta,
+		AplicaHospitalizacion: req.AplicaHospitalizacion,
 	})
 	if err != nil {
 		return Servicio{}, err

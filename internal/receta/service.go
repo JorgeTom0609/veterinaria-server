@@ -2,6 +2,7 @@ package receta
 
 import (
 	"context"
+	"time"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/log"
 
@@ -75,6 +76,25 @@ func (m CreateRecetaRequest) Validate() error {
 		validation.Field(&m.IdProducto, validation.Required),
 		validation.Field(&m.Prescripcion, validation.Required, validation.Length(0, 1000)),
 	)
+}
+
+type RecetaRequest struct {
+	Prescripciones []PrescripcionRequest `json:"prescripciones"`
+	Datos          DatosMascotaRequest   `json:"datos"`
+}
+
+type PrescripcionRequest struct {
+	Producto     string `json:"producto"`
+	Prescripcion string `json:"prescripcion"`
+}
+type DatosMascotaRequest struct {
+	Paciente     string
+	Propietario  string
+	Medico       string
+	Especie      string
+	Genero       string
+	Raza         string
+	FechaLlenado time.Time
 }
 
 // CrearReceta creates a new receta.

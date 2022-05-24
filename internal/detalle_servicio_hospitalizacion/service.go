@@ -3,6 +3,7 @@ package detalle_servicio_hospitalizacion
 import (
 	"context"
 	"time"
+	"veterinaria-server/internal/detalle_uso_servicio"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/log"
 
@@ -45,6 +46,11 @@ func (s service) GetDetallesServicioHospitalizacion(ctx context.Context) ([]Deta
 	return result, nil
 }
 
+type CreateDetalleServicioHospitalizacionConDetallesRequest struct {
+	DetalleServicioHospitalizacion CreateDetalleServicioHospitalizacionRequest            `json:"detalle_servicio_hospitalizacion"`
+	Productos                      []detalle_uso_servicio.CreateDetalleUsoServicioRequest `json:"productos"`
+}
+
 // CreateDetalleServicioHospitalizacionRequest represents an detalleServicioHospitalizacion creation request.
 type CreateDetalleServicioHospitalizacionRequest struct {
 	IdHospitalizacion int       `json:"id_hospitalizacion"`
@@ -52,6 +58,7 @@ type CreateDetalleServicioHospitalizacionRequest struct {
 	IdServicio        int       `json:"id_servicio"`
 	Valor             float32   `json:"valor"`
 	Fecha             time.Time `json:"fecha"`
+	Servicio          string    `json:"servicio"`
 }
 
 type UpdateDetalleServicioHospitalizacionRequest struct {

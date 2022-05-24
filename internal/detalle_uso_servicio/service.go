@@ -50,7 +50,6 @@ type CreateDetalleUsoServicioRequest struct {
 	IdReferencia                     int     `json:"id_referencia"`
 	Tabla                            string  `json:"tabla"`
 	Cantidad                         float32 `json:"cantidad"`
-	Valor                            float32 `json:"valor"`
 }
 
 type UpdateDetalleUsoServicioRequest struct {
@@ -59,7 +58,6 @@ type UpdateDetalleUsoServicioRequest struct {
 	IdReferencia                     int     `json:"id_referencia"`
 	Tabla                            string  `json:"tabla"`
 	Cantidad                         float32 `json:"cantidad"`
-	Valor                            float32 `json:"valor"`
 }
 
 // Validate validates the UpdateDetalleUsoServicioRequest fields.
@@ -92,7 +90,6 @@ func (s service) CrearDetalleUsoServicio(ctx context.Context, req CreateDetalleU
 		IdReferencia:                     req.IdReferencia,
 		Tabla:                            req.Tabla,
 		Cantidad:                         req.Cantidad,
-		Valor:                            req.Valor,
 	})
 	if err != nil {
 		return DetalleUsoServicio{}, err
@@ -111,7 +108,6 @@ func (s service) ActualizarDetalleUsoServicio(ctx context.Context, req UpdateDet
 		IdReferencia:                     req.IdReferencia,
 		Tabla:                            req.Tabla,
 		Cantidad:                         req.Cantidad,
-		Valor:                            req.Valor,
 	})
 	if err != nil {
 		return DetalleUsoServicio{}, err
