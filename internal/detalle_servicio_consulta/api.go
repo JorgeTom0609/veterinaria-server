@@ -21,6 +21,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	// the following endpoints require a valid JWT
 	r.Get("/detallesServicioConsulta", res.getDetallesServicioConsulta)
 	r.Get("/detallesServicioConsulta/<idDetalleServicioConsulta>", res.getDetalleServicioConsultaPorId)
+	r.Get("/detallesServicioConsulta/porConsulta/<idConsulta>", res.getDetalleServicioConsultaPorConsulta)
 	r.Post("/detallesServicioConsulta", res.crearDetalleServicioConsulta)
 	r.Put("/detallesServicioConsulta/conDetalle", res.crearDetalleServicioConsultaConDetalles)
 	r.Put("/detallesServicioConsulta", res.actualizarDetalleServicioConsulta)
@@ -69,6 +70,15 @@ func (r resource) actualizarDetalleServicioConsulta(c *routing.Context) error {
 func (r resource) getDetalleServicioConsultaPorId(c *routing.Context) error {
 	idDetalleServicioConsulta, _ := strconv.Atoi(c.Param("idDetalleServicioConsulta"))
 	detalleServicioConsulta, err := r.service.GetDetalleServicioConsultaPorId(c.Request.Context(), idDetalleServicioConsulta)
+	if err != nil {
+		return err
+	}
+	return c.Write(detalleServicioConsulta)
+}
+
+func (r resource) getDetalleServicioConsultaPorConsulta(c *routing.Context) error {
+	idConsulta, _ := strconv.Atoi(c.Param("idConsulta"))
+	detalleServicioConsulta, err := r.service.GetDetalleServicioConsultaPorConsulta(c.Request.Context(), idConsulta)
 	if err != nil {
 		return err
 	}

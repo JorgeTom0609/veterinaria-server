@@ -14,6 +14,7 @@ import (
 type Service interface {
 	GetDetallesServicioConsulta(ctx context.Context) ([]DetalleServicioConsulta, error)
 	GetDetalleServicioConsultaPorId(ctx context.Context, idDetalleServicioConsulta int) (DetalleServicioConsulta, error)
+	GetDetalleServicioConsultaPorConsulta(ctx context.Context, idConsulta int) ([]DetalleServicioConsultaConDatos, error)
 	CrearDetalleServicioConsulta(ctx context.Context, input CreateDetalleServicioConsultaRequest) (DetalleServicioConsulta, error)
 	ActualizarDetalleServicioConsulta(ctx context.Context, input UpdateDetalleServicioConsultaRequest) (DetalleServicioConsulta, error)
 }
@@ -23,6 +24,10 @@ type DetalleServicioConsulta struct {
 	entity.DetalleServicioConsulta
 }
 
+type DetalleServicioConsultaConDatos struct {
+	entity.DetalleServicioConsulta
+	Servicio string `json:"servicio"`
+}
 type service struct {
 	repo   Repository
 	logger log.Logger
@@ -126,4 +131,12 @@ func (s service) GetDetalleServicioConsultaPorId(ctx context.Context, idDetalleS
 		return DetalleServicioConsulta{}, err
 	}
 	return DetalleServicioConsulta{detalleServicioConsulta}, nil
+
+}
+func (s service) GetDetalleServicioConsultaPorConsulta(ctx context.Context, idConsulta int) ([]DetalleServicioConsultaConDatos, error) {
+	detallesServicioConsulta, err := s.repo.GetDetalleServicioConsultaPorConsulta(ctx, idConsulta)
+	if err != nil {
+		return []DetalleServicioConsultaConDatos{}, err
+	}
+	return detallesServicioConsulta, nil
 }

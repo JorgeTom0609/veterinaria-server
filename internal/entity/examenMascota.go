@@ -11,6 +11,8 @@ type ExamenMascota struct {
 	FechaSolicitud  time.Time  `json:"fecha_solicitud" db:"fecha_solicitud"`
 	FechaLlenado    *time.Time `json:"fecha_llenado" db:"fecha_llenado"`
 	Estado          string     `json:"estado" db:"estado"`
+	IdReferencia    int        `json:"id_referencia" db:"id_referencia"`
+	Tabla           string     `json:"tabla" db:"tabla"`
 }
 
 func (em ExamenMascota) TableName() string {

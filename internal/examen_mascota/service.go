@@ -114,6 +114,8 @@ type CreateExamenMascotaRequest struct {
 	FechaSolicitud time.Time  `json:"fecha_solicitud"`
 	FechaLlenado   *time.Time `json:"fecha_llenado"`
 	Estado         string     `json:"estado"`
+	IdReferencia   int        `json:"id_referencia"`
+	Tabla          string     `json:"tabla"`
 }
 
 type ResultadoRequest struct {
@@ -163,7 +165,10 @@ type UpdateExamenMascotaRequest struct {
 	IdTipoExamen    int        `json:"id_tipo_examen"`
 	FechaSolicitud  time.Time  `json:"fecha_solicitud"`
 	FechaLlenado    *time.Time `json:"fecha_llenado"`
+	IdReferencia    int        `json:"id_referencia"`
+	Tabla           string     `json:"tabla"`
 	Estado          string     `json:"estado"`
+	Valor           float32    `json:"valor"`
 }
 
 // Validate validates the UpdateExamenMascotaRequest fields.
@@ -195,6 +200,8 @@ func (s service) CrearExamenMascota(ctx context.Context, req CreateExamenMascota
 		IdTipoExamen:   req.IdTipoExamen,
 		FechaSolicitud: req.FechaSolicitud,
 		FechaLlenado:   req.FechaLlenado,
+		IdReferencia:   req.IdReferencia,
+		Tabla:          req.Tabla,
 		Estado:         req.Estado,
 	})
 	if err != nil {
@@ -216,6 +223,8 @@ func (s service) ActualizarExamenMascota(ctx context.Context, req UpdateExamenMa
 		FechaSolicitud:  req.FechaSolicitud,
 		FechaLlenado:    req.FechaLlenado,
 		Estado:          req.Estado,
+		IdReferencia:    req.IdReferencia,
+		Tabla:           req.Tabla,
 	})
 	if err != nil {
 		return ExamenMascota{}, err

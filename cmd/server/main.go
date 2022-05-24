@@ -23,8 +23,10 @@ import (
 	"veterinaria-server/internal/detalle_examen_informativo"
 	"veterinaria-server/internal/detalle_factura"
 	"veterinaria-server/internal/detalle_hospitalizacion"
+	"veterinaria-server/internal/detalle_servicio_consulta"
 	"veterinaria-server/internal/detalle_servicio_hospitalizacion"
 	"veterinaria-server/internal/detalle_uso_servicio"
+	"veterinaria-server/internal/detalle_uso_servicio_consulta"
 	"veterinaria-server/internal/documento_mascota"
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/internal/especies"
@@ -177,7 +179,7 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	examen_mascota.RegisterHandlers(rg.Group(""),
 		examen_mascota.NewService(examen_mascota.NewRepository(db, logger), logger),
-		authHandler, logger,
+		authHandler, logger, db,
 	)
 
 	factura.RegisterHandlers(rg.Group(""),
@@ -292,6 +294,16 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 
 	receta.RegisterHandlers(rg.Group(""),
 		receta.NewService(receta.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
+	detalle_servicio_consulta.RegisterHandlers(rg.Group(""),
+		detalle_servicio_consulta.NewService(detalle_servicio_consulta.NewRepository(db, logger), logger),
+		authHandler, logger, db,
+	)
+
+	detalle_uso_servicio_consulta.RegisterHandlers(rg.Group(""),
+		detalle_uso_servicio_consulta.NewService(detalle_uso_servicio_consulta.NewRepository(db, logger), logger),
 		authHandler, logger,
 	)
 

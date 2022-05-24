@@ -5,7 +5,10 @@ import (
 	"net/http"
 	"runtime"
 	"strconv"
+	"veterinaria-server/internal/consultas"
 	"veterinaria-server/internal/errors"
+	"veterinaria-server/internal/hospitalizacion"
+	"veterinaria-server/pkg/dbcontext"
 	"veterinaria-server/pkg/log"
 
 	routing "github.com/go-ozzo/ozzo-routing/v2"
@@ -14,8 +17,8 @@ import (
 )
 
 // RegisterHandlers sets up the routing of the HTTP handlers.
-func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routing.Handler, logger log.Logger) {
-	res := resource{service, logger}
+func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routing.Handler, logger log.Logger, db *dbcontext.DB) {
+	res := resource{service, logger, db}
 	r.Use(authHandler)
 	// the following endpoints require a valid JWT
 	r.Get("/examenesMascota", res.getExamenesMascota)
@@ -32,6 +35,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 type resource struct {
 	service Service
 	logger  log.Logger
+	db      *dbcontext.DB
 }
 
 func (r resource) getExamenesMascota(c *routing.Context) error {
@@ -84,6 +88,59 @@ func (r resource) actualizarExamenMascota(c *routing.Context) error {
 	if err != nil {
 		return err
 	}
+
+	if examenesMascota.Tabla == "Consulta" {
+		s1 := consultas.NewService(consultas.NewRepository(r.db, r.logger), r.logger)
+		consultaBD, err1 := s1.GetConsultaPorId(c.Request.Context(), examenesMascota.IdReferencia)
+		if err1 != nil {
+			return err1
+		}
+		consultaBD.Valor = consultaBD.Valor + input.Valor
+		_, err2 := s1.ActualizarConsulta(c.Request.Context(), consultas.UpdateConsultaRequest{
+			IdConsulta:             consultaBD.IdConsulta,
+			IdMascota:              consultaBD.IdMascota,
+			IdUsuario:              consultaBD.IdUsuario,
+			Fecha:                  consultaBD.Fecha,
+			Valor:                  consultaBD.Valor,
+			Motivo:                 consultaBD.Motivo,
+			Temperatura:            consultaBD.Temperatura,
+			Peso:                   consultaBD.Peso,
+			Tamaño:                 consultaBD.Tamaño,
+			CondicionCorporal:      consultaBD.CondicionCorporal,
+			NivelesDeshidratacion:  consultaBD.NivelesDeshidratacion,
+			Diagnostico:            consultaBD.Diagnostico,
+			Edad:                   consultaBD.Edad,
+			TiempoLlenadoCapilar:   consultaBD.TiempoLlenadoCapilar,
+			FrecuenciaCardiaca:     consultaBD.FrecuenciaCardiaca,
+			FrecuenciaRespiratoria: consultaBD.FrecuenciaRespiratoria,
+			EstadoConsulta:         consultaBD.EstadoConsulta,
+		})
+		if err2 != nil {
+			return err2
+		}
+	} else {
+		s1 := hospitalizacion.NewService(hospitalizacion.NewRepository(r.db, r.logger), r.logger)
+		hospitalizacionBD, err1 := s1.GetHospitalizacionPorId(c.Request.Context(), examenesMascota.IdReferencia)
+		if err1 != nil {
+			return err1
+		}
+		hospitalizacionBD.Valor = hospitalizacionBD.Valor + input.Valor
+		_, err2 := s1.ActualizarHospitalizacion(c.Request.Context(), hospitalizacion.UpdateHospitalizacionRequest{
+			IdHospitalizacion:     hospitalizacionBD.IdHospitalizacion,
+			IdConsulta:            hospitalizacionBD.IdConsulta,
+			Motivo:                hospitalizacionBD.Motivo,
+			FechaIngreso:          hospitalizacionBD.FechaIngreso,
+			FechaSalida:           hospitalizacionBD.FechaSalida,
+			Valor:                 hospitalizacionBD.Valor,
+			Abono:                 hospitalizacionBD.Abono,
+			AutorizaExamenes:      hospitalizacionBD.AuorizaExamenes,
+			EstadoHospitalizacion: hospitalizacionBD.EstadoHospitalizacion,
+		})
+		if err2 != nil {
+			return err2
+		}
+	}
+
 	return c.WriteWithStatus(examenesMascota, http.StatusCreated)
 }
 

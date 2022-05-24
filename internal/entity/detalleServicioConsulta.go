@@ -11,5 +11,5 @@ type DetalleServicioConsulta struct {
 }
 
 func (dsc DetalleServicioConsulta) TableName() string {
-	return "detalles_servicios_hospitalizacion"
+	return "detalles_servicios_consulta"
 }
