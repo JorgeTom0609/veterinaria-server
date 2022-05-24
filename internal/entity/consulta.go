@@ -7,7 +7,7 @@ type Consulta struct {
 	IdMascota              int       `json:"id_mascota" db:"id_mascota"`
 	IdUsuario              int       `json:"id_usuario" db:"id_usuario"`
 	Fecha                  time.Time `json:"fecha" db:"fecha"`
-	Valor                  *float32  `json:"valor" db:"valor"`
+	Valor                  float32   `json:"valor" db:"valor"`
 	Motivo                 *string   `json:"motivo" db:"motivo"`
 	Temperatura            *float32  `json:"temperatura" db:"temperatura"`
 	Peso                   *float32  `json:"peso" db:"peso"`

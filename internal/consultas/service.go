@@ -58,7 +58,7 @@ type CreateConsultaRequest struct {
 	IdMascota              int       `json:"id_mascota"`
 	IdUsuario              int       `json:"id_usuario"`
 	Fecha                  time.Time `json:"fecha"`
-	Valor                  *float32  `json:"valor"`
+	Valor                  float32   `json:"valor"`
 	Motivo                 *string   `json:"motivo"`
 	Temperatura            *float32  `json:"temperatura"`
 	Peso                   *float32  `json:"peso"`
@@ -78,7 +78,7 @@ type UpdateConsultaRequest struct {
 	IdMascota              int       `json:"id_mascota"`
 	IdUsuario              int       `json:"id_usuario"`
 	Fecha                  time.Time `json:"fecha"`
-	Valor                  *float32  `json:"valor"`
+	Valor                  float32   `json:"valor"`
 	Motivo                 *string   `json:"motivo"`
 	Temperatura            *float32  `json:"temperatura"`
 	Peso                   *float32  `json:"peso"`
