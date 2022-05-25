@@ -7,6 +7,7 @@ import (
 	"veterinaria-server/pkg/log"
 
 	routing "github.com/go-ozzo/ozzo-routing/v2"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // RegisterHandlers sets up the routing of the HTTP handlers.
@@ -52,6 +53,13 @@ func (r resource) actualizarUser(c *routing.Context) error {
 		r.logger.With(c.Request.Context()).Info(err)
 		return errors.BadRequest("")
 	}
+
+	if input.CambioClave == 1 {
+		// para encriptar la pass
+		hash, _ := bcrypt.GenerateFromPassword([]byte(input.Clave), bcrypt.MinCost)
+		input.Clave = string(hash)
+	}
+
 	user, err := r.service.ActualizarUser(c.Request.Context(), input)
 	if err != nil {
 		return err

@@ -61,6 +61,7 @@ type UpdateUserRequest struct {
 	NombreUsuario string       `json:"nombre_usuario"`
 	Clave         string       `json:"clave"`
 	Estado        sql.NullBool `json:"estado"`
+	CambioClave   int          `json:"cambio_clave"`
 }
 
 // Validate validates the UpdateUserRequest fields.

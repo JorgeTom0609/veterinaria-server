@@ -66,11 +66,6 @@ func (s service) authenticate(ctx context.Context, username, password string) Id
 		return nil
 	}
 
-	/* para encriptar la pass
-	hash, _ := bcrypt.GenerateFromPassword([]byte(user.Clave), bcrypt.MinCost)
-	fmt.Println(string(hash))
-	*/
-
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Clave), []byte(password)); err != nil {
 		fmt.Println(err)
 		logger.Infof("authentication failed")
