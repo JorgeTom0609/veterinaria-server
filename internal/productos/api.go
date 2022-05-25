@@ -16,6 +16,8 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	// the following endpoints require a valid JWT
 	r.Get("/productos", res.getProductos)
 	r.Get("/productos/sinAsignar/<idProveedor>", res.getProductosSinAsignarAProveedor)
+	r.Get("/productos/stock", res.getProductosStock)
+	r.Get("/productos/caducados", res.getProductosCaducados)
 	r.Get("/productos/conStock", res.getProductosConStock)
 	r.Get("/productos/conStockUsoInternoPorServicio/<idServicio>", res.getProductosConStockUsoInternoPorServicio)
 	r.Get("/productos/usoInterno", res.getProductosUsoInterno)
@@ -51,6 +53,22 @@ func (r resource) getProductosAComparar(c *routing.Context) error {
 	idProveedor1, _ := strconv.Atoi(c.Param("idProveedor1"))
 	idProveedor2, _ := strconv.Atoi(c.Param("idProveedor2"))
 	productos, err := r.service.GetProductosAComparar(c.Request.Context(), idProveedor1, idProveedor2)
+	if err != nil {
+		return err
+	}
+	return c.Write(productos)
+}
+
+func (r resource) getProductosStock(c *routing.Context) error {
+	productos, err := r.service.GetProductosStock(c.Request.Context())
+	if err != nil {
+		return err
+	}
+	return c.Write(productos)
+}
+
+func (r resource) getProductosCaducados(c *routing.Context) error {
+	productos, err := r.service.GetProductosCaducados(c.Request.Context())
 	if err != nil {
 		return err
 	}

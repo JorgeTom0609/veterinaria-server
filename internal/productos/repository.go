@@ -16,6 +16,8 @@ type Repository interface {
 	GetProductoPorId(ctx context.Context, idProducto int) (entity.Producto, error)
 	// GetProductos returns the list productos.
 	GetProductos(ctx context.Context) ([]entity.Producto, error)
+	GetProductosCaducados(ctx context.Context) ([]ProductoStock, error)
+	GetProductosStock(ctx context.Context) ([]ProductoStock, error)
 	GetProductosConStock(ctx context.Context) ([]ProductosConStock, error)
 	GetProductosConStockUsoInternoPorServicio(ctx context.Context, idServicio int) ([]ProductosConStock, error)
 	GetProductosUsoInterno(ctx context.Context) ([]ProductoUsoInterno, error)
@@ -78,6 +80,42 @@ func (r repository) GetProductosUsoInterno(ctx context.Context) ([]ProductoUsoIn
 		}
 	}
 	return productosUsoInterno, err
+}
+
+func (r repository) GetProductosStock(ctx context.Context) ([]ProductoStock, error) {
+	var productosStock []ProductoStock = []ProductoStock{}
+	err := r.db.With(ctx).
+		Select("p.descripcion as producto", "l.id_lote", "l.descripcion as lote", "l.fecha_caducidad", "l.stock", "si.id_stock_individual", "si.descripcion as stock_individual", "si.cantidad", "u.descripcion as unidad").
+		From("producto p").
+		LeftJoin("unidad u", dbx.NewExp("u.id_unidad = p.id_unidad")).
+		InnerJoin("proveedor_producto pp", dbx.NewExp("pp.id_producto = p.id_producto")).
+		InnerJoin("lote l", dbx.NewExp("l.id_proveedor_producto = pp.id_proveedor_producto")).
+		LeftJoin("stock_individual si", dbx.NewExp("si.id_lote = l.id_lote and cantidad > 0")).
+		Where(dbx.NewExp("(DATE(now()) <= l.fecha_caducidad or l.fecha_caducidad is null) and l.stock > 0")).
+		OrderBy("fecha_caducidad asc").
+		All(&productosStock)
+	if err != nil {
+		return []ProductoStock{}, err
+	}
+	return productosStock, err
+}
+
+func (r repository) GetProductosCaducados(ctx context.Context) ([]ProductoStock, error) {
+	var productosStock []ProductoStock = []ProductoStock{}
+	err := r.db.With(ctx).
+		Select("p.descripcion as producto", "l.id_lote", "l.descripcion as lote", "l.fecha_caducidad", "l.stock", "si.id_stock_individual", "si.descripcion as stock_individual", "si.cantidad", "u.descripcion as unidad").
+		From("producto p").
+		LeftJoin("unidad u", dbx.NewExp("u.id_unidad = p.id_unidad")).
+		InnerJoin("proveedor_producto pp", dbx.NewExp("pp.id_producto = p.id_producto")).
+		InnerJoin("lote l", dbx.NewExp("l.id_proveedor_producto = pp.id_proveedor_producto")).
+		LeftJoin("stock_individual si", dbx.NewExp("si.id_lote = l.id_lote and cantidad > 0")).
+		Where(dbx.NewExp("(DATE(now()) > l.fecha_caducidad) and l.stock > 0")).
+		OrderBy("fecha_caducidad asc").
+		All(&productosStock)
+	if err != nil {
+		return []ProductoStock{}, err
+	}
+	return productosStock, err
 }
 
 func (r repository) GetProductosConStock(ctx context.Context) ([]ProductosConStock, error) {

@@ -3,6 +3,7 @@ package productos
 import (
 	"context"
 	"database/sql"
+	"time"
 	"veterinaria-server/internal/entity"
 	"veterinaria-server/pkg/log"
 
@@ -13,6 +14,8 @@ import (
 type Service interface {
 	GetProductos(ctx context.Context) ([]Producto, error)
 	GetProductosSinAsignarAProveedor(ctx context.Context, idProveedor int) ([]Producto, error)
+	GetProductosStock(ctx context.Context) ([]ProductoStock, error)
+	GetProductosCaducados(ctx context.Context) ([]ProductoStock, error)
 	GetProductosConStock(ctx context.Context) ([]ProductosConStock, error)
 	GetProductosConStockUsoInternoPorServicio(ctx context.Context, idServicio int) ([]ProductosConStock, error)
 	GetProductosUsoInterno(ctx context.Context) ([]ProductoUsoInterno, error)
@@ -31,6 +34,18 @@ type ProductoComparado struct {
 	Producto string  `json:"producto"`
 	Precio1  float32 `json:"precio1"`
 	Precio2  float32 `json:"precio2"`
+}
+
+type ProductoStock struct {
+	Producto          string     `json:"producto"`
+	IdLote            int        `json:"id_lote"`
+	Lote              string     `json:"lote"`
+	FechaCaducidad    *time.Time `json:"fecha_caducidad"`
+	Stock             int        `json:"stock"`
+	IdStockIndividual *int       `json:"id_stock_individual"`
+	StockIndividual   *string    `json:"stock_individual"`
+	Cantidad          *float32   `json:"cantidad"`
+	Unidad            *string    `json:"unidad"`
 }
 
 type ProductosConStock struct {
@@ -70,6 +85,22 @@ func (s service) GetProductos(ctx context.Context) ([]Producto, error) {
 		result = append(result, Producto{item})
 	}
 	return result, nil
+}
+
+func (s service) GetProductosStock(ctx context.Context) ([]ProductoStock, error) {
+	productos, err := s.repo.GetProductosStock(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return productos, nil
+}
+
+func (s service) GetProductosCaducados(ctx context.Context) ([]ProductoStock, error) {
+	productos, err := s.repo.GetProductosCaducados(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return productos, nil
 }
 
 func (s service) GetProductosConStock(ctx context.Context) ([]ProductosConStock, error) {
