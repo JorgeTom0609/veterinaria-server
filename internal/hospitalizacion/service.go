@@ -14,6 +14,7 @@ import (
 type Service interface {
 	GetHospitalizaciones(ctx context.Context) ([]Hospitalizacion, error)
 	GetHospitalizacionesActivas(ctx context.Context) ([]HospitalizacionesActivas, error)
+	GetHospitalizacionesFinalizadas(ctx context.Context) ([]HospitalizacionesActivas, error)
 	GetHospitalizacionPorId(ctx context.Context, idHospitalizacion int) (Hospitalizacion, error)
 	CrearHospitalizacion(ctx context.Context, input CreateHospitalizacionRequest) (Hospitalizacion, error)
 	ActualizarHospitalizacion(ctx context.Context, input UpdateHospitalizacionRequest) (Hospitalizacion, error)
@@ -56,6 +57,14 @@ func (s service) GetHospitalizaciones(ctx context.Context) ([]Hospitalizacion, e
 
 func (s service) GetHospitalizacionesActivas(ctx context.Context) ([]HospitalizacionesActivas, error) {
 	hospitalizaciones, err := s.repo.GetHospitalizacionesActivas(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return hospitalizaciones, nil
+}
+
+func (s service) GetHospitalizacionesFinalizadas(ctx context.Context) ([]HospitalizacionesActivas, error) {
+	hospitalizaciones, err := s.repo.GetHospitalizacionesFinalizadas(ctx)
 	if err != nil {
 		return nil, err
 	}

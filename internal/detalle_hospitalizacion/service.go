@@ -14,6 +14,7 @@ type Service interface {
 	GetDetallesHospitalizacion(ctx context.Context) ([]DetalleHospitalizacion, error)
 	GetDetalleHospitalizacionPorId(ctx context.Context, idDetalleHospitalizacion int) (DetalleHospitalizacion, error)
 	GetDetalleHospitalizacionPorHospitalizacion(ctx context.Context, idHospitalizacion int) ([]DetalleHospitalizacionConResponsable, error)
+	GetDetalleHospitalizacionPorHospitalizacion2(ctx context.Context, idHospitalizacion int) ([]DetalleHospitalizacionConResponsable, error)
 	CrearDetalleHospitalizacion(ctx context.Context, input CreateDetalleHospitalizacionRequest) (DetalleHospitalizacion, error)
 	ActualizarDetalleHospitalizacion(ctx context.Context, input UpdateDetalleHospitalizacionRequest) (DetalleHospitalizacion, error)
 }
@@ -53,6 +54,14 @@ func (s service) GetDetallesHospitalizacion(ctx context.Context) ([]DetalleHospi
 
 func (s service) GetDetalleHospitalizacionPorHospitalizacion(ctx context.Context, idHospitalizacion int) ([]DetalleHospitalizacionConResponsable, error) {
 	detallesHospitalizacion, err := s.repo.GetDetalleHospitalizacionPorHospitalizacion(ctx, idHospitalizacion)
+	if err != nil {
+		return []DetalleHospitalizacionConResponsable{}, err
+	}
+	return detallesHospitalizacion, nil
+}
+
+func (s service) GetDetalleHospitalizacionPorHospitalizacion2(ctx context.Context, idHospitalizacion int) ([]DetalleHospitalizacionConResponsable, error) {
+	detallesHospitalizacion, err := s.repo.GetDetalleHospitalizacionPorHospitalizacion2(ctx, idHospitalizacion)
 	if err != nil {
 		return []DetalleHospitalizacionConResponsable{}, err
 	}

@@ -16,6 +16,7 @@ type Repository interface {
 	// GetHospitalizaciones returns the list hospitalizaciones.
 	GetHospitalizaciones(ctx context.Context) ([]entity.Hospitalizacion, error)
 	GetHospitalizacionesActivas(ctx context.Context) ([]HospitalizacionesActivas, error)
+	GetHospitalizacionesFinalizadas(ctx context.Context) ([]HospitalizacionesActivas, error)
 	CrearHospitalizacion(ctx context.Context, hospitalizacion entity.Hospitalizacion) (entity.Hospitalizacion, error)
 	ActualizarHospitalizacion(ctx context.Context, hospitalizacion entity.Hospitalizacion) (entity.Hospitalizacion, error)
 }
@@ -52,6 +53,57 @@ func (r repository) GetHospitalizacionesActivas(ctx context.Context) ([]Hospital
 	err := r.db.With(ctx).
 		Select().
 		Where(dbx.NewExp("estado_hospitalizacion = 'ACTIVA'")).
+		All(&hospitalizaciones)
+	if err != nil {
+		return []HospitalizacionesActivas{}, err
+	}
+
+	for i := 0; i < len(hospitalizaciones); i++ {
+		var mascota entity.Mascota
+		var especie entity.Especie
+		var consulta entity.Consulta
+
+		err := r.db.With(ctx).
+			Select().
+			From("consulta").
+			Where(dbx.HashExp{"id_consulta": hospitalizaciones[i].IdConsulta}).
+			One(&consulta)
+		if err != nil {
+			return []HospitalizacionesActivas{}, err
+		}
+
+		err = r.db.With(ctx).
+			Select().
+			From("mascotas").
+			Where(dbx.HashExp{"id_mascota": consulta.IdMascota}).
+			One(&mascota)
+		if err != nil {
+			return []HospitalizacionesActivas{}, err
+		}
+
+		err = r.db.With(ctx).
+			Select().
+			From("mascotas as m").
+			InnerJoin("especies as e", dbx.NewExp("e.id_especie = m.id_especie")).
+			Where(dbx.HashExp{"m.id_mascota": mascota.IdMascota}).
+			One(&especie)
+		if err != nil {
+			return []HospitalizacionesActivas{}, err
+		}
+
+		hospitalizacionesActivas = append(hospitalizacionesActivas, HospitalizacionesActivas{Hospitalizacion: hospitalizaciones[i], Mascota: mascota, Especie: especie, Consulta: consulta})
+	}
+
+	return hospitalizacionesActivas, err
+}
+
+func (r repository) GetHospitalizacionesFinalizadas(ctx context.Context) ([]HospitalizacionesActivas, error) {
+	var hospitalizaciones []entity.Hospitalizacion
+	var hospitalizacionesActivas []HospitalizacionesActivas = []HospitalizacionesActivas{}
+
+	err := r.db.With(ctx).
+		Select().
+		Where(dbx.NewExp("estado_hospitalizacion = 'FINALIZADO'")).
 		All(&hospitalizaciones)
 	if err != nil {
 		return []HospitalizacionesActivas{}, err

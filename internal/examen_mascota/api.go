@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"strconv"
 	"veterinaria-server/internal/consultas"
+	"veterinaria-server/internal/detalle_hospitalizacion"
 	"veterinaria-server/internal/errors"
 	"veterinaria-server/internal/hospitalizacion"
 	"veterinaria-server/pkg/dbcontext"
@@ -138,6 +139,18 @@ func (r resource) actualizarExamenMascota(c *routing.Context) error {
 		})
 		if err2 != nil {
 			return err2
+		}
+
+		sdh := detalle_hospitalizacion.NewService(detalle_hospitalizacion.NewRepository(r.db, r.logger), r.logger)
+		_, errSdh := sdh.ActualizarDetalleHospitalizacion(c.Request.Context(), detalle_hospitalizacion.UpdateDetalleHospitalizacionRequest{
+			IdDetalleHospitalizacion: 0,
+			IdHospitalizacion:        hospitalizacionBD.IdHospitalizacion,
+			IdUsuario:                examenesMascota.IdUsuario,
+			Descripcion:              "Se solicitó el siguiente examen: " + input.DTipoExamen,
+			Fecha:                    examenesMascota.FechaSolicitud,
+		})
+		if errSdh != nil {
+			return errSdh
 		}
 	}
 

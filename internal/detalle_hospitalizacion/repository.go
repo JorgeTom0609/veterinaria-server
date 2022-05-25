@@ -16,6 +16,7 @@ type Repository interface {
 	// GetDetallesHospitalizacion returns the list detallesHospitalizacion.
 	GetDetallesHospitalizacion(ctx context.Context) ([]entity.DetalleHospitalizacion, error)
 	GetDetalleHospitalizacionPorHospitalizacion(ctx context.Context, idHospitalizacion int) ([]DetalleHospitalizacionConResponsable, error)
+	GetDetalleHospitalizacionPorHospitalizacion2(ctx context.Context, idHospitalizacion int) ([]DetalleHospitalizacionConResponsable, error)
 	CrearDetalleHospitalizacion(ctx context.Context, detalleHospitalizacion entity.DetalleHospitalizacion) (entity.DetalleHospitalizacion, error)
 	ActualizarDetalleHospitalizacion(ctx context.Context, detalleHospitalizacion entity.DetalleHospitalizacion) (entity.DetalleHospitalizacion, error)
 }
@@ -72,6 +73,42 @@ func (r repository) GetDetalleHospitalizacionPorHospitalizacion(ctx context.Cont
 		}
 
 		detallesHospitalizacion[i].Descripcion = detallesHospitalizacion[i].Descripcion + " - " + (apellido + " " + nombre)
+
+		detallesHospitalizacionConResponsable = append(detallesHospitalizacionConResponsable, DetalleHospitalizacionConResponsable{
+			DetalleHospitalizacion: detallesHospitalizacion[i],
+			Usuario:                (apellido + " " + nombre),
+		})
+
+	}
+
+	return detallesHospitalizacionConResponsable, err
+}
+
+func (r repository) GetDetalleHospitalizacionPorHospitalizacion2(ctx context.Context, idHospitalizacion int) ([]DetalleHospitalizacionConResponsable, error) {
+	var detallesHospitalizacion []entity.DetalleHospitalizacion
+	var detallesHospitalizacionConResponsable []DetalleHospitalizacionConResponsable = []DetalleHospitalizacionConResponsable{}
+
+	err := r.db.With(ctx).
+		Select().
+		From().
+		Where(dbx.HashExp{"id_hospitalizacion": idHospitalizacion}).
+		All(&detallesHospitalizacion)
+	if err != nil {
+		return detallesHospitalizacionConResponsable, err
+	}
+
+	for i := 0; i < len(detallesHospitalizacion); i++ {
+		var nombre string = ""
+		var apellido string = ""
+
+		err := r.db.With(ctx).
+			Select("apellido", "nombre").
+			From("usuarios").
+			Where(dbx.HashExp{"id_usuario": detallesHospitalizacion[i].IdUsuario}).
+			Row(&apellido, &nombre)
+		if err != nil {
+			return []DetalleHospitalizacionConResponsable{}, err
+		}
 
 		detallesHospitalizacionConResponsable = append(detallesHospitalizacionConResponsable, DetalleHospitalizacionConResponsable{
 			DetalleHospitalizacion: detallesHospitalizacion[i],

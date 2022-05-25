@@ -169,6 +169,7 @@ type UpdateExamenMascotaRequest struct {
 	Tabla           string     `json:"tabla"`
 	Estado          string     `json:"estado"`
 	Valor           float32    `json:"valor"`
+	DTipoExamen     string     `json:"d_tipo_examen"`
 }
 
 // Validate validates the UpdateExamenMascotaRequest fields.

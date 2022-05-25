@@ -17,6 +17,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/detallesHospitalizacion", res.getDetallesHospitalizacion)
 	r.Get("/detallesHospitalizacion/<idDetalleHospitalizacion>", res.getDetalleHospitalizacionPorId)
 	r.Get("/detallesHospitalizacion/porHospitalizacion/<idHospitalizacion>", res.getDetalleHospitalizacionPorHospitalizacion)
+	r.Get("/detallesHospitalizacion/porHospitalizacion2/<idHospitalizacion>", res.getDetalleHospitalizacionPorHospitalizacion2)
 	r.Post("/detallesHospitalizacion", res.crearDetalleHospitalizacion)
 	r.Put("/detallesHospitalizacion", res.actualizarDetalleHospitalizacion)
 }
@@ -37,6 +38,15 @@ func (r resource) getDetallesHospitalizacion(c *routing.Context) error {
 func (r resource) getDetalleHospitalizacionPorHospitalizacion(c *routing.Context) error {
 	idHospitalizacion, _ := strconv.Atoi(c.Param("idHospitalizacion"))
 	detallesHospitalizacion, err := r.service.GetDetalleHospitalizacionPorHospitalizacion(c.Request.Context(), idHospitalizacion)
+	if err != nil {
+		return err
+	}
+	return c.Write(detallesHospitalizacion)
+}
+
+func (r resource) getDetalleHospitalizacionPorHospitalizacion2(c *routing.Context) error {
+	idHospitalizacion, _ := strconv.Atoi(c.Param("idHospitalizacion"))
+	detallesHospitalizacion, err := r.service.GetDetalleHospitalizacionPorHospitalizacion2(c.Request.Context(), idHospitalizacion)
 	if err != nil {
 		return err
 	}

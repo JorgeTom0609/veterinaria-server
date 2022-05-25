@@ -19,6 +19,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	// the following endpoints require a valid JWT
 	r.Get("/hospitalizaciones", res.getHospitalizaciones)
 	r.Get("/hospitalizaciones/activas", res.getHospitalizacionesActivas)
+	r.Get("/hospitalizaciones/finalizadas", res.getHospitalizacionesFinalizadas)
 	r.Get("/hospitalizaciones/<idHospitalizacion>", res.getHospitalizacionPorId)
 	r.Post("/hospitalizaciones", res.crearHospitalizacion)
 	r.Put("/hospitalizaciones", res.actualizarHospitalizacion)
@@ -40,6 +41,14 @@ func (r resource) getHospitalizaciones(c *routing.Context) error {
 
 func (r resource) getHospitalizacionesActivas(c *routing.Context) error {
 	hospitalizaciones, err := r.service.GetHospitalizacionesActivas(c.Request.Context())
+	if err != nil {
+		return err
+	}
+	return c.Write(hospitalizaciones)
+}
+
+func (r resource) getHospitalizacionesFinalizadas(c *routing.Context) error {
+	hospitalizaciones, err := r.service.GetHospitalizacionesFinalizadas(c.Request.Context())
 	if err != nil {
 		return err
 	}
