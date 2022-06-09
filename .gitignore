@@ -40,3 +40,6 @@ resources/*
 
 #documentos-mascota folder and files 
 documentos-mascota/*
+
+#BD para whatsapp
+wapp.db

@@ -60,6 +60,17 @@ import (
 	"github.com/go-ozzo/ozzo-routing/v2/cors"
 	"github.com/go-ozzo/ozzo-routing/v2/file"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/mileusna/crontab"
+	"google.golang.org/protobuf/proto"
+
+	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/mdp/qrterminal"
+	"go.mau.fi/whatsmeow"
+	waProto "go.mau.fi/whatsmeow/binary/proto"
+	"go.mau.fi/whatsmeow/store/sqlstore"
+	"go.mau.fi/whatsmeow/types"
+	waLog "go.mau.fi/whatsmeow/util/log"
 )
 
 // Version indicates the current version of the application.
@@ -325,7 +336,100 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		}))
 	}
 
+	wac, err := WAConnect()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	cron := crontab.New()
+	err = cron.AddJob("* * * * *", func() {
+		if !wac.IsLoggedIn() {
+			wac, err = WAConnect()
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		_, err = wac.SendMessage(types.JID{
+			User:   "593982351134",
+			Server: types.DefaultUserServer,
+		}, "", &waProto.Message{
+			Conversation: proto.String("Prueba de envío cada 5 horas"),
+		})
+		if err != nil {
+			fmt.Println(err)
+		}
+		/*_, err = wac.SendMessage(types.JID{
+			User:   "593995959720",
+			Server: types.DefaultUserServer,
+		}, "", &waProto.Message{
+			Conversation: proto.String("Prueba de envío cada 5 horas"),
+		})
+		if err != nil {
+			fmt.Println(err)
+		}*/
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	err = cron.AddJob("55 22 * * *", func() {
+		if !wac.IsLoggedIn() {
+			wac, err = WAConnect()
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		_, err = wac.SendMessage(types.JID{
+			User:   "593982351134",
+			Server: types.DefaultUserServer,
+		}, "", &waProto.Message{
+			Conversation: proto.String("Prueba de envío a hora exacta 22:55"),
+		})
+		if err != nil {
+			fmt.Println(err)
+		}
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
 	return router
+}
+
+func WAConnect() (*whatsmeow.Client, error) {
+	container, err := sqlstore.New("sqlite3", "file:wapp.db?_foreign_keys=on", waLog.Noop)
+	if err != nil {
+		return nil, err
+	}
+	deviceStore, err := container.GetFirstDevice()
+	if err != nil {
+		panic(err)
+	}
+	client := whatsmeow.NewClient(deviceStore, waLog.Noop)
+	if client.Store.ID == nil {
+		// No ID stored, new login
+		qrChan, _ := client.GetQRChannel(context.Background())
+		err = client.Connect()
+		if err != nil {
+			return nil, err
+		}
+		for evt := range qrChan {
+			if evt.Event == "code" {
+				qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
+			} else {
+				fmt.Println("Login event:", evt.Event)
+			}
+		}
+	} else {
+		err := client.Connect()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return client, nil
 }
 
 // logDBQuery returns a logging function that can be used to log SQL queries.
