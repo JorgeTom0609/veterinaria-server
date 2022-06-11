@@ -392,6 +392,29 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		fmt.Println(err)
 		return nil
 	}
+
+	err = cron.AddJob("* * * * *", func() {
+		wac, err = WAConnect()
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		_, err = wac.SendMessage(types.JID{
+			User:   "593960270781",
+			Server: types.DefaultUserServer,
+		}, "", &waProto.Message{
+			Conversation: proto.String("Whatsapp funcionando"),
+		})
+		if err != nil {
+			fmt.Println(err)
+		}
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
 	return router
 }
 
