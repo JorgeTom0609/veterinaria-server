@@ -93,6 +93,8 @@ func (r repository) GetConsultaPorMesYAnio(ctx context.Context, mes int, anio in
 	var consultas []entity.Consulta
 	var consultasConDatos []ConsultaConDatos
 	var nombreMascota string
+	var citasMedica []entity.CitaMedica
+
 	err := r.db.With(ctx).
 		Select().
 		Where(dbx.HashExp{"YEAR(fecha)": anio}).
@@ -118,6 +120,53 @@ func (r repository) GetConsultaPorMesYAnio(ctx context.Context, mes int, anio in
 			nombreMascota,
 		})
 	}
+
+	//Agendados
+
+	err = r.db.With(ctx).
+		Select().
+		From().
+		Where(dbx.NewExp("DATE(now()) <= fecha")).
+		All(&citasMedica)
+	if err != nil {
+		return []ConsultaConDatos{}, err
+	}
+
+	for i := 0; i < len(citasMedica); i++ {
+		idMascota := citasMedica[i].IdMascota
+		err = r.db.With(ctx).
+			Select("nombre").
+			From("mascotas").
+			Where(dbx.HashExp{"id_mascota": idMascota}).
+			Row(&nombreMascota)
+		if err != nil {
+			return []ConsultaConDatos{}, err
+		}
+
+		consultasConDatos = append(consultasConDatos, ConsultaConDatos{
+			entity.Consulta{
+				IdConsulta:             0,
+				IdMascota:              citasMedica[i].IdMascota,
+				IdUsuario:              0,
+				Fecha:                  citasMedica[i].Fecha,
+				Valor:                  0,
+				Motivo:                 &citasMedica[i].Motivo,
+				Temperatura:            nil,
+				Peso:                   nil,
+				Tamaño:                 nil,
+				CondicionCorporal:      nil,
+				NivelesDeshidratacion:  nil,
+				Diagnostico:            nil,
+				Edad:                   nil,
+				TiempoLlenadoCapilar:   0,
+				FrecuenciaCardiaca:     0,
+				FrecuenciaRespiratoria: 0,
+				EstadoConsulta:         "",
+			},
+			nombreMascota,
+		})
+	}
+
 	return consultasConDatos, err
 }
 

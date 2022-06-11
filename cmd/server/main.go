@@ -13,6 +13,7 @@ import (
 	"veterinaria-server/internal/accesos"
 	"veterinaria-server/internal/album"
 	"veterinaria-server/internal/auth"
+	"veterinaria-server/internal/cita_medica"
 	"veterinaria-server/internal/clientes"
 	"veterinaria-server/internal/compra"
 	"veterinaria-server/internal/config"
@@ -318,6 +319,11 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		authHandler, logger,
 	)
 
+	cita_medica.RegisterHandlers(rg.Group(""),
+		cita_medica.NewService(cita_medica.NewRepository(db, logger), logger),
+		authHandler, logger,
+	)
+
 	auth.RegisterHandlers(rg.Group(""),
 		auth.NewService(db, cfg.JWTSigningKey, cfg.JWTExpiration, logger),
 		logger,
@@ -342,53 +348,43 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 	}
 
 	cron := crontab.New()
-	err = cron.AddJob("* * * * *", func() {
-		if !wac.IsLoggedIn() {
-			wac, err = WAConnect()
+
+	//err = cron.AddJob("*/5 * * * *", func() {
+	err = cron.AddJob("00 10 * * *", func() {
+		wac, err = WAConnect()
+		if err != nil {
+			fmt.Println(err)
+		}
+		ctx := context.Background()
+		//Buscar Citas Sin notificar
+		scm := cita_medica.NewService(cita_medica.NewRepository(db, logger), logger)
+		citas, err1 := scm.GetCitasMedicaSinNotificar(ctx)
+
+		if err1 != nil {
+			return
+		}
+
+		for i := 0; i < len(citas); i++ {
+			_, err = wac.SendMessage(types.JID{
+				User:   citas[i].Telefono,
+				Server: types.DefaultUserServer,
+			}, "", &waProto.Message{
+				Conversation: proto.String("Saludos " + citas[i].Duenio +
+					", veterinaria DELFICAR le informa que el día *" + Format(citas[i].Fecha) +
+					"* tiene agendada una cita médica para su mascota *" + citas[i].Mascota +
+					"* por el siguiente motivo: *" + citas[i].Motivo + "*."),
+			})
 			if err != nil {
 				fmt.Println(err)
+			} else {
+				_, _ = scm.ActualizarCitaMedica(ctx, cita_medica.UpdateCitaMedicaRequest{
+					IdCitaMedica:       citas[i].IdCitaMedica,
+					IdMascota:          citas[i].IdMascota,
+					Motivo:             citas[i].Motivo,
+					Fecha:              citas[i].Fecha,
+					EstadoNotificacion: "SI",
+				})
 			}
-		}
-		_, err = wac.SendMessage(types.JID{
-			User:   "593982351134",
-			Server: types.DefaultUserServer,
-		}, "", &waProto.Message{
-			Conversation: proto.String("Prueba de envío cada 5 horas"),
-		})
-		if err != nil {
-			fmt.Println(err)
-		}
-		/*_, err = wac.SendMessage(types.JID{
-			User:   "593995959720",
-			Server: types.DefaultUserServer,
-		}, "", &waProto.Message{
-			Conversation: proto.String("Prueba de envío cada 5 horas"),
-		})
-		if err != nil {
-			fmt.Println(err)
-		}*/
-	})
-
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-
-	err = cron.AddJob("55 22 * * *", func() {
-		if !wac.IsLoggedIn() {
-			wac, err = WAConnect()
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
-		_, err = wac.SendMessage(types.JID{
-			User:   "593982351134",
-			Server: types.DefaultUserServer,
-		}, "", &waProto.Message{
-			Conversation: proto.String("Prueba de envío a hora exacta 22:55"),
-		})
-		if err != nil {
-			fmt.Println(err)
 		}
 	})
 
@@ -397,6 +393,21 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		return nil
 	}
 	return router
+}
+
+func Format(t time.Time) string {
+	//days[t.Weekday()][:3], t.Day(), months[t.Month()-1][:3],
+	return fmt.Sprintf("%s %02d de %s a las %02d:%02d",
+		days[t.Weekday()], t.Day(), months[t.Month()-1], t.Hour(), t.Minute(),
+	)
+}
+
+var days = [...]string{
+	"Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"}
+
+var months = [...]string{
+	"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+	"Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 }
 
 func WAConnect() (*whatsmeow.Client, error) {
