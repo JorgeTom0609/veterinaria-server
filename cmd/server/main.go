@@ -393,7 +393,7 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		return nil
 	}
 
-	err = cron.AddJob("* * * * *", func() {
+	err = cron.AddJob("00 08 * * *", func() {
 		wac, err = WAConnect()
 		if err != nil {
 			fmt.Println(err)
