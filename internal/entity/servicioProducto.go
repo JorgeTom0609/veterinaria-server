@@ -6,6 +6,7 @@ type ServicioProducto struct {
 	IdProducto         int      `json:"id_producto" db:"id_producto"`
 	Cantidad           float32  `json:"cantidad" db:"cantidad"`
 	Razon              *float32 `json:"razon" db:"razon"`
+	Estado             string   `json:"estado" db:"estado"`
 }
 
 func (c ServicioProducto) TableName() string {

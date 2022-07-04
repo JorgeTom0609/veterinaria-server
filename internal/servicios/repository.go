@@ -81,6 +81,7 @@ func (r repository) GetServicioPorEspecie(ctx context.Context, idEspecie int, mo
 			Select("count(id_servicio)").
 			From("servicio_producto").
 			Where(dbx.HashExp{"id_servicio": idServicio}).
+			AndWhere(dbx.HashExp{"estado": "A"}).
 			Row(&cant)
 		if err != nil {
 			return []ServicioTieneProductos{}, err
@@ -113,6 +114,7 @@ func (r repository) GetServiciosConProductos(ctx context.Context) ([]ServicioTie
 			Select("count(id_servicio)").
 			From("servicio_producto").
 			Where(dbx.HashExp{"id_servicio": idServicio}).
+			AndWhere(dbx.HashExp{"estado": "A"}).
 			Row(&cant)
 		if err != nil {
 			return []ServicioTieneProductos{}, err

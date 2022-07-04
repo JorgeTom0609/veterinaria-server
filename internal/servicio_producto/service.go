@@ -73,6 +73,7 @@ type CreateServicioProductoRequest struct {
 	IdProducto int      `json:"id_producto"`
 	Cantidad   float32  `json:"cantidad"`
 	Razon      *float32 `json:"razon"`
+	Estado     string   `json:"estado"`
 }
 
 type UpdateServicioProductoRequest struct {
@@ -81,6 +82,7 @@ type UpdateServicioProductoRequest struct {
 	IdProducto         int      `json:"id_producto"`
 	Cantidad           float32  `json:"cantidad"`
 	Razon              *float32 `json:"razon"`
+	Estado             string   `json:"estado"`
 }
 
 // Validate validates the UpdateServicioProductoRequest fields.
@@ -111,6 +113,7 @@ func (s service) CrearServicioProducto(ctx context.Context, req CreateServicioPr
 		IdProducto: req.IdProducto,
 		Cantidad:   req.Cantidad,
 		Razon:      req.Razon,
+		Estado:     req.Estado,
 	})
 	if err != nil {
 		return ServicioProducto{}, err
@@ -129,6 +132,7 @@ func (s service) ActualizarServicioProducto(ctx context.Context, req UpdateServi
 		IdProducto:         req.IdProducto,
 		Cantidad:           req.Cantidad,
 		Razon:              req.Razon,
+		Estado:             req.Estado,
 	})
 	if err != nil {
 		return ServicioProducto{}, err

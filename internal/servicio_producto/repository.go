@@ -39,6 +39,7 @@ func (r repository) GetServicioProductos(ctx context.Context) ([]entity.Servicio
 	err := r.db.With(ctx).
 		Select().
 		From().
+		Where(dbx.HashExp{"estado": "A"}).
 		All(&servicioProductos)
 	if err != nil {
 		return servicioProductos, err
@@ -53,6 +54,7 @@ func (r repository) GetServicioProductosConDatos(ctx context.Context) ([]Servici
 	err := r.db.With(ctx).
 		Select().
 		From().
+		Where(dbx.HashExp{"estado": "A"}).
 		All(&servicioProductos)
 
 	if err != nil {
@@ -131,6 +133,7 @@ func (r repository) GetServicioProductoPorServicio(ctx context.Context, idServic
 	err := r.db.With(ctx).
 		Select().
 		Where(dbx.HashExp{"id_servicio": idServicio}).
+		AndWhere(dbx.HashExp{"estado": "A"}).
 		All(&servicioProductos)
 
 	if err != nil {

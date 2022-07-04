@@ -197,7 +197,7 @@ func (r repository) GetProductosConStockUsoInternoPorServicio(ctx context.Contex
 	err := r.db.With(ctx).
 		Select().
 		From("producto p").
-		InnerJoin("servicio_producto as sp", dbx.NewExp("sp.id_producto = p.id_producto")).
+		InnerJoin("servicio_producto as sp", dbx.NewExp("sp.id_producto = p.id_producto and sp.estado = 'A'")).
 		Where(dbx.NewExp("p.uso_interno = true")).
 		AndWhere(dbx.HashExp{"sp.id_servicio": idServicio}).
 		All(&productos)
