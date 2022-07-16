@@ -416,7 +416,7 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		return nil
 	}
 
-	err = cron.AddJob("00 10 * * 1,4", func() {
+	err = cron.AddJob("00 09 * * 1,4", func() {
 		wac, err = WAConnect()
 		if err != nil {
 			fmt.Println(err)
