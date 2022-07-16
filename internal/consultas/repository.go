@@ -19,6 +19,7 @@ type Repository interface {
 	GetConsultas(ctx context.Context) ([]entity.Consulta, error)
 	GetConsultaPorMesYAnio(ctx context.Context, mes int, anio int) ([]ConsultaConDatos, error)
 	GetConsultaPorMascota(ctx context.Context, idMascota int) ([]entity.Consulta, error)
+	GetConsultaRecetaServicios(ctx context.Context, idConsulta int) (RecetaServicios, error)
 	CrearConsulta(ctx context.Context, consulta entity.Consulta) (entity.Consulta, error)
 	ActualizarConsulta(ctx context.Context, consulta entity.Consulta) (entity.Consulta, error)
 }
@@ -181,4 +182,32 @@ func (r repository) GetConsultaPorMascota(ctx context.Context, idMascota int) ([
 		return consultas, err
 	}
 	return consultas, err
+}
+
+func (r repository) GetConsultaRecetaServicios(ctx context.Context, idConsulta int) (RecetaServicios, error) {
+	var recetaServicios RecetaServicios = RecetaServicios{}
+	var servicios []ServicioConDatos = []ServicioConDatos{}
+	var receta []RecetaConDatos = []RecetaConDatos{}
+
+	err := r.db.With(ctx).
+		Select("s.descripcion as servicio", "s.valor").
+		From("detalles_servicios_consulta dsc").
+		InnerJoin("servicios as s", dbx.NewExp("s.id_servicio = dsc.id_servicio")).
+		Where(dbx.HashExp{"id_consulta": idConsulta}).
+		All(&servicios)
+	if err != nil {
+		return RecetaServicios{}, err
+	}
+	err = r.db.With(ctx).
+		Select("p.descripcion as producto", "r.prescripcion").
+		From("receta r").
+		InnerJoin("producto p", dbx.NewExp("p.id_producto = r.id_producto")).
+		Where(dbx.HashExp{"id_consulta": idConsulta}).
+		All(&receta)
+	if err != nil {
+		return RecetaServicios{}, err
+	}
+	recetaServicios.Receta = receta
+	recetaServicios.Servicios = servicios
+	return recetaServicios, err
 }

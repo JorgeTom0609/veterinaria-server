@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"strconv"
 	"time"
 
 	"veterinaria-server/internal/accesos"
@@ -407,6 +408,41 @@ func buildHandler(logger log.Logger, db *dbcontext.DB, cfg *config.Config) http.
 		})
 		if err != nil {
 			fmt.Println(err)
+		}
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	err = cron.AddJob("00 10 * * 1,4", func() {
+		wac, err = WAConnect()
+		if err != nil {
+			fmt.Println(err)
+		}
+		ctx := context.Background()
+		//Buscar Citas Sin notificar
+		pro := productos.NewService(productos.NewRepository(db, logger), logger)
+		productos, err1 := pro.GetProductosPocoStock(ctx)
+
+		if err1 != nil {
+			return
+		}
+
+		if len(productos) > 0 {
+			mensaje := "*Alerta de poco stock*\n"
+
+			for i := 0; i < len(productos); i++ {
+				mensaje = mensaje + "Producto: *" + productos[i].Producto + "*, Stock: *" + strconv.Itoa(productos[i].Stock) + "*\n\n"
+			}
+			mensaje = mensaje + "."
+			_, err = wac.SendMessage(types.JID{
+				User:   "593969708327",
+				Server: types.DefaultUserServer,
+			}, "", &waProto.Message{
+				Conversation: proto.String(mensaje),
+			})
 		}
 	})
 

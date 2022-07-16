@@ -17,12 +17,14 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/productos", res.getProductos)
 	r.Get("/productos/sinAsignar/<idProveedor>", res.getProductosSinAsignarAProveedor)
 	r.Get("/productos/stock", res.getProductosStock)
+	r.Get("/productos/pocoStock", res.getProductosPocoStock)
 	r.Get("/productos/caducados", res.getProductosCaducados)
 	r.Get("/productos/conStock", res.getProductosConStock)
 	r.Get("/productos/conStockUsoInternoPorServicio/<idServicio>", res.getProductosConStockUsoInternoPorServicio)
 	r.Get("/productos/usoInterno", res.getProductosUsoInterno)
 	r.Get("/productos/<idProducto>", res.getProductoPorId)
 	r.Get("/productos/comparacion/<idProveedor1>/<idProveedor2>", res.getProductosAComparar)
+	r.Get("/productos/codigoBarra/<codigoBarra>", res.getProductoCodigoBarra)
 	r.Post("/productos", res.crearProducto)
 	r.Put("/productos", res.actualizarProducto)
 }
@@ -133,4 +135,21 @@ func (r resource) getProductoPorId(c *routing.Context) error {
 		return err
 	}
 	return c.Write(producto)
+}
+
+func (r resource) getProductoCodigoBarra(c *routing.Context) error {
+	codigoBarra := c.Param("codigoBarra")
+	producto, err := r.service.GetProductoCodigoBarra(c.Request.Context(), codigoBarra)
+	if err != nil {
+		return err
+	}
+	return c.Write(producto)
+}
+
+func (r resource) getProductosPocoStock(c *routing.Context) error {
+	productos, err := r.service.GetProductosPocoStock(c.Request.Context())
+	if err != nil {
+		return err
+	}
+	return c.Write(productos)
 }

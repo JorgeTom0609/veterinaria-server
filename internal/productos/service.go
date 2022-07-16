@@ -21,6 +21,8 @@ type Service interface {
 	GetProductosUsoInterno(ctx context.Context) ([]ProductoUsoInterno, error)
 	GetProductosAComparar(ctx context.Context, idProveedor1 int, idProveedor2 int) ([]ProductoComparado, error)
 	GetProductoPorId(ctx context.Context, idProducto int) (Producto, error)
+	GetProductoCodigoBarra(ctx context.Context, codigoBarra string) (ProductosConStock, error)
+	GetProductosPocoStock(ctx context.Context) ([]ProductoPocoStock, error)
 	CrearProducto(ctx context.Context, input CreateProductoRequest) (Producto, error)
 	ActualizarProducto(ctx context.Context, input UpdateProductoRequest) (Producto, error)
 }
@@ -28,6 +30,12 @@ type Service interface {
 // Productos represents the data about an productos.
 type Producto struct {
 	entity.Producto
+}
+
+type ProductoPocoStock struct {
+	Producto    string `json:"producto"`
+	Stock       int    `json:"stock"`
+	StockMinimo int    `json:"stock_minimo"`
 }
 
 type ProductoComparado struct {
@@ -50,6 +58,7 @@ type ProductoStock struct {
 
 type ProductosConStock struct {
 	StockPorProducto int             `json:"stock_por_producto"`
+	Medida           string          `json:"medida"`
 	Producto         entity.Producto `json:"producto"`
 	Lote             []LoteConStock  `json:"lotes"`
 }
@@ -239,4 +248,20 @@ func (s service) GetProductoPorId(ctx context.Context, idProducto int) (Producto
 		return Producto{}, err
 	}
 	return Producto{producto}, nil
+}
+
+func (s service) GetProductoCodigoBarra(ctx context.Context, codigoBarra string) (ProductosConStock, error) {
+	producto, err := s.repo.GetProductoCodigoBarra(ctx, codigoBarra)
+	if err != nil {
+		return ProductosConStock{}, err
+	}
+	return producto, nil
+}
+
+func (s service) GetProductosPocoStock(ctx context.Context) ([]ProductoPocoStock, error) {
+	productos, err := s.repo.GetProductosPocoStock(ctx)
+	if err != nil {
+		return []ProductoPocoStock{}, err
+	}
+	return productos, nil
 }

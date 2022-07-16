@@ -16,6 +16,7 @@ type Service interface {
 	GetConsultaActiva(ctx context.Context, idUsuario int) (Consulta, error)
 	GetConsultaPorMesYAnio(ctx context.Context, mes int, anio int) ([]ConsultaConDatos, error)
 	GetConsultaPorMascota(ctx context.Context, idMascota int) ([]Consulta, error)
+	GetConsultaRecetaServicios(ctx context.Context, idConsulta int) (RecetaServicios, error)
 	CrearConsulta(ctx context.Context, input CreateConsultaRequest) (Consulta, error)
 	ActualizarConsulta(ctx context.Context, input UpdateConsultaRequest) (Consulta, error)
 }
@@ -23,6 +24,21 @@ type Service interface {
 // Consultas represents the data about an consultas.
 type Consulta struct {
 	entity.Consulta
+}
+
+type RecetaServicios struct {
+	Receta    []RecetaConDatos   `json:"receta"`
+	Servicios []ServicioConDatos `json:"servicios"`
+}
+
+type RecetaConDatos struct {
+	Producto     string `json:"producto"`
+	Prescripcion string `json:"prescripcion"`
+}
+
+type ServicioConDatos struct {
+	Servicio string  `json:"servicio"`
+	Valor    float32 `json:"valor"`
 }
 
 type ConsultaConDatos struct {
@@ -203,4 +219,12 @@ func (s service) GetConsultaPorMascota(ctx context.Context, idMascota int) ([]Co
 		result = append(result, Consulta{item})
 	}
 	return result, nil
+}
+
+func (s service) GetConsultaRecetaServicios(ctx context.Context, idConsulta int) (RecetaServicios, error) {
+	recetaServicios, err := s.repo.GetConsultaRecetaServicios(ctx, idConsulta)
+	if err != nil {
+		return RecetaServicios{}, err
+	}
+	return recetaServicios, nil
 }

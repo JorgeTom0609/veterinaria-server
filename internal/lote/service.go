@@ -51,6 +51,7 @@ type CreateLoteRequest struct {
 	FechaCaducidad      *time.Time `json:"fecha_caducidad"`
 	Stock               int        `json:"stock"`
 	Descripcion         string     `json:"descripcion"`
+	CodigoBarra         *string    `json:"codigo_barra"`
 }
 
 type UpdateLoteRequest struct {
@@ -59,6 +60,7 @@ type UpdateLoteRequest struct {
 	FechaCaducidad      *time.Time `json:"fecha_caducidad"`
 	Stock               int        `json:"stock"`
 	Descripcion         string     `json:"descripcion"`
+	CodigoBarra         *string    `json:"codigo_barra"`
 }
 
 // Validate validates the UpdateLoteRequest fields.
@@ -87,6 +89,7 @@ func (s service) CrearLote(ctx context.Context, req CreateLoteRequest) (Lote, er
 		FechaCaducidad:      req.FechaCaducidad,
 		Stock:               req.Stock,
 		Descripcion:         req.Descripcion,
+		CodigoBarra:         req.CodigoBarra,
 	})
 	if err != nil {
 		return Lote{}, err
@@ -105,6 +108,7 @@ func (s service) ActualizarLote(ctx context.Context, req UpdateLoteRequest) (Lot
 		FechaCaducidad:      req.FechaCaducidad,
 		Stock:               req.Stock,
 		Descripcion:         req.Descripcion,
+		CodigoBarra:         req.CodigoBarra,
 	})
 	if err != nil {
 		return Lote{}, err

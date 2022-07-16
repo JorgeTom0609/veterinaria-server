@@ -10,6 +10,7 @@ type Lote struct {
 	FechaCaducidad      *time.Time `json:"fecha_caducidad" db:"fecha_caducidad"`
 	Stock               int        `json:"stock" db:"stock"`
 	Descripcion         string     `json:"descripcion" db:"descripcion"`
+	CodigoBarra         *string    `json:"codigo_barra" db:"codigo_barra"`
 }
 
 func (r Lote) TableName() string {

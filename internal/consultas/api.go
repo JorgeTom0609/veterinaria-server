@@ -17,6 +17,7 @@ func RegisterHandlers(r *routing.RouteGroup, service Service, authHandler routin
 	r.Get("/consultas", res.getConsultas)
 	r.Get("/consultas/porMesYAnio/<mes>/<anio>", res.getConsultaPorMesYAnio)
 	r.Get("/consultas/porMascota/<idMascota>", res.getConsultaPorMascota)
+	r.Get("/consultas/recetaServicios/<idConsulta>", res.getConsultaRecetaServicios)
 	r.Get("/consultas/<idConsulta>", res.getConsultaPorId)
 	r.Get("/consultas/activa/<idUsuario>", res.getConsultaActiva)
 	r.Post("/consultas", res.crearConsulta)
@@ -93,6 +94,15 @@ func (r resource) getConsultaPorMesYAnio(c *routing.Context) error {
 func (r resource) getConsultaPorMascota(c *routing.Context) error {
 	idMascota, _ := strconv.Atoi(c.Param("idMascota"))
 	consulta, err := r.service.GetConsultaPorMascota(c.Request.Context(), idMascota)
+	if err != nil {
+		return err
+	}
+	return c.Write(consulta)
+}
+
+func (r resource) getConsultaRecetaServicios(c *routing.Context) error {
+	idConsulta, _ := strconv.Atoi(c.Param("idConsulta"))
+	consulta, err := r.service.GetConsultaRecetaServicios(c.Request.Context(), idConsulta)
 	if err != nil {
 		return err
 	}
