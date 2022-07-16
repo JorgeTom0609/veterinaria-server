@@ -170,7 +170,7 @@ func (r repository) GetProductosConStock(ctx context.Context) ([]ProductosConSto
 
 				err = r.db.With(ctx).
 					Select("descripcion").
-					From("Unidad").
+					From("unidad").
 					Where(dbx.HashExp{"id_unidad": productos[i].IdUnidad}).
 					Row(&medida)
 				if err != nil {
@@ -401,7 +401,7 @@ func (r repository) GetProductoCodigoBarra(ctx context.Context, codigoBarra stri
 
 		err = r.db.With(ctx).
 			Select("descripcion").
-			From("Unidad").
+			From("unidad").
 			Where(dbx.HashExp{"id_unidad": producto.IdUnidad}).
 			Row(&medida)
 		if err != nil {
